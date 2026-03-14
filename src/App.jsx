@@ -2063,7 +2063,6 @@ export default function App() {
               </div>
             </div>
           </div>
-        </>
           {/* ── SOCIAL PROOF STATS ── */}
           <div style={{ background:"#fafafa", borderBottom:"1px solid #f0eef8", padding:"48px 40px" }}>
             <div style={{ maxWidth:"900px", margin:"0 auto", display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))", gap:"0" }}>
@@ -2230,6 +2229,7 @@ export default function App() {
             </div>
           </div>
 
+        </>
       )}
 
       {page==="about"     && <AboutPage setPage={goTo}/>}
