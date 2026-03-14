@@ -82,7 +82,7 @@ function DisclaimerBanner() {
   return (
     <div style={{ background:"#f4f2ff", color:"#333", padding:"10px 24px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"12px", flexWrap:"wrap", borderBottom:"1px solid #e0ddf5" }}>
       <p style={{ margin:0, fontFamily:"sans-serif", fontSize:"12px", lineHeight:"1.5", opacity:0.85 }}>
-        <strong>Community Disclaimer:</strong> Ratings and reviews on recommended. are submitted by community members and represent their personal opinions. recommended. does not verify, endorse, or guarantee any service provider listed on this platform. Listings are not paid placements.{" "}
+        <strong>Community Disclaimer:</strong> Ratings and reviews on reffered are submitted by community members and represent their personal opinions. reffered does not verify, endorse, or guarantee any service provider listed on this platform. Listings are not paid placements.{" "}
         <span style={{ textDecoration:"underline", cursor:"pointer", opacity:0.7 }}>Learn more</span>
       </p>
       <button onClick={()=>setDismissed(true)} style={{ background:"#1A00B9", border:"none", borderRadius:"20px", color:"#fff", padding:"5px 16px", fontSize:"11px", fontWeight:"800", cursor:"pointer", whiteSpace:"nowrap", fontFamily:"sans-serif" }}>Got it ✕</button>
@@ -119,31 +119,31 @@ function TermsPage({ goTo }) {
       <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#aaa", margin:"0 0 48px" }}>Last updated: January 2025</p>
 
       <LegalSection title="1. About This Platform">
-        recommended. is a community-powered beauty professional directory. Listings, ratings, and reviews are submitted by members of the public and represent their personal opinions and experiences. recommended. is not a booking agency, staffing service, or endorsement platform.
+        reffered is a community-powered beauty professional directory. Listings, ratings, and reviews are submitted by members of the public and represent their personal opinions and experiences. reffered is not a booking agency, staffing service, or endorsement platform.
       </LegalSection>
 
       <LegalSection title="2. User-Generated Content">
-        By submitting a recommendation, rating, or review, you confirm that: (a) your submission reflects your genuine personal experience; (b) you are not affiliated with the service provider in a way that would bias your review; (c) your content does not contain false statements of fact, harassment, or defamatory content. recommended. reserves the right to remove any content that violates these terms without notice.
+        By submitting a recommendation, rating, or review, you confirm that: (a) your submission reflects your genuine personal experience; (b) you are not affiliated with the service provider in a way that would bias your review; (c) your content does not contain false statements of fact, harassment, or defamatory content. reffered reserves the right to remove any content that violates these terms without notice.
       </LegalSection>
 
       <LegalSection title="3. No Endorsement of Listed Professionals">
-        Listings on recommended. are not endorsements. The presence of a professional on this platform does not imply that recommended. has verified their credentials, licensing, insurance status, or quality of work. Users are solely responsible for conducting their own due diligence before engaging any service provider.
+        Listings on reffered are not endorsements. The presence of a professional on this platform does not imply that reffered has verified their credentials, licensing, insurance status, or quality of work. Users are solely responsible for conducting their own due diligence before engaging any service provider.
       </LegalSection>
 
       <LegalSection title="4. Accuracy of Information">
-        recommended. does not guarantee the accuracy, completeness, or timeliness of any listing or review. Information submitted by community members may be outdated or incorrect. Service providers who wish to update or dispute information on their listing may contact us at <strong>disputes@recommended.com</strong> or use our <span onClick={()=>goTo && goTo("dispute")} style={{color:"#1A00B9",fontWeight:"700",cursor:"pointer",textDecoration:"underline"}}>dispute form</span>.
+        reffered does not guarantee the accuracy, completeness, or timeliness of any listing or review. Information submitted by community members may be outdated or incorrect. Service providers who wish to update or dispute information on their listing may contact us at <strong>disputes@reffered.com</strong> or use our <span onClick={()=>goTo && goTo("dispute")} style={{color:"#1A00B9",fontWeight:"700",cursor:"pointer",textDecoration:"underline"}}>dispute form</span>.
       </LegalSection>
 
       <LegalSection title="5. Section 230 Notice">
-        recommended. is an interactive computer service as defined under 47 U.S.C. § 230. We are not the publisher or speaker of any user-generated content on this platform and are not liable for content submitted by third parties.
+        reffered is an interactive computer service as defined under 47 U.S.C. § 230. We are not the publisher or speaker of any user-generated content on this platform and are not liable for content submitted by third parties.
       </LegalSection>
 
       <LegalSection title="6. Takedown & Dispute Requests">
-        Service providers listed on this platform without their consent may request profile removal or correction by contacting us at <strong>disputes@recommended.com</strong>. We will review all requests within 10 business days. We reserve the right to maintain factually accurate, publicly available information consistent with applicable law.
+        Service providers listed on this platform without their consent may request profile removal or correction by contacting us at <strong>disputes@reffered.com</strong>. We will review all requests within 10 business days. We reserve the right to maintain factually accurate, publicly available information consistent with applicable law.
       </LegalSection>
 
       <LegalSection title="7. Limitation of Liability">
-        To the fullest extent permitted by law, recommended. shall not be liable for any indirect, incidental, or consequential damages arising from your use of this platform or reliance on any listing, rating, or review contained herein.
+        To the fullest extent permitted by law, reffered shall not be liable for any indirect, incidental, or consequential damages arising from your use of this platform or reliance on any listing, rating, or review contained herein.
       </LegalSection>
 
       <LegalSection title="8. Changes to Terms">
@@ -168,7 +168,7 @@ function PrivacyPage({ goTo }) {
       </LegalSection>
 
       <LegalSection title="2. Community Submissions">
-        Recommendations you submit may be published publicly on the platform, including your first name. Your email address is never displayed publicly. If you wish to have your submitted content removed, contact us at <strong>privacy@recommended.com</strong>.
+        Recommendations you submit may be published publicly on the platform, including your first name. Your email address is never displayed publicly. If you wish to have your submitted content removed, contact us at <strong>privacy@reffered.com</strong>.
       </LegalSection>
 
       <LegalSection title="3. Cookies & Analytics">
@@ -176,11 +176,11 @@ function PrivacyPage({ goTo }) {
       </LegalSection>
 
       <LegalSection title="4. Data Retention">
-        We retain submitted data for as long as the associated listing is active. You may request deletion of your data at any time by emailing <strong>privacy@recommended.com</strong>.
+        We retain submitted data for as long as the associated listing is active. You may request deletion of your data at any time by emailing <strong>privacy@reffered.com</strong>.
       </LegalSection>
 
       <LegalSection title="5. Contact">
-        For any privacy-related inquiries, contact us at <strong>privacy@recommended.com</strong>.
+        For any privacy-related inquiries, contact us at <strong>privacy@reffered.com</strong>.
       </LegalSection>
       </div>
     </div>
@@ -197,7 +197,7 @@ function DisputePage({ goTo }) {
       <p style={{ fontFamily:"sans-serif", fontSize:"10px", fontWeight:"700", letterSpacing:"2.5px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 10px" }}>Service Providers</p>
       <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(32px,5vw,52px)", fontWeight:"900", letterSpacing:"-2px", margin:"0 0 12px" }}>Dispute or Remove<br/>a Listing</h1>
       <p style={{ fontFamily:"sans-serif", color:"#666", margin:"0 0 40px", lineHeight:"1.7", fontSize:"15px" }}>
-        If you are a service provider listed on recommended. and would like to correct inaccurate information, claim your profile, or request removal, fill out the form below. We review all requests within 10 business days.
+        If you are a service provider listed on reffered and would like to correct inaccurate information, claim your profile, or request removal, fill out the form below. We review all requests within 10 business days.
       </p>
 
       {sent ? (
@@ -253,7 +253,7 @@ function ProviderSignup({ goTo }) {
       <p style={{ fontFamily:"sans-serif", fontSize:"10px", fontWeight:"700", letterSpacing:"2.5px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 10px" }}>For Professionals</p>
       <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(32px,5vw,52px)", fontWeight:"900", letterSpacing:"-2px", margin:"0 0 12px", lineHeight:1 }}>Claim Your<br/>Profile.</h1>
       <p style={{ fontFamily:"sans-serif", color:"#666", margin:"0 0 40px", lineHeight:"1.7", fontSize:"15px" }}>
-        Your clients are already recommending you. Sign up to claim your profile, receive notifications when new recommendations come in, and take control of your presence on recommended.
+        Your clients are already recommending you. Sign up to claim your profile, receive notifications when new recommendations come in, and take control of your presence on reffered
       </p>
 
       {/* Progress */}
@@ -313,7 +313,7 @@ function ProviderSignup({ goTo }) {
             <div style={{ display:"flex", gap:"10px", alignItems:"flex-start" }}>
               <input type="checkbox" id="agree" checked={f.agreeTerms} onChange={e=>setF({...f,agreeTerms:e.target.checked})} style={{ marginTop:"3px", accentColor:"#1A00B9", width:"16px", height:"16px", cursor:"pointer" }}/>
               <label htmlFor="agree" style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#555", lineHeight:"1.6", cursor:"pointer" }}>
-                I agree to the <strong style={{ color:"#1A00B9", textDecoration:"underline", cursor:"pointer" }}>Terms of Service</strong> and confirm that I am the professional or authorized representative of the business being listed. I understand that reviews on recommended. are community-submitted opinions.
+                I agree to the <strong style={{ color:"#1A00B9", textDecoration:"underline", cursor:"pointer" }}>Terms of Service</strong> and confirm that I am the professional or authorized representative of the business being listed. I understand that reviews on reffered are community-submitted opinions.
               </label>
             </div>
 
@@ -359,7 +359,7 @@ function ProviderSignup({ goTo }) {
       {step === 3 && (
         <div style={{...gridBg, background:"#B7CF4F", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"56px 40px", textAlign:"center", boxShadow:"4px 4px 0 #e0ddf5"}}>
           <div style={{ fontSize:"52px", marginBottom:"16px" }}>🎉</div>
-          <h2 style={{ fontFamily:"Georgia,serif", fontSize:"32px", fontWeight:"900", margin:"0 0 12px", letterSpacing:"-1px" }}>Welcome to recommended.</h2>
+          <h2 style={{ fontFamily:"Georgia,serif", fontSize:"32px", fontWeight:"900", margin:"0 0 12px", letterSpacing:"-1px" }}>Welcome to reffered</h2>
           <p style={{ fontFamily:"sans-serif", color:"#444", lineHeight:"1.7", margin:"0 0 8px", fontSize:"15px" }}>
             <strong>{f.firstName} {f.lastName}</strong>, your provider account is live.
           </p>
@@ -562,7 +562,7 @@ function CredentialsTab({ pro }) {
         <div style={{ background:"#fff", border:"1.5px solid #e5e5e5", borderRadius:"12px", padding:"18px", display:"inline-flex", alignItems:"center", gap:"10px" }}>
           <span style={{ fontSize:"20px" }}>🛡️</span>
           <div>
-            <p style={{ fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", margin:"0 0 2px" }}>recommended. Verified Pro</p>
+            <p style={{ fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", margin:"0 0 2px" }}>reffered Verified Pro</p>
             <p style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#888", margin:0 }}>Cosmetology License verified · Georgia · Jan 2025</p>
           </div>
           <span style={{ background:"#B7CF4F", color:"#1A00B9", border:"1.5px solid #1A00B9", fontSize:"10px", fontWeight:"800", padding:"3px 10px", borderRadius:"20px", marginLeft:"8px" }}>✓ Verified</span>
@@ -908,7 +908,7 @@ function ProSignIn({ onLogin, goTo }) {
                   <input type="checkbox" id="suAgree" checked={su.agreeTerms} onChange={e=>setSu({...su,agreeTerms:e.target.checked})}
                     style={{ marginTop:"3px", accentColor:"#1A00B9", width:"16px", height:"16px", cursor:"pointer", flexShrink:0 }}/>
                   <label htmlFor="suAgree" style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#666", lineHeight:"1.6", cursor:"pointer" }}>
-                    I agree to the <span style={{ color:"#1A00B9", fontWeight:"700" }}>Terms of Service</span> and confirm I am the professional or authorized rep of this business. I understand reviews on recommended. are community-submitted opinions.
+                    I agree to the <span style={{ color:"#1A00B9", fontWeight:"700" }}>Terms of Service</span> and confirm I am the professional or authorized rep of this business. I understand reviews on reffered are community-submitted opinions.
                   </label>
                 </div>
 
@@ -979,7 +979,7 @@ function ProDashboard({ goTo, onLogout }) {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [notifOpen]);
-  const profileLink = `https://recommended.com/pro/${pro.name.toLowerCase().replace(" ","-")}`;
+  const profileLink = `https://reffered.com/pro/${pro.name.toLowerCase().replace(" ","-")}`;
 
 const NOTIFICATIONS = []; // Will load from Supabase in production
 
@@ -1395,7 +1395,7 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
               <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:"20px" }}>
                 <div style={{ border:"1.5px solid #1A00B9", borderRadius:"16px", overflow:"hidden", boxShadow:"4px 4px 0 #1A00B9" }}>
                   <div style={{ background:"linear-gradient(135deg,#111 0%,#2d1f4e 100%)", padding:"28px 24px", textAlign:"center", position:"relative" }}>
-                    <div style={{ position:"absolute", top:"12px", left:"12px", fontFamily:"Georgia,serif", fontSize:"12px", color:"rgba(255,255,255,0.3)", fontWeight:"900" }}>recommended.</div>
+                    <div style={{ position:"absolute", top:"12px", left:"12px", fontFamily:"Georgia,serif", fontSize:"12px", color:"rgba(255,255,255,0.3)", fontWeight:"900" }}>reffered</div>
                     <div style={{ width:"64px", height:"64px", borderRadius:"50%", background:"#f4f2ff", border:"3px solid #1A00B9", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:"10px" }}><span style={{ fontSize:"20px", opacity:0.5 }}>📷</span></div>
                     <div style={{ color:"#8B78F0", fontFamily:"Georgia,serif", fontSize:"44px", fontWeight:"900", lineHeight:1 }}>★ {overall}</div>
                     <div style={{ color:"#fff", fontFamily:"Georgia,serif", fontSize:"15px", fontWeight:"900", marginTop:"6px" }}>{pro.name}</div>
@@ -1410,7 +1410,7 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
 
                 <div style={{ border:"1.5px solid #1A00B9", borderRadius:"16px", overflow:"hidden", boxShadow:"4px 4px 0 #1A00B9" }}>
                   <div style={{ background:"#fff", padding:"22px 24px" }}>
-                    <div style={{ fontFamily:"Georgia,serif", fontSize:"12px", color:"#aaa", fontWeight:"900", marginBottom:"14px" }}>recommended.</div>
+                    <div style={{ fontFamily:"Georgia,serif", fontSize:"12px", color:"#aaa", fontWeight:"900", marginBottom:"14px" }}>reffered</div>
                     <p style={{ fontFamily:"sans-serif", fontSize:"10px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", color:"#1A00B9", margin:"0 0 12px" }}>My Community Ratings</p>
                     {RATING_CATEGORIES.slice(0,4).map(cat=>(
                       <div key={cat.key} style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"7px" }}>
@@ -1436,7 +1436,7 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
                     <div style={{ fontSize:"22px", color:"#B7CF4F", margin:"4px 0 8px" }}>★★★★★</div>
                     <div style={{ fontFamily:"Georgia,serif", fontSize:"15px", fontWeight:"900", color:"#1A00B9" }}>{pro.name}</div>
                     <div style={{ fontSize:"11px", color:"#888", marginTop:"4px" }}>Rated by {pro.reviews} clients</div>
-                    <div style={{ marginTop:"12px", fontFamily:"Georgia,serif", fontSize:"11px", color:"#aaa" }}>recommended.</div>
+                    <div style={{ marginTop:"12px", fontFamily:"Georgia,serif", fontSize:"11px", color:"#aaa" }}>reffered</div>
                   </div>
                   <div style={{ background:"#fff", padding:"14px 18px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                     <span style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"700", color:"#888" }}>Instagram Story Card</span>
@@ -1459,7 +1459,7 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
           <div style={{ display:"flex", flexDirection:"column", gap:"24px" }}>
             <div>
               <h2 style={{ fontFamily:"Georgia,serif", fontSize:"28px", fontWeight:"900", margin:"0 0 8px", letterSpacing:"-1px" }}>Website Widget & Embed</h2>
-              <p style={{ color:"#666", fontSize:"14px", lineHeight:"1.6", margin:0 }}>Add your recommended. rating to your own website or link in bio page. Updates automatically as new reviews come in.</p>
+              <p style={{ color:"#666", fontSize:"14px", lineHeight:"1.6", margin:0 }}>Add your reffered rating to your own website or link in bio page. Updates automatically as new reviews come in.</p>
             </div>
 
             {/* Widget preview */}
@@ -1482,7 +1482,7 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
                   </div>
                   <div style={{ fontFamily:"Georgia,serif", fontSize:"10px", color:"#aaa", textAlign:"center", borderLeft:"1px solid #f0f0f0", paddingLeft:"12px" }}>
                     <div style={{ fontSize:"8px", letterSpacing:"1px", textTransform:"uppercase", marginBottom:"2px" }}>via</div>
-                    recommended.
+                    reffered
                   </div>
                 </div>
               </div>
@@ -1493,7 +1493,7 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
               <p style={{ margin:"0 0 12px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", color:"#aaa" }}>Embed Code</p>
               <div style={{ background:"#1A00B9", borderRadius:"10px", padding:"20px", fontFamily:"monospace", fontSize:"12px", color:"#B7CF4F", lineHeight:"1.8", marginBottom:"14px", overflowX:"auto" }}>
                 {`<iframe`}<br/>
-                {`  src="https://recommended.com/widget/${pro.name.toLowerCase().replace(" ","-")}"`}<br/>
+                {`  src="https://reffered.com/widget/${pro.name.toLowerCase().replace(" ","-")}"`}<br/>
                 {`  width="380" height="100"`}<br/>
                 {`  frameborder="0"`}<br/>
                 {`  style="border-radius:16px;border:2px solid #1A00B9"`}<br/>
@@ -1596,7 +1596,7 @@ function AboutPage({ setPage }) {
           Beauty is better<br/><span style={{ background:"#9B8AFB", padding:"0 12px", color:"#fff" }}>when we share it.</span>
         </h1>
         <p style={{ fontSize:"17px", color:"#555", maxWidth:"560px", margin:"0 auto", lineHeight:"1.7" }}>
-          recommended. was built on one simple belief: the best beauty professionals don't always have the biggest marketing budgets — they have the most loyal clients.
+          reffered was built on one simple belief: the best beauty professionals don't always have the biggest marketing budgets — they have the most loyal clients.
         </p>
       </div>
 
@@ -1605,7 +1605,7 @@ function AboutPage({ setPage }) {
           { bg:"#B7CF4F", emoji:"💬", title:"Word of mouth, amplified.", body:"We turned the thing you already do — texting your friend the name of your favorite nail tech — into a searchable, scrollable, community-powered directory. No algorithms. No ads. Just real people putting real pros on." },
           { bg:"#fff", emoji:"🌟", title:"Every pro deserves a spotlight.", body:"Some of the most talented people in beauty are hiding in DMs and Google Docs shared between friends. We're changing that. If you're great at what you do, your name belongs here." },
           { bg:"#FFE5DE", emoji:"🤝", title:"Community over competition.", body:"We're not Yelp. We're not Google. We're the group chat that actually answers. A space where clients champion pros and pros build legacies — one recommendation at a time." },
-          { bg:"#dde8f7", emoji:"✨", title:"Real results, real people.", body:"Every profile on recommended. is backed by photos, stories, and lived experiences. No stock images. No paid placements. Just the kind of honest, glowing review you'd get from your most trusted friend." },
+          { bg:"#dde8f7", emoji:"✨", title:"Real results, real people.", body:"Every profile on reffered is backed by photos, stories, and lived experiences. No stock images. No paid placements. Just the kind of honest, glowing review you'd get from your most trusted friend." },
         ].map((block,i)=>(
           <div key={i} style={{ background:block.bg, border:"1.5px solid #1A00B9", borderTop:"none", borderLeft:i%2===0?"2px solid #1A00B9":"none", padding:"48px 36px" }}>
             <div style={{ fontSize:"40px", marginBottom:"16px" }}>{block.emoji}</div>
@@ -1710,7 +1710,7 @@ function ProModal({ pro, onClose, goToRecommend, getDistance }) {
             <div style={{ background:"#f0fdf8", border:"1.5px solid #1A00B9", borderRadius:"12px", padding:"14px 16px", marginBottom:"16px", display:"flex", alignItems:"center", gap:"12px" }}>
               <div style={{ width:"36px", height:"36px", borderRadius:"8px", background:"#B7CF4F", border:"1.5px solid #1A00B9", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"18px", flexShrink:0 }}>🛡️</div>
               <div>
-                <p style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"800", margin:"0 0 2px", color:"#1A00B9" }}>recommended. Verified Pro</p>
+                <p style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"800", margin:"0 0 2px", color:"#1A00B9" }}>reffered Verified Pro</p>
                 <p style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#666", margin:0 }}>
                   Cosmetology License verified · Georgia · Jan 2025
                 </p>
@@ -1870,7 +1870,7 @@ export default function App() {
 
       {/* NAV — always visible, shown on all pages */}
       <nav className="nav-inner" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 32px", height:"60px", background:"#fff", borderBottom:"1px solid #e0ddf5", position:"sticky", top:0, zIndex:50 }}>
-        <div onClick={()=>goTo("home")} style={{ cursor:"pointer", fontFamily:"Georgia,serif", fontWeight:"900", fontSize:"20px", letterSpacing:"-0.5px", flexShrink:0, color:"#1A00B9" }}>recommended.</div>
+        <div onClick={()=>goTo("home")} style={{ cursor:"pointer", fontFamily:"Georgia,serif", fontWeight:"900", fontSize:"20px", letterSpacing:"-0.5px", flexShrink:0, color:"#1A00B9" }}>reffered</div>
         <div style={{ display:"flex", gap:"24px", alignItems:"center" }}>
           {[
             { label:"Browse", action:()=>{ goTo("home"); setTimeout(()=>document.getElementById("browse")?.scrollIntoView({behavior:"smooth"}),100); }, color:"#555" },
@@ -2100,7 +2100,7 @@ export default function App() {
               <div className="what-we-are-col" style={{ padding:"72px 56px" }}>
                 <div style={{ display:"inline-block", background:"#B7CF4F", border:"1.5px solid #1A00B9", borderRadius:"6px", padding:"3px 12px", fontSize:"10px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", marginBottom:"20px" }}>What We Are</div>
                 <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(28px,3vw,42px)", fontWeight:"900", margin:"0 0 16px", letterSpacing:"-1.5px", lineHeight:1.1 }}>Word of mouth,<br/>finally searchable.</h2>
-                <p style={{ color:"#555", lineHeight:"1.8", fontSize:"15px", margin:"0 0 20px" }}>You already know who to text when your friend needs a good lash tech. recommended. is that group chat — but for everyone, forever, and actually organized.</p>
+                <p style={{ color:"#555", lineHeight:"1.8", fontSize:"15px", margin:"0 0 20px" }}>You already know who to text when your friend needs a good lash tech. reffered is that group chat — but for everyone, forever, and actually organized.</p>
                 <p style={{ color:"#555", lineHeight:"1.8", fontSize:"15px", margin:0 }}>Every pro on this platform has been vouched for by a real client. No paid placements. No algorithms. Just trust.</p>
               </div>
               <div className="what-we-are-col" style={{ padding:"72px 56px", background:"#f4f2ff" }}>
@@ -2121,7 +2121,7 @@ export default function App() {
           <div style={{ background:"#f4f2ff", borderBottom:"1px solid #e0ddf5" }}>
             <div className="bridge-pad" style={{ maxWidth:"1100px", margin:"0 auto", padding:"72px 48px" }}>
               <div style={{ textAlign:"center", marginBottom:"52px" }}>
-                <p style={{ fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 8px" }}>Why recommended. Exists</p>
+                <p style={{ fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 8px" }}>Why reffered Exists</p>
                 <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(32px,4vw,52px)", fontWeight:"900", margin:"0 0 16px", letterSpacing:"-2px", lineHeight:1.1 }}>Building the bridge between<br/>community and craft.</h2>
                 <p style={{ color:"#666", fontSize:"16px", maxWidth:"580px", margin:"0 auto", lineHeight:"1.8" }}>Great beauty pros exist in every city. Great clients are looking for them every day. We close the gap — with trust, transparency, and the power of community.</p>
               </div>
@@ -2131,7 +2131,7 @@ export default function App() {
                     emoji:"⏱️",
                     who:"For Clients",
                     title:"Stop wasting time on the wrong pro.",
-                    body:"No more scrolling Instagram for hours, booking blind from a Google search, or showing up to someone who doesn't deliver. recommended. gets you to the right person — fast, confident, and community-verified.",
+                    body:"No more scrolling Instagram for hours, booking blind from a Google search, or showing up to someone who doesn't deliver. reffered gets you to the right person — fast, confident, and community-verified.",
                     cta:"Browse the directory",
                     ctaFn: "browse",
                     bg:"#fff",
@@ -2149,7 +2149,7 @@ export default function App() {
                     emoji:"🤝",
                     who:"For the Community",
                     title:"Trust travels further than ads.",
-                    body:"Every recommendation on this platform is a real person putting their name behind someone they believe in. That's the foundation of recommended. — a living, growing network of beauty trust.",
+                    body:"Every recommendation on this platform is a real person putting their name behind someone they believe in. That's the foundation of reffered — a living, growing network of beauty trust.",
                     cta:"Recommend someone",
                     ctaFn: "recommend",
                     bg:"#fff",
@@ -2201,7 +2201,7 @@ export default function App() {
             <div className="preview-pad" style={{ maxWidth:"1100px", margin:"0 auto", padding:"72px 40px 48px" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"36px", flexWrap:"wrap", gap:"16px" }}>
                 <div>
-                  <p style={{ fontSize:"10px", fontWeight:"700", letterSpacing:"2.5px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 10px" }}>Who's On recommended.</p>
+                  <p style={{ fontSize:"10px", fontWeight:"700", letterSpacing:"2.5px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 10px" }}>Who's On reffered</p>
                   <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(28px,4vw,46px)", fontWeight:"900", margin:0, letterSpacing:"-1.5px" }}>A few of our favorites.</h2>
                 </div>
                 <button onClick={()=>document.getElementById("browse")?.scrollIntoView({behavior:"smooth"})} style={{...btnOut, padding:"11px 22px", fontSize:"13px"}}>See all pros ↓</button>
@@ -2536,9 +2536,9 @@ export default function App() {
       <footer style={{ borderTop:"1px solid #f0eef8", padding:"40px 48px", background:"#fff" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:"24px", marginBottom:"24px" }}>
           <div>
-            <div style={{ fontFamily:"Georgia,serif", fontWeight:"900", fontSize:"20px", letterSpacing:"-0.5px", marginBottom:"8px" }}>recommended.</div>
+            <div style={{ fontFamily:"Georgia,serif", fontWeight:"900", fontSize:"20px", letterSpacing:"-0.5px", marginBottom:"8px" }}>reffered</div>
             <p style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#888", margin:0, maxWidth:"280px", lineHeight:"1.6" }}>
-              A community-powered beauty directory. Ratings and reviews represent personal opinions of community members and are not endorsed by recommended.
+              A community-powered beauty directory. Ratings and reviews represent personal opinions of community members and are not endorsed by reffered
             </p>
           </div>
           <div style={{ display:"flex", gap:"40px", flexWrap:"wrap" }}>
@@ -2557,7 +2557,7 @@ export default function App() {
           </div>
         </div>
         <div style={{ borderTop:"1.5px solid #f0f0f0", paddingTop:"20px", display:"flex", justifyContent:"space-between", flexWrap:"wrap", gap:"8px" }}>
-          <span style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#aaa" }}>© 2025 recommended. · All ratings are community-submitted opinions.</span>
+          <span style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#aaa" }}>© 2025 reffered · All ratings are community-submitted opinions.</span>
           <span style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#aaa" }}>Not affiliated with any listed professional or business.</span>
         </div>
       </footer>
