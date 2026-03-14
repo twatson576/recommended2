@@ -2073,7 +2073,7 @@ export default function App() {
                 { num:"Nationwide", label:"Beauty Pros" },
               ].map((s,i,arr)=>(
                 <div key={i} style={{ textAlign:"center", padding:"20px 24px", borderRight:i<arr.length-1?"1px solid rgba(255,255,255,0.15)":"none" }}>
-                  <p style={{ margin:"0 0 4px", fontFamily:"Georgia,serif", fontSize:"40px", fontWeight:"900", color:"#1A00B9", letterSpacing:"-1.5px", fontFamily:"Georgia,serif" }}>{s.num}</p>
+                  <p style={{ margin:"0 0 4px", fontFamily:"Georgia,serif", fontSize:"40px", fontWeight:"900", color:"#1A00B9", letterSpacing:"-1.5px" }}>{s.num}</p>
                   <p style={{ margin:0, fontSize:"12px", fontWeight:"700", color:"#666", letterSpacing:"0.5px" }}>{s.label}</p>
                 </div>
               ))}
