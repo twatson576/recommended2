@@ -1838,6 +1838,13 @@ export default function App() {
         @keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
         *{box-sizing:border-box;}
         .nav-link:hover{color:#1A00B9!important;}
+        @media(max-width:768px){
+          .what-we-are{grid-template-columns:1fr!important;}
+          .what-we-are-col{padding:40px 32px!important;}
+          .how-steps{grid-template-columns:1fr!important;}
+          .how-steps>div{border-right:none!important;border-bottom:2px solid #1A00B9!important;}
+          .how-steps>div:last-child{border-bottom:none!important;}
+        }
         @media(max-width:540px){
           .nav-links{display:none!important;}
           .nav-inner{padding:0 16px!important;}
@@ -1849,6 +1856,13 @@ export default function App() {
           .modal-body{padding:16px!important;}
           .about-hero,.about-how,.about-cta{padding:40px 16px!important;}
           .name-grid{grid-template-columns:1fr!important;}
+          .hero-pad{padding:56px 20px 40px!important;}
+          .stats-pad{padding:32px 20px!important;}
+          .what-we-are-col{padding:28px 20px!important;}
+          .bridge-pad{padding:40px 20px!important;}
+          .how-pad{padding:40px 20px!important;}
+          .preview-pad{padding:48px 20px 32px!important;}
+          .cta-banner{padding:32px 20px!important;margin-top:32px!important;}
         }
       `}</style>
 
@@ -1883,7 +1897,7 @@ export default function App() {
       {page==="home" && (
         <>
           {/* ── HERO ── */}
-          <div style={{ background:"#fff", padding:"96px 40px 72px", textAlign:"center", borderBottom:"1px solid #f0eef8" }}>
+          <div className="hero-pad" style={{ background:"#fff", padding:"96px 40px 72px", textAlign:"center", borderBottom:"1px solid #f0eef8" }}>
             <div style={{ display:"inline-block", background:"#B7CF4F", border:"1.5px solid #1A00B9", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"20px" }}>Community Powered ✦</div>
             <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(44px,7vw,88px)", fontWeight:"900", lineHeight:0.95, margin:"0 0 6px", letterSpacing:"-3px", color:"#0a0a0a" }}>the directory</h1>
             <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(48px,8vw,96px)", fontWeight:"900", lineHeight:1, margin:"0 0 8px", letterSpacing:"-3px" }}>
@@ -2064,7 +2078,7 @@ export default function App() {
             </div>
           </div>
           {/* ── SOCIAL PROOF STATS ── */}
-          <div style={{ background:"#fafafa", borderBottom:"1px solid #f0eef8", padding:"48px 40px" }}>
+          <div className="stats-pad" style={{ background:"#fafafa", borderBottom:"1px solid #f0eef8", padding:"48px 40px" }}>
             <div style={{ maxWidth:"900px", margin:"0 auto", display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))", gap:"0" }}>
               {[
                 { num:"Growing", label:"Community Recommendations" },
@@ -2083,13 +2097,13 @@ export default function App() {
           {/* ── WHAT WE ARE ── */}
           <div style={{ borderBottom:"1px solid #e0ddf5" }}>
             <div style={{ maxWidth:"1100px", margin:"0 auto", display:"grid", gridTemplateColumns:"1fr 1fr" }} className="what-we-are">
-              <div style={{ padding:"72px 56px" }}>
+              <div className="what-we-are-col" style={{ padding:"72px 56px" }}>
                 <div style={{ display:"inline-block", background:"#B7CF4F", border:"1.5px solid #1A00B9", borderRadius:"6px", padding:"3px 12px", fontSize:"10px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", marginBottom:"20px" }}>What We Are</div>
                 <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(28px,3vw,42px)", fontWeight:"900", margin:"0 0 16px", letterSpacing:"-1.5px", lineHeight:1.1 }}>Word of mouth,<br/>finally searchable.</h2>
                 <p style={{ color:"#555", lineHeight:"1.8", fontSize:"15px", margin:"0 0 20px" }}>You already know who to text when your friend needs a good lash tech. recommended. is that group chat — but for everyone, forever, and actually organized.</p>
                 <p style={{ color:"#555", lineHeight:"1.8", fontSize:"15px", margin:0 }}>Every pro on this platform has been vouched for by a real client. No paid placements. No algorithms. Just trust.</p>
               </div>
-              <div style={{ padding:"72px 56px", background:"#f4f2ff" }}>
+              <div className="what-we-are-col" style={{ padding:"72px 56px", background:"#f4f2ff" }}>
                 <div style={{ display:"inline-block", background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"6px", padding:"3px 12px", fontSize:"10px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", marginBottom:"20px" }}>What We're Not</div>
                 <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(28px,3vw,42px)", fontWeight:"900", margin:"0 0 20px", letterSpacing:"-1.5px", lineHeight:1.1 }}>Not Yelp.<br/>Not Google.</h2>
                 {["No paid placements or sponsored listings","No anonymous reviews from strangers","No star ratings with zero context","No beauty pros buried by ad budgets"].map((item,i)=>(
@@ -2105,7 +2119,7 @@ export default function App() {
 
           {/* ── BRIDGE SECTION: We save time + empower pros ── */}
           <div style={{ background:"#f4f2ff", borderBottom:"1px solid #e0ddf5" }}>
-            <div style={{ maxWidth:"1100px", margin:"0 auto", padding:"72px 48px" }}>
+            <div className="bridge-pad" style={{ maxWidth:"1100px", margin:"0 auto", padding:"72px 48px" }}>
               <div style={{ textAlign:"center", marginBottom:"52px" }}>
                 <p style={{ fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 8px" }}>Why recommended. Exists</p>
                 <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(32px,4vw,52px)", fontWeight:"900", margin:"0 0 16px", letterSpacing:"-2px", lineHeight:1.1 }}>Building the bridge between<br/>community and craft.</h2>
@@ -2160,7 +2174,7 @@ export default function App() {
 
           {/* ── HOW IT WORKS ── */}
           <div style={{ background:"#fff", borderBottom:"1px solid #e0ddf5" }}>
-            <div style={{ maxWidth:"900px", margin:"0 auto", padding:"72px 40px" }}>
+            <div className="how-pad" style={{ maxWidth:"900px", margin:"0 auto", padding:"72px 40px" }}>
               <div style={{ textAlign:"center", marginBottom:"52px" }}>
                 <p style={{ fontSize:"10px", fontWeight:"700", letterSpacing:"2.5px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 10px" }}>How It Works</p>
                 <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(32px,4vw,52px)", fontWeight:"900", margin:0, letterSpacing:"-2px" }}>Simple. Human. Intentional.</h2>
@@ -2184,7 +2198,7 @@ export default function App() {
 
           {/* ── PRO PREVIEW STRIP ── */}
           <div style={{ background:"#fff", borderBottom:"1px solid #e0ddf5" }}>
-            <div style={{ maxWidth:"1100px", margin:"0 auto", padding:"72px 40px 48px" }}>
+            <div className="preview-pad" style={{ maxWidth:"1100px", margin:"0 auto", padding:"72px 40px 48px" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"36px", flexWrap:"wrap", gap:"16px" }}>
                 <div>
                   <p style={{ fontSize:"10px", fontWeight:"700", letterSpacing:"2.5px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 10px" }}>Who's On recommended.</p>
