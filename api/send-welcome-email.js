@@ -44,9 +44,22 @@ export default async function handler(req, res) {
         <tr>
           <td style="padding:40px 40px 32px;">
             <p style="font-size:22px;font-weight:900;color:#1A00B9;margin:0 0 16px;font-family:Georgia,serif;">Hey ${firstName}, you're in! 🎉</p>
-            <p style="font-size:15px;color:#444;line-height:1.7;margin:0 0 20px;">
+            <p style="font-size:15px;color:#444;line-height:1.7;margin:0 0 24px;">
               Thanks for joining reffered — the community-powered beauty professional directory. Your profile is now live and searchable by clients in your city.
             </p>
+
+            <!-- CEO Note -->
+            <div style="background:#fff;border-left:4px solid #B7CF4F;border-radius:0 12px 12px 0;padding:20px 24px;margin:0 0 24px;border-top:1.5px solid #e0ddf5;border-right:1.5px solid #e0ddf5;border-bottom:1.5px solid #e0ddf5;">
+              <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#9B8AFB;margin:0 0 12px;">A note from our founder</p>
+              <p style="font-size:15px;color:#333;line-height:1.8;margin:0 0 16px;font-style:italic;">
+                "I built reffered because I kept seeing amazing beauty pros go unrecognized while mediocre ones got all the attention. Word of mouth has always been the real currency in this industry — we're just making it official.
+              </p>
+              <p style="font-size:15px;color:#333;line-height:1.8;margin:0 0 16px;font-style:italic;">
+                You deserve to be found by the clients who are already looking for exactly what you do. I'm glad you're here."
+              </p>
+              <p style="font-size:14px;font-weight:800;color:#1A00B9;margin:0;">— Terri Watson, Founder &amp; CEO of reffered</p>
+            </div>
+
             <div style="background:#f4f2ff;border-radius:12px;border:1.5px solid #e0ddf5;padding:20px 24px;margin:0 0 24px;">
               <p style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#9B8AFB;margin:0 0 12px;">What's next</p>
               <table cellpadding="0" cellspacing="0" width="100%">
@@ -76,7 +89,7 @@ export default async function handler(req, res) {
           <td style="background:#f9f8ff;border-top:1.5px solid #e0ddf5;padding:20px 40px;">
             <p style="font-size:11px;color:#aaa;margin:0;line-height:1.6;">
               You're receiving this because you just created a reffered account.<br>
-              Questions? Reply to this email or reach us at <a href="mailto:hello@reffered.com" style="color:#1A00B9;font-weight:700;">hello@reffered.com</a>
+              Questions? Reply to this email or reach us at <a href="mailto:hello@refferedpro.com" style="color:#1A00B9;font-weight:700;">hello@refferedpro.com</a>
             </p>
           </td>
         </tr>
