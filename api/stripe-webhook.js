@@ -27,21 +27,30 @@ export default async function handler(req, res) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const userId = session.metadata?.userId;
+    const customerId = session.customer;
     if (userId) {
+      // Activate Pro+ and store stripe_customer_id for future cancellation lookup
       const { error } = await supabase
         .from("pros")
-        .update({ is_pro_plus: true })
+        .update({ is_pro_plus: true, stripe_customer_id: customerId || null })
         .eq("id", userId);
       if (error) console.error("Supabase update error:", error.message);
     }
   }
 
-  if (event.type === "customer.subscription.deleted") {
+  if (event.type === "customer.subscription.deleted" || event.type === "customer.subscription.updated") {
     const subscription = event.data.object;
-    const customerId = subscription.customer;
-    // Look up user by stripe_customer_id if you store it, or use metadata
-    console.log("Subscription cancelled for customer:", customerId);
-    // TODO: set is_pro_plus = false when cancellation is implemented
+    // Only deactivate if status is cancelled/unpaid — not on pause or other states
+    const shouldDeactivate = ["canceled", "unpaid", "incomplete_expired"].includes(subscription.status);
+    if (shouldDeactivate) {
+      const customerId = subscription.customer;
+      const { error } = await supabase
+        .from("pros")
+        .update({ is_pro_plus: false })
+        .eq("stripe_customer_id", customerId);
+      if (error) console.error("Supabase deactivation error:", error.message);
+      else console.log("Pro+ deactivated for customer:", customerId);
+    }
   }
 
   res.status(200).json({ received: true });

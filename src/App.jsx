@@ -437,6 +437,8 @@ function CredentialsTab({ pro }) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ type: credTypes[0]||"", number:"", state:"", issued:"", expires:"" });
   const [submitted, setSubmitted] = useState(false);
+  const [credSaving, setCredSaving] = useState(false);
+  const [licenseFileUrl, setLicenseFileUrl] = useState("");
 
   // Load existing credentials from Supabase
   useEffect(() => {
@@ -524,12 +526,36 @@ function CredentialsTab({ pro }) {
 
             {/* Upload */}
             <div>
-              <label style={lbl}>License Photo / Scan</label>
-              <div style={{ border:"2px dashed #ccc", borderRadius:"10px", padding:"24px", textAlign:"center", background:"#fff", cursor:"pointer" }}>
-                <div style={{ fontSize:"24px", marginBottom:"6px" }}>📎</div>
-                <p style={{ fontFamily:"sans-serif", fontSize:"13px", fontWeight:"700", margin:"0 0 4px" }}>Upload a photo or scan of your license</p>
-                <p style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#aaa", margin:0 }}>JPG, PNG, or PDF · Max 5MB · Stored securely</p>
-              </div>
+              <label style={lbl}>License Photo / Scan (optional)</label>
+              <label style={{ cursor:"pointer", display:"block" }}>
+                <div style={{ border:`2px dashed ${licenseFileUrl?"#1A00B9":"#ccc"}`, borderRadius:"10px", padding:"24px", textAlign:"center", background:licenseFileUrl?"#f4f2ff":"#fff", transition:"all 0.2s" }}>
+                  {licenseFileUrl ? (
+                    <>
+                      <div style={{ fontSize:"24px", marginBottom:"6px" }}>✅</div>
+                      <p style={{ fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#1A00B9", margin:"0 0 4px" }}>File uploaded</p>
+                      <p style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#888", margin:0 }}>Click to replace</p>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ fontSize:"24px", marginBottom:"6px" }}>📎</div>
+                      <p style={{ fontFamily:"sans-serif", fontSize:"13px", fontWeight:"700", margin:"0 0 4px" }}>Upload a photo or scan of your license</p>
+                      <p style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#aaa", margin:0 }}>JPG, PNG, or PDF · Max 5MB · Stored securely</p>
+                    </>
+                  )}
+                </div>
+                <input type="file" accept="image/*,.pdf" style={{ display:"none" }} onChange={async e=>{
+                  const file = e.target.files[0]; if(!file || !pro?.supabaseId) return;
+                  setCredSaving(true);
+                  const ext = file.name.split(".").pop();
+                  const path = `${pro.supabaseId}/license-${Date.now()}.${ext}`;
+                  const { error } = await supabase.storage.from("pro-photos").upload(path, file, { upsert:true });
+                  if (!error) {
+                    const { data:urlData } = supabase.storage.from("pro-photos").getPublicUrl(path);
+                    setLicenseFileUrl(urlData.publicUrl);
+                  }
+                  setCredSaving(false);
+                }}/>
+              </label>
             </div>
 
             <div style={{ background:"#fff", border:"1.5px solid #e5e5e5", borderRadius:"10px", padding:"12px 16px" }}>
@@ -538,16 +564,18 @@ function CredentialsTab({ pro }) {
               </p>
             </div>
 
-            <button onClick={async ()=>{ if(form.number&&form.state&&form.issued&&form.expires){
-              const newCred = {type:form.type,number:form.number,state:form.state,issued:form.issued,expires:form.expires,status:"pending"};
-              setCreds(prev=>[...prev, newCred]);
+            <button onClick={async ()=>{
+              if(!form.number||!form.state||!form.issued||!form.expires) return;
+              setCredSaving(true);
+              const newCred = { type:form.type, number:form.number, state:form.state, issued:form.issued, expires:form.expires, status:"pending", license_url: licenseFileUrl || "" };
               if (pro?.supabaseId) {
-                await supabase.from("credentials").insert([{ pro_id: pro.supabaseId, ...newCred }]);
+                const { error } = await supabase.from("credentials").insert([{ pro_id: pro.supabaseId, ...newCred }]);
+                if (!error) { setCreds(prev=>[...prev, newCred]); setSubmitted(true); setShowForm(false); setLicenseFileUrl(""); }
               }
-              setSubmitted(true); setShowForm(false);
-            }}}
-              style={{...btnPink, width:"100%", padding:"14px", fontSize:"14px", border:"1.5px solid #1A00B9", boxShadow:"4px 4px 0 #B7CF4F", background:(!form.number||!form.state||!form.issued||!form.expires)?"#ddd":"#9B8AFB", color:(!form.number||!form.state||!form.issued||!form.expires)?"#aaa":"#fff" }}>
-              Submit for Verification →
+              setCredSaving(false);
+            }}
+              style={{...btnPink, width:"100%", padding:"14px", fontSize:"14px", border:"1.5px solid #1A00B9", boxShadow:"4px 4px 0 #B7CF4F", background:(!form.number||!form.state||!form.issued||!form.expires||credSaving)?"#ddd":"#1A00B9", color:(!form.number||!form.state||!form.issued||!form.expires||credSaving)?"#aaa":"#fff", opacity:credSaving?0.7:1 }}>
+              {credSaving ? "Submitting..." : "Submit for Verification →"}
             </button>
           </div>
         </div>
@@ -692,7 +720,7 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
       location_state: su.state,
       location_display: `${su.city}, ${su.state}`,
       is_active: true,
-      is_approved: false,
+      is_approved: true,  // self-signed pros are auto-approved
       is_claimed: true,
       is_verified: false,
       is_pro_plus: isPro,
@@ -2815,6 +2843,13 @@ export default function App() {
             </div>
           ) : (
             <div className="form-wrap" style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"40px", boxShadow:"4px 4px 0 #e0ddf5" }}>
+              {/* Editing banner */}
+              {isEditing && (
+                <div style={{ background:"#EAE6FF", border:"1.5px solid #1A00B9", borderRadius:"12px", padding:"12px 16px", marginBottom:"24px", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"12px" }}>
+                  <span style={{ fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#1A00B9" }}>✏️ Editing your referral — make changes and resubmit</span>
+                  <button onClick={()=>{ setIsEditing(false); setSubmitted(true); }} style={{ background:"none", border:"none", fontSize:"12px", fontWeight:"800", color:"#888", cursor:"pointer", whiteSpace:"nowrap" }}>Cancel</button>
+                </div>
+              )}
               {/* Section header */}
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"24px", paddingBottom:"14px", borderBottom:"1.5px solid #f0f0f0" }}>
                 <p style={{ fontSize:"10px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#aaa", margin:0 }}>About the Pro</p>
