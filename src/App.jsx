@@ -1030,6 +1030,23 @@ function ProDashboard({ goTo, onLogout, proData }) {
   const [readIds, setReadIds] = useState([]);
   const [managePlanOpen, setManagePlanOpen] = useState(false);
   const notifRef = useRef(null);
+  const photoRef = useRef(null);
+  const [photoUrl, setPhotoUrl] = useState(pro.photoUrl || "");
+  const [photoUploading, setPhotoUploading] = useState(false);
+
+  const handleProfilePhotoUpload = async (file) => {
+    if (!file || !pro.supabaseId) return;
+    setPhotoUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `${pro.supabaseId}/profile.${ext}`;
+    const { error } = await supabase.storage.from("pro-photos").upload(path, file, { upsert: true });
+    if (!error) {
+      const { data: { publicUrl } } = supabase.storage.from("pro-photos").getPublicUrl(path);
+      setPhotoUrl(publicUrl);
+      await supabase.from("pros").update({ photo_url: publicUrl }).eq("id", pro.supabaseId);
+    }
+    setPhotoUploading(false);
+  };
 
   // BUG FIX: close notification dropdown on outside click
   useEffect(() => {
@@ -1062,7 +1079,13 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
       {/* Dashboard Header */}
       <div style={{ background:"#E8E4FF", borderBottom:"1px solid #e0ddf5", padding:"20px 40px", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"12px" }}>
         <div style={{ display:"flex", alignItems:"center", gap:"14px" }}>
-          <div style={{ width:"48px", height:"48px", borderRadius:"50%", background:"#f4f2ff", border:"1.5px solid #1A00B9", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}><span style={{ fontSize:"18px", opacity:0.5 }}>📷</span></div>
+          <div onClick={()=>photoRef.current?.click()} title="Upload profile photo"
+            style={{ width:"48px", height:"48px", borderRadius:"50%", background:"#f4f2ff", border:"1.5px solid #1A00B9", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, cursor:"pointer", overflow:"hidden", position:"relative" }}>
+            {photoUrl
+              ? <img src={photoUrl} alt="profile" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
+              : <span style={{ fontSize:"18px", opacity: photoUploading ? 1 : 0.5 }}>{photoUploading ? "⏳" : "📷"}</span>}
+            <input ref={photoRef} type="file" accept="image/*" style={{ display:"none" }} onChange={e=>handleProfilePhotoUpload(e.target.files[0])}/>
+          </div>
           <div>
             <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
               <span style={{ color:"#1A00B9", fontFamily:"Georgia,serif", fontSize:"18px", fontWeight:"900" }}>{pro.name}</span>
@@ -1936,9 +1959,20 @@ export default function App() {
       return 0;
     });
 
-  const handleFileUpload = files => {
-    const n = Array.from(files).map(f=>({ url:URL.createObjectURL(f), name:f.name }));
-    setUploadedPhotos(prev=>[...prev,...n].slice(0,6));
+  const handleFileUpload = async (files) => {
+    const toUpload = Array.from(files).slice(0, 6 - uploadedPhotos.length);
+    for (const file of toUpload) {
+      const localUrl = URL.createObjectURL(file);
+      setUploadedPhotos(prev => [...prev, { url: localUrl, name: file.name, uploading: true }]);
+      const path = `recommendations/${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage.from("pro-photos").upload(path, file, { upsert: true });
+      if (!error) {
+        const { data: { publicUrl } } = supabase.storage.from("pro-photos").getPublicUrl(path);
+        setUploadedPhotos(prev => prev.map(p => p.url === localUrl ? { url: publicUrl, name: file.name, uploading: false } : p));
+      } else {
+        setUploadedPhotos(prev => prev.map(p => p.url === localUrl ? { ...p, uploading: false } : p));
+      }
+    }
   };
 
   const goTo = p => { setPage(p); setSubmitted(false); window.scrollTo(0,0); };
