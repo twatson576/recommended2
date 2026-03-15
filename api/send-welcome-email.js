@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "reffered <hello@reffered.com>",
+        from: "reffered <hello@refferedpro.com>",
         to: [email],
         subject: `Welcome to reffered, ${firstName} ✦`,
         html: `
@@ -66,7 +66,7 @@ export default async function handler(req, res) {
             </div>
             <table cellpadding="0" cellspacing="0">
               <tr><td style="background:#1A00B9;border-radius:30px;box-shadow:4px 4px 0 #B7CF4F;">
-                <a href="https://recommended2-chi.vercel.app/?page=dashboard" style="display:inline-block;padding:14px 32px;color:#fff;font-size:14px;font-weight:800;text-decoration:none;letter-spacing:0.5px;">Go to My Dashboard →</a>
+                <a href="https://refferedpro.com/?page=dashboard" style="display:inline-block;padding:14px 32px;color:#fff;font-size:14px;font-weight:800;text-decoration:none;letter-spacing:0.5px;">Go to My Dashboard →</a>
               </td></tr>
             </table>
           </td>
