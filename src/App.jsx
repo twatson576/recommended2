@@ -2517,44 +2517,48 @@ export default function App() {
 
                   // 1. Find or create the pro in the pros table
                   let proId = null;
-                  const { data: existing } = await supabase
+                  const { data: existing, error: findErr } = await supabase
                     .from("pros")
                     .select("id")
                     .ilike("first_name", form.name.split(" ")[0])
                     .limit(1);
 
+                  if (findErr) { alert("Error finding pro: " + findErr.message); return; }
+
                   if (existing && existing.length > 0) {
                     proId = existing[0].id;
                   } else {
-                    // Create a new unapproved pro entry
                     const parts = (form.location || "").split(",");
                     const nameParts = form.name.trim().split(" ");
-                    const { data: newPro } = await supabase
+                    const { data: newPro, error: insertProErr } = await supabase
                       .from("pros")
                       .insert([{
                         first_name: nameParts[0] || form.name,
                         last_name: nameParts.slice(1).join(" ") || "",
                         specialty: form.specialty,
-                        instagram: form.instagram,
-                        booking_url: form.booking,
-                        tiktok_review_url: form.tiktok || "",
+                        instagram: form.instagram || "",
+                        booking_url: form.booking || "",
+                        tiktok: form.tiktok || "",
                         location_city: parts[0]?.trim() || "",
                         location_state: parts[1]?.trim() || "",
-                        location_display: form.location,
+                        location_display: form.location || "",
+                        bio: form.why || "",
                         is_active: true,
                         is_approved: false,
                         is_claimed: false,
                         is_verified: false,
                         is_pro_plus: false,
+                        is_trending: false,
                       }])
                       .select("id")
                       .single();
+                    if (insertProErr) { alert("Error creating pro: " + insertProErr.message); return; }
                     proId = newPro?.id;
                   }
 
-                  // 2. Insert recommendation with correct column names
+                  // 2. Insert recommendation
                   if (proId) {
-                    await supabase.from("recommendations").insert([{
+                    const { error: recErr } = await supabase.from("recommendations").insert([{
                       pro_id: proId,
                       submitter_name: form.yourName || "",
                       submitter_email: form.yourEmail || "",
@@ -2570,6 +2574,7 @@ export default function App() {
                       tiktok_review_url: form.tiktok || "",
                       status: "pending",
                     }]);
+                    if (recErr) { alert("Error saving referral: " + recErr.message); return; }
                   }
 
                   // 3. Refresh directory
