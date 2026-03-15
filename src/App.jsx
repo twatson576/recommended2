@@ -773,7 +773,7 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
             </div>
 
             {/* Plan comparison */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"16px", marginBottom:"16px" }}>
+            <div className="plan-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"16px", marginBottom:"16px" }}>
               {/* Pro */}
               <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"16px", padding:"24px", boxShadow:"3px 3px 0 #1A00B9" }}>
                 <p style={{ fontFamily:"sans-serif", fontSize:"10px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#aaa", margin:"0 0 6px" }}>Free to Start</p>
@@ -2158,7 +2158,7 @@ function ProModal({ pro, onClose, goToRecommend, getDistance }) {
 
           <div style={{ display:"flex", gap:"10px", flexWrap:"wrap" }}>
             {pro.instagram&&<a href={`https://instagram.com/${pro.instagram}`} target="_blank" rel="noreferrer" style={{...btnOut, textDecoration:"none", display:"inline-flex", alignItems:"center", gap:"6px", fontSize:"13px", padding:"10px 20px"}}>📷 @{pro.instagram}</a>}
-            <button onClick={()=>{ onClose(); goToRecommend(pro); }} style={{...btnDark, padding:"10px 20px", fontSize:"13px", boxShadow:"3px 3px 0 #B7CF4F"}}>⭐ Recommend {pro.name.split(" ")[0]}</button>
+            <button onClick={()=>{ onClose(); goToRecommend(pro); }} style={{...btnDark, padding:"10px 20px", fontSize:"13px", boxShadow:"3px 3px 0 #B7CF4F"}}>⭐ Refer {pro.name.split(" ")[0]}</button>
           </div>
 
           {/* TikTok review — shown if pro has one or clients submitted one */}
@@ -2351,11 +2351,19 @@ export default function App() {
           .stats-grid>div{border-right:none!important;border-bottom:1px solid #e0ddf5!important;}
           .stats-grid>div:nth-child(odd){border-right:1px solid #e0ddf5!important;}
           .stats-grid>div:nth-last-child(-n+2){border-bottom:none!important;}
+          .stats-grid>div p:first-child{font-size:clamp(18px,5vw,28px)!important;word-break:break-word;}
           .what-we-are-col{padding:28px 20px!important;}
           .bridge-pad{padding:40px 20px!important;}
           .how-pad{padding:40px 20px!important;}
           .preview-pad{padding:48px 20px 32px!important;}
           .cta-banner{padding:32px 20px!important;margin-top:32px!important;}
+          .plan-grid{grid-template-columns:1fr!important;}
+          .modal-inner{width:calc(100vw - 24px)!important;max-height:90vh!important;border-radius:16px!important;}
+          .refer-page{padding:32px 16px!important;}
+          .refer-page h1{font-size:clamp(32px,8vw,48px)!important;}
+          .dashboard-grid{grid-template-columns:1fr!important;}
+          .ticker-text{font-size:10px!important;}
+          .pro-card-grid{grid-template-columns:1fr!important;}
         }
       `}</style>
 
@@ -2548,7 +2556,7 @@ export default function App() {
                         )}
                         <button onClick={()=>goToRecommend(pro)}
                           style={{ width:"100%", padding:"9px", background:"#f4f2ff", border:"none", borderRadius:"10px", fontSize:"12px", fontWeight:"700", color:"#1A00B9", cursor:"pointer", boxSizing:"border-box", transition:"background 0.15s" }}>
-                          ⭐ Recommend {pro.name.split(" ")[0]}
+                          ⭐ Refer {pro.name.split(" ")[0]}
                         </button>
                       </div>
                     </div>
@@ -2580,7 +2588,7 @@ export default function App() {
             <div className="cta-banner" style={{...gridBg, marginTop:"60px", background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"48px 40px", textAlign:"center", boxShadow:"4px 4px 0 #e0ddf5"}}>
               <p style={{ fontSize:"10px", fontWeight:"700", letterSpacing:"2.5px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 10px" }}>Are You a Pro?</p>
               <h3 style={{ fontFamily:"Georgia,serif", fontSize:"32px", fontWeight:"900", margin:"0 0 12px", letterSpacing:"-1px" }}>Claim your profile. Own your story.</h3>
-              <p style={{ color:"#666", margin:"0 0 24px", lineHeight:"1.6" }}>Your clients are already recommending you. Sign up to receive notifications and manage your presence.</p>
+              <p style={{ color:"#666", margin:"0 0 24px", lineHeight:"1.6" }}>Your clients are already referring you. Sign up to receive notifications and manage your presence.</p>
               <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
                 <button onClick={()=>goTo("provider")} style={{...btnDark, padding:"14px 32px", fontSize:"14px"}}>Claim Your Profile</button>
                 <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Refer a Pro</button>
@@ -2591,7 +2599,7 @@ export default function App() {
           <div className="stats-pad" style={{ background:"#fafafa", borderBottom:"1px solid #f0eef8", padding:"48px 40px" }}>
             <div className="stats-grid" style={{ maxWidth:"900px", margin:"0 auto", display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"0" }}>
               {[
-                { num:"Growing", label:"Community Recommendations" },
+                { num:"Growing", label:"Community Referrals" },
                 { num:"7", label:"Rating Categories Per Pro" },
                 { num:"100%", label:"Real Client Reviews" },
                 { num:"Nationwide", label:"Beauty Pros" },
@@ -2771,11 +2779,11 @@ export default function App() {
 
       {/* RECOMMEND FORM */}
       {page==="recommend" && (
-        <div style={{ maxWidth:"700px", margin:"0 auto", padding:"60px 24px" }}>
+        <div className="refer-page" style={{ maxWidth:"700px", margin:"0 auto", padding:"60px 24px" }}>
           <button onClick={()=>goTo("home")} style={{ background:"none", border:"none", fontSize:"13px", fontWeight:"800", cursor:"pointer", color:"#888", marginBottom:"32px", padding:0, fontFamily:"sans-serif" }}>← Back to Directory</button>
           <p style={{ fontSize:"10px", fontWeight:"700", letterSpacing:"2.5px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 10px" }}>Community Form</p>
-          <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(36px,6vw,56px)", fontWeight:"900", margin:"0 0 12px", letterSpacing:"-2px", lineHeight:1 }}>Recommend<br/>a Pro.</h1>
-          <p style={{ color:"#666", margin:"0 0 24px", lineHeight:"1.6", fontSize:"15px" }}>Know someone who deserves to be on everyone's radar? Rate them across 7 categories and tell us what makes them special.</p>
+          <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(36px,6vw,56px)", fontWeight:"900", margin:"0 0 12px", letterSpacing:"-2px", lineHeight:1 }}>Refer<br/>a Pro.</h1>
+          <p style={{ color:"#666", margin:"0 0 24px", lineHeight:"1.6", fontSize:"15px" }}>Know someone who deserves to be on everyone's radar? Rate them across 7 categories and tell us what makes them exceptional.</p>
 
           {/* Pre-fill banner — shown when coming from a pro's card or modal */}
           {form.name && (
@@ -2783,7 +2791,7 @@ export default function App() {
               <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
                 <span style={{ fontSize:"20px" }}>⭐</span>
                 <div>
-                  <p style={{ margin:0, fontWeight:"800", fontSize:"13px", color:"#1A00B9" }}>Recommending {form.name}</p>
+                  <p style={{ margin:0, fontWeight:"800", fontSize:"13px", color:"#1A00B9" }}>Referring {form.name}</p>
                   <p style={{ margin:0, fontSize:"12px", color:"#666" }}>{form.specialty} · {form.location} · pre-filled from their profile</p>
                 </div>
               </div>
@@ -2807,7 +2815,11 @@ export default function App() {
             </div>
           ) : (
             <div className="form-wrap" style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"40px", boxShadow:"4px 4px 0 #e0ddf5" }}>
-              <p style={{ fontSize:"10px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#aaa", margin:"0 0 24px", paddingBottom:"14px", borderBottom:"1.5px solid #f0f0f0" }}>About the Pro</p>
+              {/* Section header */}
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:"24px", paddingBottom:"14px", borderBottom:"1.5px solid #f0f0f0" }}>
+                <p style={{ fontSize:"10px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#aaa", margin:0 }}>About the Pro</p>
+                <p style={{ fontSize:"11px", color:"#aaa", margin:0, fontFamily:"sans-serif" }}>* required</p>
+              </div>
               <div style={{ display:"flex", flexDirection:"column", gap:"18px" }}>
                 <div><label style={lbl}>Pro's Full Name *</label><input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="e.g. Aaliyah Monroe" style={inp}/></div>
                 <div><label style={lbl}>Specialty *</label>
@@ -2852,8 +2864,8 @@ export default function App() {
                   )}
                 </div>
 
-                <div><label style={lbl}>Why do you recommend them? *</label>
-                  <textarea value={form.why} onChange={e=>setForm({...form,why:e.target.value})} placeholder="Tell us what makes them exceptional..." style={{...inp,height:"100px",resize:"vertical"}}/>
+                <div><label style={lbl}>Why should others book them? *</label>
+                  <textarea value={form.why} onChange={e=>setForm({...form,why:e.target.value})} placeholder="Tell us what makes them exceptional — their skill, vibe, communication, results..." style={{...inp,height:"100px",resize:"vertical"}}/>
                 </div>
 
                 {/* PHOTOS */}
@@ -2917,11 +2929,12 @@ export default function App() {
 
                 <div style={{ background:"#fff", border:"1.5px solid #e5e5e5", borderRadius:"10px", padding:"14px 16px" }}>
                   <p style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#888", margin:0, lineHeight:"1.6" }}>
-                    By submitting this recommendation, you confirm this reflects your genuine personal experience and agree to our <span onClick={()=>goTo("terms")} style={{ color:"#1A00B9", fontWeight:"700", cursor:"pointer" }}>Terms of Service</span> and <span onClick={()=>goTo("privacy")} style={{ color:"#1A00B9", fontWeight:"700", cursor:"pointer" }}>Privacy Policy</span>.
+                    By submitting this referral, you confirm this reflects your genuine personal experience and agree to our <span onClick={()=>goTo("terms")} style={{ color:"#1A00B9", fontWeight:"700", cursor:"pointer" }}>Terms of Service</span> and <span onClick={()=>goTo("privacy")} style={{ color:"#1A00B9", fontWeight:"700", cursor:"pointer" }}>Privacy Policy</span>.
                   </p>
                 </div>
 
-                {!ratingsComplete&&<div style={{ background:"#fff", border:"1.5px solid #B7CF4F", borderRadius:"10px", padding:"12px 16px", fontSize:"13px", fontWeight:"700", color:"#888" }}>⭐ Please rate all 7 categories before submitting.</div>}
+                {!ratingsComplete&&<div style={{ background:"#fffdf0", border:"1.5px solid #B7CF4F", borderRadius:"10px", padding:"12px 16px", fontSize:"13px", fontWeight:"700", color:"#7a6800", display:"flex", alignItems:"center", gap:"8px" }}>⭐ Rate all 7 categories to unlock submit.</div>}
+                {ratingsComplete&&(!form.name||!form.specialty||!form.why)&&<div style={{ background:"#f4f2ff", border:"1.5px solid #9B8AFB", borderRadius:"10px", padding:"12px 16px", fontSize:"13px", fontWeight:"700", color:"#1A00B9", display:"flex", alignItems:"center", gap:"8px" }}>✦ Almost there — fill in the pro's name, specialty, and your review.</div>}
                 {submitError&&<div style={{ background:"#fff0f0", border:"1.5px solid #ff4444", borderRadius:"10px", padding:"12px 16px", fontSize:"13px", fontWeight:"700", color:"#cc0000" }}>❌ {submitError}</div>}
 
                 <button onClick={async ()=>{
@@ -3005,6 +3018,22 @@ export default function App() {
                       const { data: newRec, error: recErr } = await supabase.from("recommendations").insert([{ pro_id: proId, ...recPayload }]).select("id").single();
                       if (recErr) { setSubmitError("Error saving referral: " + recErr.message); return; }
                       setSubmittedRecId(newRec?.id);
+                      // Recalculate true average ratings across ALL referrals for this pro
+                      const { data: allRecs } = await supabase.from("recommendations")
+                        .select("rating_service_outcome,rating_parking,rating_customer_service,rating_wait_time,rating_communication,rating_value,rating_cleanliness")
+                        .eq("pro_id", proId);
+                      if (allRecs && allRecs.length > 0) {
+                        const avg = (field) => { const v = allRecs.map(r=>parseFloat(r[field])||0).filter(x=>x>0); return v.length ? v.reduce((a,b)=>a+b,0)/v.length : 0; };
+                        const so=avg("rating_service_outcome"), pk=avg("rating_parking"), cs=avg("rating_customer_service"),
+                              wt=avg("rating_wait_time"), cm=avg("rating_communication"), va=avg("rating_value"), cl=avg("rating_cleanliness");
+                        const overall = [so,pk,cs,wt,cm,va,cl].filter(x=>x>0);
+                        await supabase.from("pros").update({
+                          rating_service_outcome: so, rating_parking: pk, rating_customer_service: cs,
+                          rating_wait_time: wt, rating_communication: cm, rating_value: va, rating_cleanliness: cl,
+                          rating_overall: overall.length ? overall.reduce((a,b)=>a+b,0)/overall.length : 0,
+                          review_count: allRecs.length,
+                        }).eq("id", proId);
+                      }
                     }
                   }
 
