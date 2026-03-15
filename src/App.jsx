@@ -49,11 +49,7 @@ const mapSupabasePro = (r) => ({
   isCommunity:   true,
 });
 
-const pros = [
-  { id:1, name:"Aaliyah Monroe", specialty:"Hair Stylists", location:"Atlanta, GA", lat:33.749, lng:-84.388, ratings:{serviceOutcome:5,parking:4,customerService:5,waitTime:4,communication:5,value:4,cleanliness:5}, reviews:214, tags:["Braids","Natural Hair","Color"], bio:"Award-winning hair artist specializing in natural textures and color transformations.", instagram:"aaliyahmonroehair", booking:"https://vagaro.com", tiktokReview:"https://www.tiktok.com/@aaliyahmonroehair/video/7321456789012345678", recommendedBy:["Jasmine T.","Kendra W.","Brianna O."], proPlus:true, isDemo:true, verified:true, weeklyRecs:8 },
-  { id:2, name:"Jade Kim", specialty:"Nail Techs", location:"Los Angeles, CA", lat:34.052, lng:-118.243, ratings:{serviceOutcome:5,parking:5,customerService:5,waitTime:5,communication:5,value:5,cleanliness:5}, reviews:302, tags:["Nail Art","Gel","Acrylics"], bio:"Nail tech to the stars. Known for intricate nail art and flawless finishes.", instagram:"jadekimnails", booking:"https://square.com", recommendedBy:["Ashley K.","Priya M.","Carmen L."], proPlus:true, isDemo:true, verified:true, weeklyRecs:12 },
-  { id:3, name:"Brianna Scott", specialty:"Lash & Brow", location:"Houston, TX", lat:29.760, lng:-95.369, ratings:{serviceOutcome:5,parking:4,customerService:5,waitTime:5,communication:5,value:4,cleanliness:5}, reviews:156, tags:["Lash Lifts","Brow Lamination","Tinting"], bio:"Transforming faces one lash at a time. Precision brow shaping is her signature.", instagram:"briannabeautytx", booking:"https://booksy.com", recommendedBy:["Monique F.","Lisa A.","Tara N."], proPlus:true, isDemo:true, verified:true, weeklyRecs:6 },
-];
+const pros = [];
 
 // ─── STYLES ──────────────────────────────────────────────────────────────────
 const inp = { width:"100%", padding:"14px 16px", borderRadius:"10px", border:"1.5px solid #1A00B9", fontSize:"14px", fontFamily:"sans-serif", background:"#fff", boxSizing:"border-box", outline:"none" };
@@ -1022,7 +1018,7 @@ function ProSignIn({ onLogin, goTo }) {
 
 // ─── PRO+ DASHBOARD ──────────────────────────────────────────────────────────
 function ProDashboard({ goTo, onLogout, proData }) {
-  const pro = proData || pros[0];
+  const pro = proData || { name:"", specialty:"", location:"", ratings:defaultRatings(), reviews:0, tags:[], bio:"", instagram:"", booking:"", tiktokReview:"", recommendedBy:[], proPlus:false, verified:false, weeklyRecs:0, photoUrl:"", supabaseId:null };
   const overall = avgRating(pro.ratings);
   const [activeTab, setActiveTab] = useState("overview");
   const [copied, setCopied] = useState(false);
@@ -1068,10 +1064,10 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
   const typeColor= (type) => ({ rec:"#1A00B9", badge:"#1A00B9", tiktok:"#fff" }[type] || "#1A00B9");
 
   const monthlyData = [
-    { month:"Aug", recs:4 },{ month:"Sep", recs:6 },{ month:"Oct", recs:9 },
-    { month:"Nov", recs:7 },{ month:"Dec", recs:11 },{ month:"Jan", recs:8 },
+    { month:"Aug", recs:0 },{ month:"Sep", recs:0 },{ month:"Oct", recs:0 },
+    { month:"Nov", recs:0 },{ month:"Dec", recs:0 },{ month:"Jan", recs:0 },
   ];
-  const maxRecs = Math.max(...monthlyData.map(d=>d.recs));
+  const maxRecs = Math.max(...monthlyData.map(d=>d.recs), 1);
   const tabs = ["overview","credentials","your wins","widget"];
 
   return (
@@ -1759,9 +1755,6 @@ function ProModal({ pro, onClose, goToRecommend, getDistance }) {
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"8px", flexWrap:"wrap" }}>
           <div style={{ display:"inline-block", background:"#B7CF4F", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"4px 12px", fontSize:"11px", fontFamily:"sans-serif", fontWeight:"800" }}>{pro.specialty}</div>
-          {pro.isDemo && <div style={{ display:"inline-flex", alignItems:"center", gap:"5px", background:"#f4f2ff", border:"1px solid #9B8AFB", borderRadius:"20px", padding:"4px 12px" }}>
-            <span style={{ fontSize:"11px", fontFamily:"sans-serif", fontWeight:"800", color:"#9B8AFB", letterSpacing:"0.5px" }}>✦ DEMO PROFILE</span>
-          </div>}
         </div>
           <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#888", margin:"0 0 10px", display:"flex", alignItems:"center", gap:"10px", flexWrap:"wrap" }}>
             📍 {pro.location}
@@ -2139,7 +2132,6 @@ export default function App() {
                         <h3 style={{ margin:0, fontFamily:"Georgia,serif", fontSize:"16px", fontWeight:"900", letterSpacing:"-0.2px", color:"#111" }}>{pro.name}</h3>
                         {pro.proPlus && <span style={{ background:"#edfad4", color:"#4a7c20", borderRadius:"6px", padding:"2px 8px", fontSize:"9px", fontWeight:"700", letterSpacing:"0.5px" }}>PRO+</span>}
                         {pro.verified && <span style={{ background:"#edfad4", color:"#4a7c20", borderRadius:"6px", padding:"2px 7px", fontSize:"9px", fontWeight:"700" }}>✓</span>}
-                        {pro.isDemo && <span style={{ background:"#f4f2ff", color:"#9B8AFB", border:"1px solid #9B8AFB", borderRadius:"6px", padding:"2px 7px", fontSize:"9px", fontWeight:"800", letterSpacing:"0.5px" }}>DEMO</span>}
                       </div>
 
                       {/* Specialty + location */}
@@ -2379,7 +2371,6 @@ export default function App() {
                         <div style={{ display:"flex", alignItems:"center", gap:"6px", marginBottom:"3px" }}>
                           <h3 style={{ margin:0, fontFamily:"Georgia,serif", fontSize:"16px", fontWeight:"900" }}>{pro.name}</h3>
                           {pro.verified && <span style={{ background:"#B7CF4F", color:"#1A00B9", borderRadius:"6px", padding:"1px 6px", fontSize:"9px", fontWeight:"800" }}>✓</span>}
-                          {pro.isDemo && <span style={{ background:"#f4f2ff", color:"#9B8AFB", border:"1px solid #9B8AFB", borderRadius:"6px", padding:"1px 6px", fontSize:"9px", fontWeight:"800" }}>DEMO</span>}
                         </div>
                         <p style={{ margin:"0 0 10px", fontSize:"12px", color:"#888" }}>{pro.specialty} · 📍 {pro.location}</p>
                         <p style={{ margin:"0 0 12px", fontSize:"12px", color:"#555", lineHeight:"1.5" }}>{pro.bio.slice(0,80)}...</p>
