@@ -1917,6 +1917,7 @@ export default function App() {
   const [submittedProId, setSubmittedProId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [hasEdited, setHasEdited] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const allPros = [...pros, ...communityPros];
 
@@ -2534,9 +2535,11 @@ export default function App() {
                 </div>
 
                 {!ratingsComplete&&<div style={{ background:"#fff", border:"1.5px solid #B7CF4F", borderRadius:"10px", padding:"12px 16px", fontSize:"13px", fontWeight:"700", color:"#888" }}>⭐ Please rate all 7 categories before submitting.</div>}
+                {submitError&&<div style={{ background:"#fff0f0", border:"1.5px solid #ff4444", borderRadius:"10px", padding:"12px 16px", fontSize:"13px", fontWeight:"700", color:"#cc0000" }}>❌ {submitError}</div>}
 
                 <button onClick={async ()=>{
                   if(!(form.name&&form.specialty&&form.why&&ratingsComplete)) return;
+                  setSubmitError("");
                   const savedPhotos = uploadedPhotos.filter(p=>!p.uploading).map(p=>p.url);
                   const recPayload = {
                     submitter_name: form.yourName || "",
@@ -2558,7 +2561,7 @@ export default function App() {
                   if (isEditing && submittedRecId && submittedProId) {
                     // UPDATE existing recommendation
                     const { error: updRecErr } = await supabase.from("recommendations").update(recPayload).eq("id", submittedRecId);
-                    if (updRecErr) { alert("Error updating referral: " + updRecErr.message); return; }
+                    if (updRecErr) { setSubmitError("Error updating referral: " + updRecErr.message); return; }
                     // UPDATE pros ratings too
                     await supabase.from("pros").update({
                       rating_service_outcome: formRatings.serviceOutcome || 0,
@@ -2577,7 +2580,7 @@ export default function App() {
                     // CREATE new pro + recommendation
                     let proId = null;
                     const { data: existing, error: findErr } = await supabase.from("pros").select("id").ilike("first_name", form.name.split(" ")[0]).limit(1);
-                    if (findErr) { alert("Error finding pro: " + findErr.message); return; }
+                    if (findErr) { setSubmitError("Error finding pro: " + findErr.message); return; }
                     if (existing && existing.length > 0) {
                       proId = existing[0].id;
                     } else {
@@ -2607,13 +2610,13 @@ export default function App() {
                         review_count: 1,
                         is_active: true, is_approved: false, is_claimed: false, is_verified: false, is_pro_plus: false, is_trending: false,
                       }]).select("id").single();
-                      if (insertProErr) { alert("Error creating pro: " + insertProErr.message); return; }
+                      if (insertProErr) { setSubmitError("Error creating pro: " + insertProErr.message); return; }
                       proId = newPro?.id;
                     }
                     setSubmittedProId(proId);
                     if (proId) {
                       const { data: newRec, error: recErr } = await supabase.from("recommendations").insert([{ pro_id: proId, ...recPayload }]).select("id").single();
-                      if (recErr) { alert("Error saving referral: " + recErr.message); return; }
+                      if (recErr) { setSubmitError("Error saving referral: " + recErr.message); return; }
                       setSubmittedRecId(newRec?.id);
                     }
                   }
