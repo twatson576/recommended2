@@ -2530,6 +2530,7 @@ export default function App() {
                   } else {
                     const parts = (form.location || "").split(",");
                     const nameParts = form.name.trim().split(" ");
+                    const savedPhotos = uploadedPhotos.filter(p=>!p.uploading).map(p=>p.url);
                     const { data: newPro, error: insertProErr } = await supabase
                       .from("pros")
                       .insert([{
@@ -2543,6 +2544,7 @@ export default function App() {
                         location_state: parts[1]?.trim() || "",
                         location_display: form.location || "",
                         bio: form.why || "",
+                        photo_url: savedPhotos[0] || "",
                         is_active: true,
                         is_approved: false,
                         is_claimed: false,
@@ -2557,6 +2559,7 @@ export default function App() {
                   }
 
                   // 2. Insert recommendation
+                  const savedPhotos = uploadedPhotos.filter(p=>!p.uploading).map(p=>p.url);
                   if (proId) {
                     const { error: recErr } = await supabase.from("recommendations").insert([{
                       pro_id: proId,
@@ -2572,6 +2575,7 @@ export default function App() {
                       rating_overall: parseFloat(avgRating(formRatings)) || 0,
                       review_text: form.why,
                       tiktok_review_url: form.tiktok || "",
+                      photo_urls: savedPhotos,
                       status: "pending",
                     }]);
                     if (recErr) { alert("Error saving referral: " + recErr.message); return; }
