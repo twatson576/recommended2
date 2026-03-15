@@ -2003,7 +2003,11 @@ export default function App() {
           .about-hero,.about-how,.about-cta{padding:40px 16px!important;}
           .name-grid{grid-template-columns:1fr!important;}
           .hero-pad{padding:56px 20px 40px!important;}
-          .stats-pad{padding:32px 20px!important;}
+          .stats-pad{padding:32px 16px!important;}
+          .stats-grid{grid-template-columns:repeat(2,1fr)!important;}
+          .stats-grid>div{border-right:none!important;border-bottom:1px solid #e0ddf5!important;}
+          .stats-grid>div:nth-child(odd){border-right:1px solid #e0ddf5!important;}
+          .stats-grid>div:nth-last-child(-n+2){border-bottom:none!important;}
           .what-we-are-col{padding:28px 20px!important;}
           .bridge-pad{padding:40px 20px!important;}
           .how-pad{padding:40px 20px!important;}
@@ -2224,16 +2228,16 @@ export default function App() {
           </div>
           {/* ── SOCIAL PROOF STATS ── */}
           <div className="stats-pad" style={{ background:"#fafafa", borderBottom:"1px solid #f0eef8", padding:"48px 40px" }}>
-            <div style={{ maxWidth:"900px", margin:"0 auto", display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))", gap:"0" }}>
+            <div className="stats-grid" style={{ maxWidth:"900px", margin:"0 auto", display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"0" }}>
               {[
                 { num:"Growing", label:"Community Recommendations" },
                 { num:"7", label:"Rating Categories Per Pro" },
                 { num:"100%", label:"Real Client Reviews" },
                 { num:"Nationwide", label:"Beauty Pros" },
               ].map((s,i,arr)=>(
-                <div key={i} style={{ textAlign:"center", padding:"20px 24px", borderRight:i<arr.length-1?"1px solid rgba(255,255,255,0.15)":"none" }}>
-                  <p style={{ margin:"0 0 4px", fontFamily:"Georgia,serif", fontSize:"40px", fontWeight:"900", color:"#1A00B9", letterSpacing:"-1.5px" }}>{s.num}</p>
-                  <p style={{ margin:0, fontSize:"12px", fontWeight:"700", color:"#666", letterSpacing:"0.5px" }}>{s.label}</p>
+                <div key={i} style={{ textAlign:"center", padding:"20px 16px", borderRight:i<arr.length-1?"1px solid #e0ddf5":"none" }}>
+                  <p style={{ margin:"0 0 4px", fontFamily:"Georgia,serif", fontSize:"clamp(18px,3.5vw,40px)", fontWeight:"900", color:"#1A00B9", letterSpacing:"-0.5px", wordBreak:"break-word" }}>{s.num}</p>
+                  <p style={{ margin:0, fontSize:"clamp(10px,1.5vw,12px)", fontWeight:"700", color:"#666", letterSpacing:"0.5px", lineHeight:"1.4" }}>{s.label}</p>
                 </div>
               ))}
             </div>
