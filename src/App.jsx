@@ -1400,7 +1400,7 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
                     <div style={{ color:"#8B78F0", fontFamily:"Georgia,serif", fontSize:"44px", fontWeight:"900", lineHeight:1 }}>★ {overall}</div>
                     <div style={{ color:"#fff", fontFamily:"Georgia,serif", fontSize:"15px", fontWeight:"900", marginTop:"6px" }}>{pro.name}</div>
                     <div style={{ color:"rgba(255,255,255,0.45)", fontSize:"10px", fontWeight:"700", letterSpacing:"1.5px", textTransform:"uppercase", marginTop:"4px" }}>{pro.specialty}</div>
-                    <div style={{ marginTop:"12px", display:"inline-block", background:"rgba(124,58,237,0.2)", border:"1px solid rgba(124,58,237,0.5)", borderRadius:"20px", padding:"3px 12px", color:"#8B78F0", fontSize:"10px", fontWeight:"800", letterSpacing:"1px" }}>AS RECOMMENDED. ✦</div>
+                    <div style={{ marginTop:"12px", display:"inline-block", background:"rgba(124,58,237,0.2)", border:"1px solid rgba(124,58,237,0.5)", borderRadius:"20px", padding:"3px 12px", color:"#8B78F0", fontSize:"10px", fontWeight:"800", letterSpacing:"1px" }}>AS REFFERED. ✦</div>
                   </div>
                   <div style={{ background:"#fff", padding:"14px 18px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                     <span style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"700", color:"#888" }}>Overall Rating Card</span>
@@ -1448,7 +1448,7 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
 
             <div style={{ background:"#EAE6FF", border:"1.5px solid #1A00B9", borderRadius:"12px", padding:"16px 20px" }}>
               <p style={{ margin:0, fontFamily:"sans-serif", fontSize:"13px", color:"#555", lineHeight:"1.6" }}>
-                💡 <strong>Pro tip:</strong> Post your rating card to your Instagram story every time you get a new recommendation. Tag <strong>@recommended</strong> and we may reshare to our community.
+                💡 <strong>Pro tip:</strong> Post your rating card to your Instagram story every time you get a new recommendation. Tag <strong>@reffered</strong> and we may reshare to our community.
               </p>
             </div>
           </div>
@@ -1916,7 +1916,7 @@ export default function App() {
           {/* ── TICKER ── */}
           <div style={{ background:"#9B8AFB", borderBottom:"1px solid #9B8AFB", padding:"12px 0", overflow:"hidden", whiteSpace:"nowrap" }}>
             <div style={{ display:"inline-block", animation:"ticker 22s linear infinite" }}>
-              {Array(8).fill("✦ COMMUNITY RECOMMENDED  ✦ RATED ACROSS 7 CATEGORIES  ✦ REAL REVIEWS  ✦ BEAUTY PROS NEAR YOU  ").map((t,i)=>(
+              {Array(8).fill("✦ COMMUNITY REFFERED  ✦ RATED ACROSS 7 CATEGORIES  ✦ REAL REVIEWS  ✦ BEAUTY PROS NEAR YOU").map((t,i)=>(
                 <span key={i} style={{ fontSize:"11px", fontWeight:"800", letterSpacing:"2px", color:"#fff", paddingRight:"40px" }}>{t}</span>
               ))}
             </div>
