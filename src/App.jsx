@@ -2554,9 +2554,8 @@ export default function App() {
                     ratings: formRatings,
                     tags: [],
                   }]);
-                  // Refresh community pros so new entry appears immediately
-                  const { data } = await supabase.from("recommendations").select("*").order("created_at",{ascending:false});
-                  if(data) setCommunityPros(data.map((r,i)=>({ id:9000+i, name:r.pro_name, specialty:r.specialty||"Hair Stylists", location:r.location||"", lat:null, lng:null, ratings:r.ratings||{}, reviews:1, tags:r.tags||[], bio:r.why||"", instagram:r.instagram||"", booking:r.booking||"", tiktokReview:r.tiktok||"", recommendedBy:r.your_name?[r.your_name]:[], proPlus:false, isDemo:false, verified:false, weeklyRecs:0, isCommunity:true })));
+                  // Refresh directory so new entry appears immediately in Browse
+                  await loadCommunityPros();
                   setSubmitted(true);
                 }}
                   style={{...btnPink, background:(!form.name||!form.specialty||!form.why||!ratingsComplete)?"#ddd":"#1A00B9", color:(!form.name||!form.specialty||!form.why||!ratingsComplete)?"#aaa":"#fff", border:"none", boxShadow:(!form.name||!form.specialty||!form.why||!ratingsComplete)?"none":"4px 4px 0 #B7CF4F", padding:"16px 32px", fontSize:"15px", width:"100%"}}>
