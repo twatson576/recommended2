@@ -1913,6 +1913,10 @@ export default function App() {
   const fileRef = useRef();
   const [form, setForm] = useState({ name:"", specialty:"", location:"", instagram:"", booking:"", why:"", yourName:"", yourEmail:"", tiktok:"" });
   const [formRatings, setFormRatings] = useState(defaultRatings());
+  const [submittedRecId, setSubmittedRecId] = useState(null);
+  const [submittedProId, setSubmittedProId] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [hasEdited, setHasEdited] = useState(false);
 
   const allPros = [...pros, ...communityPros];
 
@@ -2403,10 +2407,15 @@ export default function App() {
           {submitted ? (
             <div style={{...gridBg, background:"#B7CF4F", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"60px 40px", textAlign:"center", boxShadow:"4px 4px 0 #e0ddf5"}}>
               <div style={{ fontSize:"52px", marginBottom:"16px" }}>✨</div>
-              <h2 style={{ fontFamily:"Georgia,serif", fontSize:"28px", fontWeight:"900", margin:"0 0 12px", letterSpacing:"-1px" }}>You're the best!</h2>
-              <p style={{ color:"#444", lineHeight:"1.6", margin:"0 0 6px" }}>Thanks for recommending <strong>{form.name}</strong>.</p>
+              <h2 style={{ fontFamily:"Georgia,serif", fontSize:"28px", fontWeight:"900", margin:"0 0 12px", letterSpacing:"-1px" }}>{isEditing ? "Referral updated!" : "You're the best!"}</h2>
+              <p style={{ color:"#444", lineHeight:"1.6", margin:"0 0 6px" }}>Thanks for referring <strong>{form.name}</strong>.</p>
               <p style={{ color:"#666", fontSize:"14px", margin:"0 0 24px" }}>Overall score submitted: <strong>★ {avgRating(formRatings)} / 5</strong></p>
-              <button onClick={()=>{ goTo("home"); setUploadedPhotos([]); setForm({name:"",specialty:"",location:"",instagram:"",booking:"",why:"",yourName:"",yourEmail:"",tiktok:""}); setFormRatings(defaultRatings()); }} style={{...btnDark}}>Back to Directory</button>
+              <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
+                <button onClick={()=>{ goTo("home"); setUploadedPhotos([]); setForm({name:"",specialty:"",location:"",instagram:"",booking:"",why:"",yourName:"",yourEmail:"",tiktok:""}); setFormRatings(defaultRatings()); setIsEditing(false); }} style={{...btnDark}}>Back to Directory</button>
+                {!hasEdited && submittedRecId && (
+                  <button onClick={()=>{ setSubmitted(false); setIsEditing(true); }} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"40px", padding:"12px 24px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", color:"#1A00B9" }}>Edit my referral</button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="form-wrap" style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"40px", boxShadow:"4px 4px 0 #e0ddf5" }}>
@@ -2514,26 +2523,53 @@ export default function App() {
 
                 <button onClick={async ()=>{
                   if(!(form.name&&form.specialty&&form.why&&ratingsComplete)) return;
+                  const savedPhotos = uploadedPhotos.filter(p=>!p.uploading).map(p=>p.url);
+                  const recPayload = {
+                    submitter_name: form.yourName || "",
+                    submitter_email: form.yourEmail || "",
+                    rating_service_outcome: formRatings.serviceOutcome || 0,
+                    rating_parking: formRatings.parking || 0,
+                    rating_customer_service: formRatings.customerService || 0,
+                    rating_wait_time: formRatings.waitTime || 0,
+                    rating_communication: formRatings.communication || 0,
+                    rating_value: formRatings.value || 0,
+                    rating_cleanliness: formRatings.cleanliness || 0,
+                    rating_overall: parseFloat(avgRating(formRatings)) || 0,
+                    review_text: form.why,
+                    tiktok_review_url: form.tiktok || "",
+                    photo_urls: savedPhotos,
+                    status: "pending",
+                  };
 
-                  // 1. Find or create the pro in the pros table
-                  let proId = null;
-                  const { data: existing, error: findErr } = await supabase
-                    .from("pros")
-                    .select("id")
-                    .ilike("first_name", form.name.split(" ")[0])
-                    .limit(1);
-
-                  if (findErr) { alert("Error finding pro: " + findErr.message); return; }
-
-                  if (existing && existing.length > 0) {
-                    proId = existing[0].id;
+                  if (isEditing && submittedRecId && submittedProId) {
+                    // UPDATE existing recommendation
+                    const { error: updRecErr } = await supabase.from("recommendations").update(recPayload).eq("id", submittedRecId);
+                    if (updRecErr) { alert("Error updating referral: " + updRecErr.message); return; }
+                    // UPDATE pros ratings too
+                    await supabase.from("pros").update({
+                      rating_service_outcome: formRatings.serviceOutcome || 0,
+                      rating_parking: formRatings.parking || 0,
+                      rating_customer_service: formRatings.customerService || 0,
+                      rating_wait_time: formRatings.waitTime || 0,
+                      rating_communication: formRatings.communication || 0,
+                      rating_value: formRatings.value || 0,
+                      rating_cleanliness: formRatings.cleanliness || 0,
+                      rating_overall: parseFloat(avgRating(formRatings)) || 0,
+                      ...(savedPhotos[0] ? { photo_url: savedPhotos[0] } : {}),
+                    }).eq("id", submittedProId);
+                    setHasEdited(true);
+                    setIsEditing(false);
                   } else {
-                    const parts = (form.location || "").split(",");
-                    const nameParts = form.name.trim().split(" ");
-                    const savedPhotos = uploadedPhotos.filter(p=>!p.uploading).map(p=>p.url);
-                    const { data: newPro, error: insertProErr } = await supabase
-                      .from("pros")
-                      .insert([{
+                    // CREATE new pro + recommendation
+                    let proId = null;
+                    const { data: existing, error: findErr } = await supabase.from("pros").select("id").ilike("first_name", form.name.split(" ")[0]).limit(1);
+                    if (findErr) { alert("Error finding pro: " + findErr.message); return; }
+                    if (existing && existing.length > 0) {
+                      proId = existing[0].id;
+                    } else {
+                      const parts = (form.location || "").split(",");
+                      const nameParts = form.name.trim().split(" ");
+                      const { data: newPro, error: insertProErr } = await supabase.from("pros").insert([{
                         first_name: nameParts[0] || form.name,
                         last_name: nameParts.slice(1).join(" ") || "",
                         specialty: form.specialty,
@@ -2554,43 +2590,19 @@ export default function App() {
                         rating_cleanliness: formRatings.cleanliness || 0,
                         rating_overall: parseFloat(avgRating(formRatings)) || 0,
                         review_count: 1,
-                        is_active: true,
-                        is_approved: false,
-                        is_claimed: false,
-                        is_verified: false,
-                        is_pro_plus: false,
-                        is_trending: false,
-                      }])
-                      .select("id")
-                      .single();
-                    if (insertProErr) { alert("Error creating pro: " + insertProErr.message); return; }
-                    proId = newPro?.id;
+                        is_active: true, is_approved: false, is_claimed: false, is_verified: false, is_pro_plus: false, is_trending: false,
+                      }]).select("id").single();
+                      if (insertProErr) { alert("Error creating pro: " + insertProErr.message); return; }
+                      proId = newPro?.id;
+                    }
+                    setSubmittedProId(proId);
+                    if (proId) {
+                      const { data: newRec, error: recErr } = await supabase.from("recommendations").insert([{ pro_id: proId, ...recPayload }]).select("id").single();
+                      if (recErr) { alert("Error saving referral: " + recErr.message); return; }
+                      setSubmittedRecId(newRec?.id);
+                    }
                   }
 
-                  // 2. Insert recommendation
-                  const savedPhotos = uploadedPhotos.filter(p=>!p.uploading).map(p=>p.url);
-                  if (proId) {
-                    const { error: recErr } = await supabase.from("recommendations").insert([{
-                      pro_id: proId,
-                      submitter_name: form.yourName || "",
-                      submitter_email: form.yourEmail || "",
-                      rating_service_outcome: formRatings.serviceOutcome || 0,
-                      rating_parking: formRatings.parking || 0,
-                      rating_customer_service: formRatings.customerService || 0,
-                      rating_wait_time: formRatings.waitTime || 0,
-                      rating_communication: formRatings.communication || 0,
-                      rating_value: formRatings.value || 0,
-                      rating_cleanliness: formRatings.cleanliness || 0,
-                      rating_overall: parseFloat(avgRating(formRatings)) || 0,
-                      review_text: form.why,
-                      tiktok_review_url: form.tiktok || "",
-                      photo_urls: savedPhotos,
-                      status: "pending",
-                    }]);
-                    if (recErr) { alert("Error saving referral: " + recErr.message); return; }
-                  }
-
-                  // 3. Refresh directory
                   await loadCommunityPros();
                   setSubmitted(true);
                 }}
