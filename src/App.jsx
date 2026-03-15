@@ -1911,7 +1911,7 @@ export default function App() {
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef();
-  const [form, setForm] = useState({ name:"", specialty:"", location:"", instagram:"", booking:"", why:"", yourName:"", yourEmail:"", tiktok:"" });
+  const [form, setForm] = useState({ name:"", specialty:"", city:"", state:"", customCity:"", location:"", instagram:"", booking:"", why:"", yourName:"", yourEmail:"", tiktok:"" });
   const [formRatings, setFormRatings] = useState(defaultRatings());
   const [submittedRecId, setSubmittedRecId] = useState(null);
   const [submittedProId, setSubmittedProId] = useState(null);
@@ -2411,7 +2411,7 @@ export default function App() {
               <p style={{ color:"#444", lineHeight:"1.6", margin:"0 0 6px" }}>Thanks for referring <strong>{form.name}</strong>.</p>
               <p style={{ color:"#666", fontSize:"14px", margin:"0 0 24px" }}>Overall score submitted: <strong>★ {avgRating(formRatings)} / 5</strong></p>
               <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
-                <button onClick={()=>{ goTo("home"); setUploadedPhotos([]); setForm({name:"",specialty:"",location:"",instagram:"",booking:"",why:"",yourName:"",yourEmail:"",tiktok:""}); setFormRatings(defaultRatings()); setIsEditing(false); }} style={{...btnDark}}>Back to Directory</button>
+                <button onClick={()=>{ goTo("home"); setUploadedPhotos([]); setForm({name:"",specialty:"",city:"",state:"",customCity:"",location:"",instagram:"",booking:"",why:"",yourName:"",yourEmail:"",tiktok:""}); setFormRatings(defaultRatings()); setIsEditing(false); }} style={{...btnDark}}>Back to Directory</button>
                 {!hasEdited && submittedRecId && (
                   <button onClick={()=>{ setSubmitted(false); setIsEditing(true); }} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"40px", padding:"12px 24px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", color:"#1A00B9" }}>Edit my referral</button>
                 )}
@@ -2428,7 +2428,21 @@ export default function App() {
                     {["Hair Stylists","Makeup Artists","Nail Techs","Estheticians","Lash & Brow Artists"].map(s=><option key={s}>{s}</option>)}
                   </select>
                 </div>
-                <div><label style={lbl}>City & State</label><input value={form.location} onChange={e=>setForm({...form,location:e.target.value})} placeholder="e.g. Atlanta, GA" style={inp}/></div>
+                <div>
+                  <label style={lbl}>State</label>
+                  <select value={form.state} onChange={e=>setForm({...form, state:e.target.value, city:"", customCity:"", location:`${form.city}, ${e.target.value}`})} style={inp}>
+                    <option value="">Select a state...</option>
+                    {["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"].map(s=><option key={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={lbl}>City</label>
+                  <select value={form.city} onChange={e=>{ const v=e.target.value; setForm(f=>({...f, city:v, customCity:"", location:v==="Other"?"":`${v}, ${f.state}`})); }} style={inp} disabled={!form.state}>
+                    <option value="">Select a city...</option>
+                    {({AL:["Birmingham","Montgomery","Huntsville","Mobile"],AK:["Anchorage","Fairbanks","Juneau"],AZ:["Phoenix","Tucson","Scottsdale","Mesa","Tempe","Chandler"],AR:["Little Rock","Fayetteville","Fort Smith"],CA:["Los Angeles","San Francisco","San Diego","Sacramento","Oakland","San Jose","Long Beach","Fresno","Anaheim","Riverside","Bakersfield","Stockton","Irvine","Santa Ana"],CO:["Denver","Colorado Springs","Aurora","Boulder","Fort Collins"],CT:["Hartford","New Haven","Bridgeport","Stamford"],DE:["Wilmington","Dover"],FL:["Miami","Orlando","Tampa","Jacksonville","Fort Lauderdale","St. Petersburg","Hialeah","Tallahassee","Boca Raton","West Palm Beach"],GA:["Atlanta","Augusta","Columbus","Macon","Savannah","Athens","Alpharetta","Marietta","Roswell","Sandy Springs"],HI:["Honolulu","Hilo","Kailua"],ID:["Boise","Nampa","Meridian"],IL:["Chicago","Aurora","Rockford","Joliet","Naperville","Springfield","Peoria"],IN:["Indianapolis","Fort Wayne","Evansville","South Bend","Carmel"],IA:["Des Moines","Cedar Rapids","Davenport"],KS:["Wichita","Overland Park","Kansas City","Topeka"],KY:["Louisville","Lexington","Bowling Green"],LA:["New Orleans","Baton Rouge","Shreveport","Lafayette","Metairie"],ME:["Portland","Lewiston","Bangor"],MD:["Baltimore","Frederick","Rockville","Gaithersburg","Silver Spring"],MA:["Boston","Worcester","Springfield","Cambridge","Lowell","Brockton","Quincy","Lynn"],MI:["Detroit","Grand Rapids","Warren","Sterling Heights","Ann Arbor","Lansing","Flint","Dearborn"],MN:["Minneapolis","St. Paul","Rochester","Duluth","Bloomington"],MS:["Jackson","Gulfport","Southaven","Hattiesburg"],MO:["Kansas City","St. Louis","Springfield","Columbia","Independence"],MT:["Billings","Missoula","Great Falls","Bozeman"],NE:["Omaha","Lincoln","Bellevue"],NV:["Las Vegas","Henderson","Reno","North Las Vegas"],NH:["Manchester","Nashua","Concord"],NJ:["Newark","Jersey City","Paterson","Elizabeth","Trenton","Edison","Woodbridge"],NM:["Albuquerque","Las Cruces","Rio Rancho","Santa Fe"],NY:["New York City","Buffalo","Rochester","Yonkers","Syracuse","Albany","New Rochelle","White Plains","Bronx","Brooklyn","Queens","Staten Island"],NC:["Charlotte","Raleigh","Greensboro","Durham","Winston-Salem","Fayetteville","Cary","Wilmington","High Point","Asheville"],ND:["Fargo","Bismarck","Grand Forks"],OH:["Columbus","Cleveland","Cincinnati","Toledo","Akron","Dayton"],OK:["Oklahoma City","Tulsa","Norman","Broken Arrow","Edmond"],OR:["Portland","Salem","Eugene","Gresham","Hillsboro"],PA:["Philadelphia","Pittsburgh","Allentown","Erie","Reading","Scranton"],RI:["Providence","Cranston","Warwick","Pawtucket"],SC:["Columbia","Charleston","North Charleston","Mount Pleasant","Rock Hill","Greenville"],SD:["Sioux Falls","Rapid City","Aberdeen"],TN:["Nashville","Memphis","Knoxville","Chattanooga","Clarksville","Murfreesboro"],TX:["Houston","San Antonio","Dallas","Austin","Fort Worth","El Paso","Arlington","Corpus Christi","Plano","Laredo","Lubbock","Irving","Garland","Frisco","McKinney","Denton","Killeen"],UT:["Salt Lake City","West Valley City","Provo","West Jordan","Sandy","Orem"],VT:["Burlington","Essex","South Burlington"],VA:["Virginia Beach","Norfolk","Chesapeake","Richmond","Newport News","Alexandria","Hampton","Roanoke"],WA:["Seattle","Spokane","Tacoma","Vancouver","Bellevue","Kirkland","Redmond","Renton"],WV:["Charleston","Huntington","Morgantown"],WI:["Milwaukee","Madison","Green Bay","Kenosha","Racine"],WY:["Cheyenne","Casper","Laramie"],DC:["Washington"]}[form.state]||[]).concat(["Other"]).map(c=><option key={c}>{c}</option>)}
+                  </select>
+                  {form.city==="Other" && <input value={form.customCity} onChange={e=>setForm(f=>({...f, customCity:e.target.value, location:`${e.target.value}, ${f.state}`}))} placeholder="Enter your city" style={{...inp, marginTop:"8px"}}/>}
+                </div>
                 <div><label style={lbl}>Instagram Handle</label>
                   <div style={{ position:"relative" }}>
                     <span style={{ position:"absolute", left:"14px", top:"50%", transform:"translateY(-50%)", color:"#aaa", fontWeight:"700" }}>@</span>
@@ -2567,7 +2581,8 @@ export default function App() {
                     if (existing && existing.length > 0) {
                       proId = existing[0].id;
                     } else {
-                      const parts = (form.location || "").split(",");
+                      const cityVal = form.city === "Other" ? form.customCity : form.city;
+                      const locationDisplay = cityVal && form.state ? `${cityVal}, ${form.state}` : (form.location || "");
                       const nameParts = form.name.trim().split(" ");
                       const { data: newPro, error: insertProErr } = await supabase.from("pros").insert([{
                         first_name: nameParts[0] || form.name,
@@ -2576,9 +2591,9 @@ export default function App() {
                         instagram: form.instagram || "",
                         booking_url: form.booking || "",
                         tiktok: form.tiktok || "",
-                        location_city: parts[0]?.trim() || "",
-                        location_state: parts[1]?.trim() || "",
-                        location_display: form.location || "",
+                        location_city: cityVal || "",
+                        location_state: form.state || "",
+                        location_display: locationDisplay,
                         bio: form.why || "",
                         photo_url: savedPhotos[0] || "",
                         rating_service_outcome: formRatings.serviceOutcome || 0,
