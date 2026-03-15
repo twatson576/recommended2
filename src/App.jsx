@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "./supabase";
 
 const categories = ["All", "Hair Stylists", "Makeup Artists", "Nail Techs", "Estheticians", "Lash & Brow"];
 
@@ -1774,6 +1775,40 @@ export default function App() {
   const [userCoords, setUserCoords] = useState(null);
   const [locationStatus, setLocationStatus] = useState("idle"); // idle | loading | granted | denied
 
+  // ── Supabase: community-submitted pros ──────────────────────────
+  const [communityPros, setCommunityPros] = useState([]);
+
+  useEffect(() => {
+    supabase
+      .from("recommendations")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (!data) return;
+        const mapped = data.map((r, i) => ({
+          id: 9000 + i,
+          name: r.pro_name,
+          specialty: r.specialty || "Hair Stylists",
+          location: r.location || "",
+          lat: null, lng: null,
+          ratings: r.ratings || {},
+          reviews: 1,
+          tags: r.tags || [],
+          bio: r.why || "",
+          instagram: r.instagram || "",
+          booking: r.booking || "",
+          tiktokReview: r.tiktok || "",
+          recommendedBy: r.your_name ? [r.your_name] : [],
+          proPlus: false,
+          isDemo: false,
+          verified: false,
+          weeklyRecs: 0,
+          isCommunity: true,
+        }));
+        setCommunityPros(mapped);
+      });
+  }, []);
+
   // Ask for location once on mount
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -1808,7 +1843,9 @@ export default function App() {
   const [form, setForm] = useState({ name:"", specialty:"", location:"", instagram:"", booking:"", why:"", yourName:"", yourEmail:"", tiktok:"" });
   const [formRatings, setFormRatings] = useState(defaultRatings());
 
-  const filtered = pros
+  const allPros = [...pros, ...communityPros];
+
+  const filtered = allPros
     .filter(p=>activeCategory==="All"||p.specialty===activeCategory)
     .filter(p=>p.name.toLowerCase().includes(search.toLowerCase())||p.location.toLowerCase().includes(search.toLowerCase())||p.tags.some(t=>t.toLowerCase().includes(search.toLowerCase())))
     .sort((a,b)=>{ // Pro+ featured first, then trending, then regular
@@ -2391,7 +2428,26 @@ export default function App() {
 
                 {!ratingsComplete&&<div style={{ background:"#fff", border:"1.5px solid #B7CF4F", borderRadius:"10px", padding:"12px 16px", fontSize:"13px", fontWeight:"700", color:"#888" }}>⭐ Please rate all 7 categories before submitting.</div>}
 
-                <button onClick={()=>{ if(form.name&&form.specialty&&form.why&&ratingsComplete) setSubmitted(true); }}
+                <button onClick={async ()=>{
+                  if(!(form.name&&form.specialty&&form.why&&ratingsComplete)) return;
+                  await supabase.from("recommendations").insert([{
+                    pro_name: form.name,
+                    specialty: form.specialty,
+                    location: form.location,
+                    instagram: form.instagram,
+                    booking: form.booking,
+                    tiktok: form.tiktok || "",
+                    why: form.why,
+                    your_name: form.yourName,
+                    your_email: form.yourEmail,
+                    ratings: formRatings,
+                    tags: [],
+                  }]);
+                  // Refresh community pros so new entry appears immediately
+                  const { data } = await supabase.from("recommendations").select("*").order("created_at",{ascending:false});
+                  if(data) setCommunityPros(data.map((r,i)=>({ id:9000+i, name:r.pro_name, specialty:r.specialty||"Hair Stylists", location:r.location||"", lat:null, lng:null, ratings:r.ratings||{}, reviews:1, tags:r.tags||[], bio:r.why||"", instagram:r.instagram||"", booking:r.booking||"", tiktokReview:r.tiktok||"", recommendedBy:r.your_name?[r.your_name]:[], proPlus:false, isDemo:false, verified:false, weeklyRecs:0, isCommunity:true })));
+                  setSubmitted(true);
+                }}
                   style={{...btnPink, background:(!form.name||!form.specialty||!form.why||!ratingsComplete)?"#ddd":"#1A00B9", color:(!form.name||!form.specialty||!form.why||!ratingsComplete)?"#aaa":"#fff", border:"none", boxShadow:(!form.name||!form.specialty||!form.why||!ratingsComplete)?"none":"4px 4px 0 #B7CF4F", padding:"16px 32px", fontSize:"15px", width:"100%"}}>
                   Submit Recommendation →
                 </button>
