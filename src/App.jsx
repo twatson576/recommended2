@@ -636,6 +636,11 @@ function ProSignIn({ onLogin, goTo }) {
   const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
   const [resetDone, setResetDone] = useState(false);
 
+  // ── Plan selection ──
+  const [selectedPlan, setSelectedPlan] = useState(null); // "pro" | "pro_plus"
+  const [billingInterval, setBillingInterval] = useState("month"); // "month" | "year"
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+
   // ── Sign Up state ──
   const [su, setSu] = useState({ firstName:"", lastName:"", email:"", password:"", confirmPassword:"", specialty:"", city:"", state:"", agreeTerms:false });
   const [suError, setSuError] = useState("");
@@ -671,6 +676,7 @@ function ProSignIn({ onLogin, goTo }) {
     setSuLoading(true);
     const { data, error: err } = await supabase.auth.signUp({ email: su.email, password: su.password });
     if (err) { setSuLoading(false); setSuError(err.message); return; }
+    const isPro = selectedPlan === "pro_plus";
     await supabase.from("pros").insert([{
       id: data.user.id,
       profile_id: data.user.id,
@@ -685,12 +691,30 @@ function ProSignIn({ onLogin, goTo }) {
       is_approved: false,
       is_claimed: true,
       is_verified: false,
-      is_pro_plus: false,
+      is_pro_plus: isPro,
     }]);
     setSuUserId(data.user.id);
     setSuLoading(false);
-    setSuDone(true);
-    setOnboardStep(1);
+    if (isPro) {
+      // Redirect to Stripe Checkout for Pro+ payment
+      setCheckoutLoading(true);
+      try {
+        const res = await fetch("/api/create-checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: data.user.id, email: su.email, interval: billingInterval }),
+        });
+        const json = await res.json();
+        if (json.url) { window.location.href = json.url; return; }
+        setSuError("Payment setup failed. Please try again.");
+      } catch (e) {
+        setSuError("Payment setup failed: " + e.message);
+      }
+      setCheckoutLoading(false);
+    } else {
+      setSuDone(true);
+      setOnboardStep(1);
+    }
   };
 
   const tabStyle = (active) => ({
@@ -759,6 +783,7 @@ function ProSignIn({ onLogin, goTo }) {
                     </div>
                   ))}
                 </div>
+                <button onClick={()=>{ setSelectedPlan("pro"); setTab("signup"); }} style={{ marginTop:"20px", width:"100%", padding:"12px", background:"#fff", border:"2px solid #1A00B9", borderRadius:"10px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#1A00B9", cursor:"pointer", boxShadow:"3px 3px 0 #1A00B9" }}>Start Free →</button>
               </div>
 
               {/* Pro+ */}
@@ -790,6 +815,7 @@ function ProSignIn({ onLogin, goTo }) {
                     </div>
                   ))}
                 </div>
+                <button onClick={()=>{ setSelectedPlan("pro_plus"); setTab("signup"); }} style={{ marginTop:"20px", width:"100%", padding:"12px", background:"#1A00B9", border:"2px solid #1A00B9", borderRadius:"10px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#fff", cursor:"pointer", boxShadow:"4px 4px 0 #B7CF4F" }}>Start Pro+ →</button>
               </div>
             </div>
 
@@ -925,6 +951,15 @@ function ProSignIn({ onLogin, goTo }) {
             {/* ── SIGN UP ── */}
             {tab==="signup" && !suDone && (
               <div style={{ display:"flex", flexDirection:"column", gap:"16px" }}>
+                {/* Plan badge */}
+                {selectedPlan && (
+                  <div style={{ background: selectedPlan==="pro_plus" ? "#EAE6FF" : "#f4f4f4", border:"1.5px solid #1A00B9", borderRadius:"10px", padding:"10px 16px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                    <span style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"800", color:"#1A00B9" }}>
+                      {selectedPlan==="pro_plus" ? "✦ Pro+ — $9.99/mo or $75/yr" : "✓ Pro — Free"}
+                    </span>
+                    <span onClick={()=>{ setSelectedPlan(null); setTab("signup"); }} style={{ fontSize:"11px", color:"#aaa", cursor:"pointer", fontFamily:"sans-serif", fontWeight:"700" }}>Change plan</span>
+                  </div>
+                )}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px" }}>
                   <div><label style={lbl}>First Name *</label><input value={su.firstName} onChange={e=>setSu({...su,firstName:e.target.value})} placeholder="First" style={inp}/></div>
                   <div><label style={lbl}>Last Name *</label><input value={su.lastName} onChange={e=>setSu({...su,lastName:e.target.value})} placeholder="Last" style={inp}/></div>
@@ -995,7 +1030,7 @@ function ProSignIn({ onLogin, goTo }) {
 
                 <button onClick={handleSignUp}
                   style={{...btnPink, width:"100%", padding:"14px", fontSize:"14px", border:"1.5px solid #1A00B9", boxShadow:"4px 4px 0 #B7CF4F", opacity:suLoading?0.7:1}}>
-                  {suLoading ? "Creating account..." : "Create Pro+ Account →"}
+                  {suLoading || checkoutLoading ? (selectedPlan==="pro_plus" ? "Redirecting to payment..." : "Creating account...") : (selectedPlan==="pro_plus" ? "Create Pro+ Account →" : "Create Free Account →")}
                 </button>
 
                 <p style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#aaa", textAlign:"center", margin:0 }}>
@@ -2334,6 +2369,24 @@ export default function App() {
           <button onClick={()=>goTo("recommend")} style={{...btnDark, padding:"9px 18px", fontSize:"12px", boxShadow:"3px 3px 0 #B7CF4F", whiteSpace:"nowrap"}}>+ Refer</button>
         </div>
       </nav>
+
+      {/* PRO+ SUCCESS (redirect back from Stripe) */}
+      {(()=>{
+        if(typeof window === "undefined") return null;
+        const params = new URLSearchParams(window.location.search);
+        if(!params.get("pro_success")) return null;
+        return (
+          <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#f4f2ff", padding:"40px 20px" }}>
+            <div style={{ background:"#fff", border:"2px solid #1A00B9", borderRadius:"24px", padding:"48px 40px", maxWidth:"440px", width:"100%", textAlign:"center", boxShadow:"6px 6px 0 #1A00B9" }}>
+              <div style={{ fontSize:"48px", marginBottom:"16px" }}>🎉</div>
+              <p style={{ fontFamily:"sans-serif", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#1A00B9", margin:"0 0 8px" }}>Welcome to Pro+</p>
+              <h2 style={{ fontFamily:"Georgia,serif", fontSize:"28px", fontWeight:"900", margin:"0 0 12px" }}>You're all set!</h2>
+              <p style={{ fontFamily:"sans-serif", fontSize:"14px", color:"#555", margin:"0 0 28px", lineHeight:"1.6" }}>Your Pro+ membership is now active. Unlock your full dashboard, insights, and more.</p>
+              <button onClick={()=>{ window.history.replaceState({}, "", "/"); goTo("dashboard"); }} style={{ background:"#1A00B9", color:"#fff", border:"none", borderRadius:"10px", padding:"14px 28px", fontFamily:"sans-serif", fontSize:"14px", fontWeight:"800", cursor:"pointer", boxShadow:"4px 4px 0 #B7CF4F", width:"100%" }}>Go to My Dashboard →</button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* HOME */}
       {page==="home" && (
