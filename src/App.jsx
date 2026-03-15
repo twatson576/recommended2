@@ -16,6 +16,39 @@ const RATING_CATEGORIES = [
 const defaultRatings = () => Object.fromEntries(RATING_CATEGORIES.map(c => [c.key, 0]));
 const avgRating = (r) => { const v = Object.values(r).filter(x => x > 0); return v.length ? (v.reduce((a,b)=>a+b,0)/v.length).toFixed(1) : 0; };
 
+// Maps a Supabase `pros` row → app pro format
+const mapSupabasePro = (r) => ({
+  id: r.id,
+  name: [r.first_name, r.last_name].filter(Boolean).join(" ") || r.business_name || "Pro",
+  specialty: r.specialty || "",
+  location: r.location_display || [r.location_city, r.location_state].filter(Boolean).join(", ") || "",
+  lat: null, lng: null,
+  ratings: {
+    serviceOutcome: parseFloat(r.rating_service_outcome) || 0,
+    parking:        parseFloat(r.rating_parking)         || 0,
+    customerService:parseFloat(r.rating_customer_service)|| 0,
+    waitTime:       parseFloat(r.rating_wait_time)       || 0,
+    communication:  parseFloat(r.rating_communication)   || 0,
+    value:          parseFloat(r.rating_value)           || 0,
+    cleanliness:    parseFloat(r.rating_cleanliness)     || 0,
+  },
+  reviews:       r.review_count     || 0,
+  tags:          r.tags             || [],
+  bio:           r.bio              || "",
+  instagram:     r.instagram        || "",
+  booking:       r.booking_url      || "",
+  tiktokReview:  r.tiktok_review_url|| "",
+  recommendedBy: [],
+  proPlus:       r.is_pro_plus      || false,
+  verified:      r.is_verified      || false,
+  isDemo:        false,
+  weeklyRecs:    r.weekly_rec_count || 0,
+  photoUrl:      r.photo_url        || "",
+  email:         r.email            || "",
+  supabaseId:    r.id,
+  isCommunity:   true,
+});
+
 const pros = [
   { id:1, name:"Aaliyah Monroe", specialty:"Hair Stylists", location:"Atlanta, GA", lat:33.749, lng:-84.388, ratings:{serviceOutcome:5,parking:4,customerService:5,waitTime:4,communication:5,value:4,cleanliness:5}, reviews:214, tags:["Braids","Natural Hair","Color"], bio:"Award-winning hair artist specializing in natural textures and color transformations.", instagram:"aaliyahmonroehair", booking:"https://vagaro.com", tiktokReview:"https://www.tiktok.com/@aaliyahmonroehair/video/7321456789012345678", recommendedBy:["Jasmine T.","Kendra W.","Brianna O."], proPlus:true, isDemo:true, verified:true, weeklyRecs:8 },
   { id:2, name:"Jade Kim", specialty:"Nail Techs", location:"Los Angeles, CA", lat:34.052, lng:-118.243, ratings:{serviceOutcome:5,parking:5,customerService:5,waitTime:5,communication:5,value:5,cleanliness:5}, reviews:302, tags:["Nail Art","Gel","Acrylics"], bio:"Nail tech to the stars. Known for intricate nail art and flawless finishes.", instagram:"jadekimnails", booking:"https://square.com", recommendedBy:["Ashley K.","Priya M.","Carmen L."], proPlus:true, isDemo:true, verified:true, weeklyRecs:12 },
@@ -404,10 +437,17 @@ const DEMO_CREDENTIALS = []; // Will load from Supabase in production
 function CredentialsTab({ pro }) {
   const isLicensed = LICENSED_SPECIALTIES.includes(pro.specialty);
   const credTypes = CREDENTIAL_TYPES[pro.specialty] || [];
-  const [creds, setCreds] = useState(DEMO_CREDENTIALS);
+  const [creds, setCreds] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ type: credTypes[0]||"", number:"", state:"", issued:"", expires:"" });
   const [submitted, setSubmitted] = useState(false);
+
+  // Load existing credentials from Supabase
+  useEffect(() => {
+    if (!pro?.supabaseId) return;
+    supabase.from("credentials").select("*").eq("pro_id", pro.supabaseId)
+      .then(({ data }) => { if (data) setCreds(data); });
+  }, [pro?.supabaseId]);
 
   const statusStyle = (s) => ({
     verified:  { bg:"#B7CF4F", color:"#1A00B9", label:"✓ Verified" },
@@ -502,7 +542,14 @@ function CredentialsTab({ pro }) {
               </p>
             </div>
 
-            <button onClick={()=>{ if(form.number&&form.state&&form.issued&&form.expires){ setCreds(prev=>[...prev,{type:form.type,number:form.number,state:form.state,issued:form.issued,expires:form.expires,status:"pending"}]); setSubmitted(true); setShowForm(false); } }}
+            <button onClick={async ()=>{ if(form.number&&form.state&&form.issued&&form.expires){
+              const newCred = {type:form.type,number:form.number,state:form.state,issued:form.issued,expires:form.expires,status:"pending"};
+              setCreds(prev=>[...prev, newCred]);
+              if (pro?.supabaseId) {
+                await supabase.from("credentials").insert([{ pro_id: pro.supabaseId, ...newCred }]);
+              }
+              setSubmitted(true); setShowForm(false);
+            }}}
               style={{...btnPink, width:"100%", padding:"14px", fontSize:"14px", border:"1.5px solid #1A00B9", boxShadow:"4px 4px 0 #B7CF4F", background:(!form.number||!form.state||!form.issued||!form.expires)?"#ddd":"#9B8AFB", color:(!form.number||!form.state||!form.issued||!form.expires)?"#aaa":"#fff" }}>
               Submit for Verification →
             </button>
@@ -596,36 +643,47 @@ function ProSignIn({ onLogin, goTo }) {
 
   // Auth handled by Supabase in production
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setError("");
     if (!email || !password) { setError("Please enter your email and password."); return; }
     setLoading(true);
-    setTimeout(() => {
-      if (email.toLowerCase() === DEMO_EMAIL && password === DEMO_PASS) {
-        setLoading(false); onLogin();
-      } else {
-        setLoading(false);
-        setError("Incorrect email or password. Try the demo credentials below.");
-      }
-    }, 900);
+    const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
+    if (err) { setLoading(false); setError(err.message); return; }
+    const { data: proRow } = await supabase.from("pros").select("*").eq("profile_id", data.user.id).single();
+    setLoading(false);
+    onLogin(proRow ? mapSupabasePro(proRow) : { id: data.user.id, name: email, specialty:"", location:"", ratings: defaultRatings(), reviews:0, tags:[], bio:"", instagram:"", booking:"", tiktokReview:"", recommendedBy:[], proPlus:false, verified:false, weeklyRecs:0 });
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     setSuError("");
     if (!su.firstName || !su.lastName || !su.email || !su.password || !su.specialty || !su.location) {
       setSuError("Please fill in all required fields."); return;
     }
-    if (su.password !== su.confirmPassword) {
-      setSuError("Passwords don't match."); return;
-    }
-    if (su.password.length < 8) {
-      setSuError("Password must be at least 8 characters."); return;
-    }
-    if (!su.agreeTerms) {
-      setSuError("Please agree to the Terms of Service to continue."); return;
-    }
+    if (su.password !== su.confirmPassword) { setSuError("Passwords don't match."); return; }
+    if (su.password.length < 8) { setSuError("Password must be at least 8 characters."); return; }
+    if (!su.agreeTerms) { setSuError("Please agree to the Terms of Service to continue."); return; }
     setSuLoading(true);
-    setTimeout(() => { setSuLoading(false); setSuDone(true); }, 1000);
+    const { data, error: err } = await supabase.auth.signUp({ email: su.email, password: su.password });
+    if (err) { setSuLoading(false); setSuError(err.message); return; }
+    const parts = su.location.split(",");
+    await supabase.from("pros").insert([{
+      id: data.user.id,
+      profile_id: data.user.id,
+      first_name: su.firstName,
+      last_name: su.lastName,
+      specialty: su.specialty,
+      email: su.email,
+      location_city: parts[0]?.trim() || su.location,
+      location_state: parts[1]?.trim() || "",
+      location_display: su.location,
+      is_active: true,
+      is_approved: false,
+      is_claimed: true,
+      is_verified: false,
+      is_pro_plus: false,
+    }]);
+    setSuLoading(false);
+    setSuDone(true);
   };
 
   const tabStyle = (active) => ({
@@ -963,8 +1021,8 @@ function ProSignIn({ onLogin, goTo }) {
 }
 
 // ─── PRO+ DASHBOARD ──────────────────────────────────────────────────────────
-function ProDashboard({ goTo, onLogout }) {
-  const pro = pros[0];
+function ProDashboard({ goTo, onLogout, proData }) {
+  const pro = proData || pros[0];
   const overall = avgRating(pro.ratings);
   const [activeTab, setActiveTab] = useState("overview");
   const [copied, setCopied] = useState(false);
@@ -1763,7 +1821,7 @@ function ProModal({ pro, onClose, goToRecommend, getDistance }) {
 
 // ─── MAIN APP ────────────────────────────────────────────────────────────────
 export default function App() {
-  const [proLoggedIn, setProLoggedIn] = useState(false);
+  const [loggedInPro, setLoggedInPro] = useState(null);
   const [page, setPage] = useState("home");
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("")
@@ -1778,36 +1836,46 @@ export default function App() {
   // ── Supabase: community-submitted pros ──────────────────────────
   const [communityPros, setCommunityPros] = useState([]);
 
-  useEffect(() => {
-    supabase
+  const loadCommunityPros = async () => {
+    // Load from pros table (real pro accounts)
+    const { data: prosData } = await supabase
+      .from("pros")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false });
+
+    // Load from recommendations table (community submissions)
+    const { data: recsData } = await supabase
       .from("recommendations")
       .select("*")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        if (!data) return;
-        const mapped = data.map((r, i) => ({
-          id: 9000 + i,
-          name: r.pro_name,
-          specialty: r.specialty || "Hair Stylists",
-          location: r.location || "",
-          lat: null, lng: null,
-          ratings: r.ratings || {},
-          reviews: 1,
-          tags: r.tags || [],
-          bio: r.why || "",
-          instagram: r.instagram || "",
-          booking: r.booking || "",
-          tiktokReview: r.tiktok || "",
-          recommendedBy: r.your_name ? [r.your_name] : [],
-          proPlus: false,
-          isDemo: false,
-          verified: false,
-          weeklyRecs: 0,
-          isCommunity: true,
-        }));
-        setCommunityPros(mapped);
-      });
-  }, []);
+      .order("created_at", { ascending: false });
+
+    const mappedPros = (prosData || []).map(mapSupabasePro);
+    const mappedRecs = (recsData || []).map((r, i) => ({
+      id: 9000 + i,
+      name: r.pro_name,
+      specialty: r.specialty || "Hair Stylists",
+      location: r.location || "",
+      lat: null, lng: null,
+      ratings: r.ratings || {},
+      reviews: 1,
+      tags: r.tags || [],
+      bio: r.why || "",
+      instagram: r.instagram || "",
+      booking: r.booking || "",
+      tiktokReview: r.tiktok || "",
+      recommendedBy: r.your_name ? [r.your_name] : [],
+      proPlus: false,
+      isDemo: false,
+      verified: false,
+      weeklyRecs: 0,
+      isCommunity: true,
+    }));
+
+    setCommunityPros([...mappedPros, ...mappedRecs]);
+  };
+
+  useEffect(() => { loadCommunityPros(); }, []);
 
   // Ask for location once on mount
   useEffect(() => {
@@ -1818,6 +1886,20 @@ export default function App() {
       ()  => { setLocationStatus("denied"); },
       { timeout: 8000 }
     );
+  }, []);
+
+  // Restore auth session on page reload
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        supabase.from("pros").select("*").eq("profile_id", session.user.id).single()
+          .then(({ data: proRow }) => { if (proRow) setLoggedInPro(mapSupabasePro(proRow)); });
+      }
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) setLoggedInPro(null);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   // Haversine distance in miles
@@ -1866,7 +1948,7 @@ export default function App() {
     }
     goTo("recommend");
   };
-  const handleProLogout = () => { setProLoggedIn(false); goTo("home"); };
+  const handleProLogout = async () => { await supabase.auth.signOut(); setLoggedInPro(null); goTo("home"); };
   const ratingsComplete = Object.values(formRatings).every(v=>v>0);
 
   return (
@@ -1912,7 +1994,7 @@ export default function App() {
           {[
             { label:"Browse", action:()=>{ goTo("home"); setTimeout(()=>document.getElementById("browse")?.scrollIntoView({behavior:"smooth"}),100); }, color:"#555" },
             { label:"About", action:()=>goTo("about"), color:"#555" },
-            { label: proLoggedIn ? "My Dashboard ✦" : "For Pros ✦", action:()=>goTo("dashboard"), color:"#1A00B9" },
+            { label: loggedInPro ? "My Dashboard ✦" : "For Pros ✦", action:()=>goTo("dashboard"), color:"#1A00B9" },
           ].map(item=>(
             <span key={item.label} className="nav-links nav-link" onClick={item.action}
               style={{ fontSize:"12px", fontWeight:"800", letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", color:item.color, transition:"color 0.15s", whiteSpace:"nowrap" }}>
@@ -2285,9 +2367,9 @@ export default function App() {
 
       {page==="about"     && <AboutPage setPage={goTo}/>}
       {page==="provider"  && <ProviderSignup goTo={goTo}/>}
-      {page==="dashboard" && (proLoggedIn
-        ? <ProDashboard goTo={goTo} onLogout={handleProLogout}/>
-        : <ProSignIn onLogin={()=>{ setProLoggedIn(true); }} goTo={goTo}/>
+      {page==="dashboard" && (loggedInPro
+        ? <ProDashboard goTo={goTo} onLogout={handleProLogout} proData={loggedInPro}/>
+        : <ProSignIn onLogin={(proData)=>{ setLoggedInPro(proData); goTo("dashboard"); }} goTo={goTo}/>
       )}
       {page==="terms"     && <TermsPage goTo={goTo}/>}
       {page==="privacy"   && <PrivacyPage goTo={goTo}/>}
