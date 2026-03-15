@@ -620,7 +620,7 @@ function CredentialsTab({ pro }) {
 }
 
 // ─── PRO SIGN-IN GATE ─────────────────────────────────────────────────────────
-function ProSignIn({ onLogin, goTo }) {
+function ProSignIn({ onLogin, goTo, onSignupStart }) {
   const [tab, setTab] = useState("signin"); // "signin" | "signup" | "forgot" | "resetPassword"
 
   // ── Sign In state ──
@@ -674,7 +674,11 @@ function ProSignIn({ onLogin, goTo }) {
     if (su.password.length < 8) { setSuError("Password must be at least 8 characters."); return; }
     if (!su.agreeTerms) { setSuError("Please agree to the Terms of Service to continue."); return; }
     setSuLoading(true);
-    const { data, error: err } = await supabase.auth.signUp({ email: su.email, password: su.password });
+    const { data, error: err } = await supabase.auth.signUp({
+      email: su.email,
+      password: su.password,
+      options: { emailRedirectTo: window.location.origin + "/?page=dashboard" },
+    });
     if (err) { setSuLoading(false); setSuError(err.message); return; }
     const isPro = selectedPlan === "pro_plus";
     await supabase.from("pros").insert([{
@@ -695,6 +699,12 @@ function ProSignIn({ onLogin, goTo }) {
     }]);
     setSuUserId(data.user.id);
     setSuLoading(false);
+    // Send branded welcome email (fire-and-forget — don't block signup on this)
+    fetch("/api/send-welcome-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: su.email, firstName: su.firstName }),
+    }).catch(() => {}); // silently ignore if it fails
     if (isPro) {
       // Redirect to Stripe Checkout for Pro+ payment
       setCheckoutLoading(true);
@@ -712,6 +722,7 @@ function ProSignIn({ onLogin, goTo }) {
       }
       setCheckoutLoading(false);
     } else {
+      onSignupStart?.(); // tell App we're in onboarding — block premature dashboard redirect
       setSuDone(true);
       setOnboardStep(1);
     }
@@ -1169,10 +1180,10 @@ function ProSignIn({ onLogin, goTo }) {
                       <div style={{ fontSize:"48px", marginBottom:"14px" }}>🎉</div>
                       <h2 style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", margin:"0 0 10px", letterSpacing:"-0.5px" }}>You're all set, {su.firstName}!</h2>
                       <p style={{ fontFamily:"sans-serif", fontSize:"14px", color:"#555", lineHeight:"1.7", margin:"0 0 6px" }}>
-                        Your profile is live on reffered. A verification email was sent to <strong>{su.email}</strong>.
+                        Welcome to reffered. Your profile is now live in the directory.
                       </p>
                       <p style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#aaa", margin:"0 0 28px" }}>
-                        You can update everything from your dashboard at any time.
+                        Check your inbox for a welcome email from us. You can update everything from your dashboard at any time.
                       </p>
                       <button onClick={async()=>{
                         const { data:proRow } = await supabase.from("pros").select("*").eq("id", suUserId).single();
@@ -2181,6 +2192,7 @@ function ProModal({ pro, onClose, goToRecommend, getDistance }) {
 export default function App() {
   const [loggedInPro, setLoggedInPro] = useState(null);
   const [page, setPage] = useState("home");
+  const signupInProgress = useRef(false); // prevents dashboard redirect during onboarding
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("")
   const [selectedPro, setSelectedPro] = useState(null);
@@ -2232,7 +2244,11 @@ export default function App() {
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
         supabase.from("pros").select("*").eq("profile_id", session.user.id).single()
           .then(({ data: proRow }) => {
-            if (proRow) { setLoggedInPro(mapSupabasePro(proRow)); setPage("dashboard"); }
+            if (proRow) {
+              setLoggedInPro(mapSupabasePro(proRow));
+              // Don't redirect if user is actively going through signup onboarding
+              if (!signupInProgress.current) setPage("dashboard");
+            }
           });
       }
       if (event === "PASSWORD_RECOVERY") { setPage("resetPassword"); }
@@ -2741,9 +2757,13 @@ export default function App() {
 
       {page==="about"     && <AboutPage setPage={goTo}/>}
       {page==="provider"  && <ProviderSignup goTo={goTo}/>}
-      {page==="dashboard" && (loggedInPro
+      {page==="dashboard" && (loggedInPro && !signupInProgress.current
         ? <ProDashboard goTo={goTo} onLogout={handleProLogout} proData={loggedInPro}/>
-        : <ProSignIn onLogin={(proData)=>{ setLoggedInPro(proData); goTo("dashboard"); }} goTo={goTo}/>
+        : <ProSignIn
+            onLogin={(proData)=>{ signupInProgress.current = false; setLoggedInPro(proData); goTo("dashboard"); }}
+            goTo={goTo}
+            onSignupStart={()=>{ signupInProgress.current = true; }}
+          />
       )}
       {page==="terms"     && <TermsPage goTo={goTo}/>}
       {page==="privacy"   && <PrivacyPage goTo={goTo}/>}
