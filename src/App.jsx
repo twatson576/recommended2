@@ -1726,7 +1726,7 @@ function AboutPage({ setPage }) {
         <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(32px,5vw,56px)", fontWeight:"900", color:"#1A00B9", margin:"0 0 16px", letterSpacing:"-2px" }}>Ready to put your fave on the map?</h2>
         <p style={{ color:"#666", fontSize:"16px", margin:"0 0 32px", lineHeight:"1.6" }}>It takes 2 minutes to submit a recommendation. Your pro deserves the recognition.</p>
         <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
-          <button onClick={()=>setPage("recommend")} style={{...btnDark, padding:"16px 36px", fontSize:"14px"}}>+ Recommend a Pro</button>
+          <button onClick={()=>setPage("recommend")} style={{...btnDark, padding:"16px 36px", fontSize:"14px"}}>+ Reffer a Pro</button>
           <button onClick={()=>setPage("home")} style={{...btnOut, padding:"16px 36px", fontSize:"14px"}}>Browse the Directory</button>
         </div>
       </div>
@@ -1860,35 +1860,8 @@ export default function App() {
       .eq("is_active", true)
       .order("created_at", { ascending: false });
 
-    // Load from recommendations table (community submissions)
-    const { data: recsData } = await supabase
-      .from("recommendations")
-      .select("*")
-      .order("created_at", { ascending: false });
-
     const mappedPros = (prosData || []).map(mapSupabasePro);
-    const mappedRecs = (recsData || []).map((r, i) => ({
-      id: 9000 + i,
-      name: r.pro_name,
-      specialty: r.specialty || "Hair Stylists",
-      location: r.location || "",
-      lat: null, lng: null,
-      ratings: r.ratings || {},
-      reviews: 1,
-      tags: r.tags || [],
-      bio: r.why || "",
-      instagram: r.instagram || "",
-      booking: r.booking || "",
-      tiktokReview: r.tiktok || "",
-      recommendedBy: r.your_name ? [r.your_name] : [],
-      proPlus: false,
-      isDemo: false,
-      verified: false,
-      weeklyRecs: 0,
-      isCommunity: true,
-    }));
-
-    setCommunityPros([...mappedPros, ...mappedRecs]);
+    setCommunityPros(mappedPros);
   };
 
   useEffect(() => { loadCommunityPros(); }, []);
@@ -2039,7 +2012,7 @@ export default function App() {
               <span style={{ background:"#B7CF4F", color:"#1A00B9", borderRadius:"50%", width:"18px", height:"18px", fontSize:"10px", fontWeight:"900", display:"flex", alignItems:"center", justifyContent:"center" }}>{savedPros.length}</span>
             </button>
           )}
-          <button onClick={()=>goTo("recommend")} style={{...btnDark, padding:"9px 18px", fontSize:"12px", boxShadow:"3px 3px 0 #B7CF4F", whiteSpace:"nowrap"}}>+ Recommend</button>
+          <button onClick={()=>goTo("recommend")} style={{...btnDark, padding:"9px 18px", fontSize:"12px", boxShadow:"3px 3px 0 #B7CF4F", whiteSpace:"nowrap"}}>+ Reffer</button>
         </div>
       </nav>
 
@@ -2059,7 +2032,7 @@ export default function App() {
             <p style={{ fontSize:"17px", color:"#666", maxWidth:"460px", margin:"0 auto 40px", lineHeight:"1.75" }}>Real recommendations from real clients. Rated across 7 categories — so you always know exactly what you're booking.</p>
             <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
               <button onClick={()=>document.getElementById("browse")?.scrollIntoView({behavior:"smooth"})} style={{...btnDark, padding:"14px 32px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F"}}>Browse Pros ↓</button>
-              <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Recommend Someone</button>
+              <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Reffer Someone</button>
             </div>
           </div>
 
@@ -2222,7 +2195,7 @@ export default function App() {
               <p style={{ color:"#666", margin:"0 0 24px", lineHeight:"1.6" }}>Your clients are already recommending you. Sign up to receive notifications and manage your presence.</p>
               <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
                 <button onClick={()=>goTo("provider")} style={{...btnDark, padding:"14px 32px", fontSize:"14px"}}>Claim Your Profile</button>
-                <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Recommend a Pro</button>
+                <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Reffer a Pro</button>
               </div>
             </div>
           </div>
@@ -2541,20 +2514,65 @@ export default function App() {
 
                 <button onClick={async ()=>{
                   if(!(form.name&&form.specialty&&form.why&&ratingsComplete)) return;
-                  await supabase.from("recommendations").insert([{
-                    pro_name: form.name,
-                    specialty: form.specialty,
-                    location: form.location,
-                    instagram: form.instagram,
-                    booking: form.booking,
-                    tiktok: form.tiktok || "",
-                    why: form.why,
-                    your_name: form.yourName,
-                    your_email: form.yourEmail,
-                    ratings: formRatings,
-                    tags: [],
-                  }]);
-                  // Refresh directory so new entry appears immediately in Browse
+
+                  // 1. Find or create the pro in the pros table
+                  let proId = null;
+                  const { data: existing } = await supabase
+                    .from("pros")
+                    .select("id")
+                    .ilike("first_name", form.name.split(" ")[0])
+                    .limit(1);
+
+                  if (existing && existing.length > 0) {
+                    proId = existing[0].id;
+                  } else {
+                    // Create a new unapproved pro entry
+                    const parts = (form.location || "").split(",");
+                    const nameParts = form.name.trim().split(" ");
+                    const { data: newPro } = await supabase
+                      .from("pros")
+                      .insert([{
+                        first_name: nameParts[0] || form.name,
+                        last_name: nameParts.slice(1).join(" ") || "",
+                        specialty: form.specialty,
+                        instagram: form.instagram,
+                        booking_url: form.booking,
+                        tiktok_review_url: form.tiktok || "",
+                        location_city: parts[0]?.trim() || "",
+                        location_state: parts[1]?.trim() || "",
+                        location_display: form.location,
+                        is_active: true,
+                        is_approved: false,
+                        is_claimed: false,
+                        is_verified: false,
+                        is_pro_plus: false,
+                      }])
+                      .select("id")
+                      .single();
+                    proId = newPro?.id;
+                  }
+
+                  // 2. Insert recommendation with correct column names
+                  if (proId) {
+                    await supabase.from("recommendations").insert([{
+                      pro_id: proId,
+                      submitter_name: form.yourName || "",
+                      submitter_email: form.yourEmail || "",
+                      rating_service_outcome: formRatings.serviceOutcome || 0,
+                      rating_parking: formRatings.parking || 0,
+                      rating_customer_service: formRatings.customerService || 0,
+                      rating_wait_time: formRatings.waitTime || 0,
+                      rating_communication: formRatings.communication || 0,
+                      rating_value: formRatings.value || 0,
+                      rating_cleanliness: formRatings.cleanliness || 0,
+                      rating_overall: parseFloat(avgRating(formRatings)) || 0,
+                      review_text: form.why,
+                      tiktok_review_url: form.tiktok || "",
+                      status: "pending",
+                    }]);
+                  }
+
+                  // 3. Refresh directory
                   await loadCommunityPros();
                   setSubmitted(true);
                 }}
