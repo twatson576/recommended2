@@ -1726,7 +1726,7 @@ function AboutPage({ setPage }) {
         <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(32px,5vw,56px)", fontWeight:"900", color:"#1A00B9", margin:"0 0 16px", letterSpacing:"-2px" }}>Ready to put your fave on the map?</h2>
         <p style={{ color:"#666", fontSize:"16px", margin:"0 0 32px", lineHeight:"1.6" }}>It takes 2 minutes to submit a recommendation. Your pro deserves the recognition.</p>
         <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
-          <button onClick={()=>setPage("recommend")} style={{...btnDark, padding:"16px 36px", fontSize:"14px"}}>+ Reffer a Pro</button>
+          <button onClick={()=>setPage("recommend")} style={{...btnDark, padding:"16px 36px", fontSize:"14px"}}>+ Refer a Pro</button>
           <button onClick={()=>setPage("home")} style={{...btnOut, padding:"16px 36px", fontSize:"14px"}}>Browse the Directory</button>
         </div>
       </div>
@@ -2012,7 +2012,7 @@ export default function App() {
               <span style={{ background:"#B7CF4F", color:"#1A00B9", borderRadius:"50%", width:"18px", height:"18px", fontSize:"10px", fontWeight:"900", display:"flex", alignItems:"center", justifyContent:"center" }}>{savedPros.length}</span>
             </button>
           )}
-          <button onClick={()=>goTo("recommend")} style={{...btnDark, padding:"9px 18px", fontSize:"12px", boxShadow:"3px 3px 0 #B7CF4F", whiteSpace:"nowrap"}}>+ Reffer</button>
+          <button onClick={()=>goTo("recommend")} style={{...btnDark, padding:"9px 18px", fontSize:"12px", boxShadow:"3px 3px 0 #B7CF4F", whiteSpace:"nowrap"}}>+ Refer</button>
         </div>
       </nav>
 
@@ -2032,7 +2032,7 @@ export default function App() {
             <p style={{ fontSize:"17px", color:"#666", maxWidth:"460px", margin:"0 auto 40px", lineHeight:"1.75" }}>Real recommendations from real clients. Rated across 7 categories — so you always know exactly what you're booking.</p>
             <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
               <button onClick={()=>document.getElementById("browse")?.scrollIntoView({behavior:"smooth"})} style={{...btnDark, padding:"14px 32px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F"}}>Browse Pros ↓</button>
-              <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Reffer Someone</button>
+              <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Refer Someone</button>
             </div>
           </div>
 
@@ -2195,7 +2195,7 @@ export default function App() {
               <p style={{ color:"#666", margin:"0 0 24px", lineHeight:"1.6" }}>Your clients are already recommending you. Sign up to receive notifications and manage your presence.</p>
               <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
                 <button onClick={()=>goTo("provider")} style={{...btnDark, padding:"14px 32px", fontSize:"14px"}}>Claim Your Profile</button>
-                <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Reffer a Pro</button>
+                <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Refer a Pro</button>
               </div>
             </div>
           </div>
@@ -2577,7 +2577,7 @@ export default function App() {
                   setSubmitted(true);
                 }}
                   style={{...btnPink, background:(!form.name||!form.specialty||!form.why||!ratingsComplete)?"#ddd":"#1A00B9", color:(!form.name||!form.specialty||!form.why||!ratingsComplete)?"#aaa":"#fff", border:"none", boxShadow:(!form.name||!form.specialty||!form.why||!ratingsComplete)?"none":"4px 4px 0 #B7CF4F", padding:"16px 32px", fontSize:"15px", width:"100%"}}>
-                  Submit Recommendation →
+                  Submit Referral →
                 </button>
               </div>
             </div>
@@ -2727,7 +2727,7 @@ export default function App() {
           </div>
           <div style={{ display:"flex", gap:"40px", flexWrap:"wrap" }}>
             {[
-              { heading:"Platform", links:[["Browse","home"],["About","about"],["Recommend a Pro","recommend"]] },
+              { heading:"Platform", links:[["Browse","home"],["About","about"],["Refer a Pro","recommend"]] },
               { heading:"Professionals", links:[["Claim Your Profile","provider"],["Dispute a Listing","dispute"],["Pro+ Dashboard","dashboard"]] },
               { heading:"Legal", links:[["Terms of Service","terms"],["Privacy Policy","privacy"]] },
             ].map(col=>(
