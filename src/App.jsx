@@ -621,7 +621,7 @@ function CredentialsTab({ pro }) {
 
 // ─── PRO SIGN-IN GATE ─────────────────────────────────────────────────────────
 function ProSignIn({ onLogin, goTo }) {
-  const [tab, setTab] = useState("signin"); // "signin" | "signup"
+  const [tab, setTab] = useState("signin"); // "signin" | "signup" | "forgot" | "resetPassword"
 
   // ── Sign In state ──
   const [email, setEmail] = useState("");
@@ -629,13 +629,23 @@ function ProSignIn({ onLogin, goTo }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotError, setForgotError] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
+  const [resetDone, setResetDone] = useState(false);
 
   // ── Sign Up state ──
-  const [su, setSu] = useState({ firstName:"", lastName:"", email:"", password:"", confirmPassword:"", specialty:"", location:"", agreeTerms:false });
+  const [su, setSu] = useState({ firstName:"", lastName:"", email:"", password:"", confirmPassword:"", specialty:"", city:"", state:"", agreeTerms:false });
   const [suError, setSuError] = useState("");
   const [suLoading, setSuLoading] = useState(false);
   const [suDone, setSuDone] = useState(false);
   const [showSuPass, setShowSuPass] = useState(false);
+  const [suUserId, setSuUserId] = useState(null);
+  const [onboardStep, setOnboardStep] = useState(1);
+  const [onboard, setOnboard] = useState({ bio:"", phone:"", instagram:"", tiktok:"", booking:"", photoUrl:"" });
+  const [onboardLoading, setOnboardLoading] = useState(false);
 
   // Auth handled by Supabase in production
 
@@ -652,7 +662,7 @@ function ProSignIn({ onLogin, goTo }) {
 
   const handleSignUp = async () => {
     setSuError("");
-    if (!su.firstName || !su.lastName || !su.email || !su.password || !su.specialty || !su.location) {
+    if (!su.firstName || !su.lastName || !su.email || !su.password || !su.specialty || !su.city || !su.state) {
       setSuError("Please fill in all required fields."); return;
     }
     if (su.password !== su.confirmPassword) { setSuError("Passwords don't match."); return; }
@@ -661,7 +671,6 @@ function ProSignIn({ onLogin, goTo }) {
     setSuLoading(true);
     const { data, error: err } = await supabase.auth.signUp({ email: su.email, password: su.password });
     if (err) { setSuLoading(false); setSuError(err.message); return; }
-    const parts = su.location.split(",");
     await supabase.from("pros").insert([{
       id: data.user.id,
       profile_id: data.user.id,
@@ -669,17 +678,19 @@ function ProSignIn({ onLogin, goTo }) {
       last_name: su.lastName,
       specialty: su.specialty,
       email: su.email,
-      location_city: parts[0]?.trim() || su.location,
-      location_state: parts[1]?.trim() || "",
-      location_display: su.location,
+      location_city: su.city,
+      location_state: su.state,
+      location_display: `${su.city}, ${su.state}`,
       is_active: true,
       is_approved: false,
       is_claimed: true,
       is_verified: false,
       is_pro_plus: false,
     }]);
+    setSuUserId(data.user.id);
     setSuLoading(false);
     setSuDone(true);
+    setOnboardStep(1);
   };
 
   const tabStyle = (active) => ({
@@ -880,7 +891,7 @@ function ProSignIn({ onLogin, goTo }) {
                 <div>
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"6px" }}>
                     <label style={{...lbl, margin:0}}>Password</label>
-                    <span style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#1A00B9", fontWeight:"700", cursor:"pointer" }}>Forgot password?</span>
+                    <span onClick={()=>setTab("forgot")} style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#1A00B9", fontWeight:"700", cursor:"pointer" }}>Forgot password?</span>
                   </div>
                   <div style={{ position:"relative" }}>
                     <input type={showPass?"text":"password"} value={password}
@@ -929,9 +940,18 @@ function ProSignIn({ onLogin, goTo }) {
                     {["Hair Stylist","Makeup Artist","Nail Tech","Esthetician","Lash & Brow Artist"].map(s=><option key={s}>{s}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label style={lbl}>City & State *</label>
-                  <input value={su.location} onChange={e=>setSu({...su,location:e.target.value})} placeholder="e.g. Atlanta, GA" style={inp}/>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px" }}>
+                  <div>
+                    <label style={lbl}>State *</label>
+                    <select value={su.state} onChange={e=>setSu({...su,state:e.target.value,city:""})} style={inp}>
+                      <option value="">State...</option>
+                      {["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC"].map(s=><option key={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={lbl}>City *</label>
+                    <input value={su.city} onChange={e=>setSu({...su,city:e.target.value})} placeholder="Your city" style={inp} disabled={!su.state}/>
+                  </div>
                 </div>
 
                 <hr style={{ border:"none", borderTop:"1.5px solid #f0f0f0", margin:"0" }}/>
@@ -984,30 +1004,229 @@ function ProSignIn({ onLogin, goTo }) {
               </div>
             )}
 
-            {/* ── SIGN UP SUCCESS ── */}
-            {tab==="signup" && suDone && (
-              <div style={{ textAlign:"center", padding:"16px 0" }}>
-                <div style={{ fontSize:"48px", marginBottom:"14px" }}>🎉</div>
-                <h2 style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", margin:"0 0 10px", letterSpacing:"-0.5px" }}>You're in, {su.firstName}!</h2>
-                <p style={{ fontFamily:"sans-serif", fontSize:"14px", color:"#555", lineHeight:"1.7", margin:"0 0 6px" }}>
-                  Your Pro+ account has been created for <strong>{su.email}</strong>.
-                </p>
-                <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#aaa", margin:"0 0 28px" }}>
-                  A verification email is on its way — you can explore your dashboard now.
-                </p>
-                <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
-                  <button onClick={()=>{ onLogin(); }}
-                    style={{...btnDark, padding:"14px 28px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F"}}>
-                    Go to My Dashboard →
+            {/* ── ONBOARDING FLOW ── */}
+            {tab==="signup" && suDone && (()=>{
+              const totalSteps = 4;
+              const stepLabels = ["Bio & Contact","Social Links","Profile Photo","All Done!"];
+              const saveOnboard = async (extraFields={}) => {
+                setOnboardLoading(true);
+                await supabase.from("pros").update({ ...extraFields }).eq("id", suUserId);
+                setOnboardLoading(false);
+              };
+              return (
+                <div style={{ display:"flex", flexDirection:"column", gap:"20px" }}>
+                  {/* Progress bar */}
+                  <div>
+                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"6px" }}>
+                      <span style={{ fontFamily:"sans-serif", fontSize:"11px", fontWeight:"800", color:"#1A00B9", letterSpacing:"1px", textTransform:"uppercase" }}>Step {onboardStep} of {totalSteps} — {stepLabels[onboardStep-1]}</span>
+                      <span style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#aaa", fontWeight:"700" }}>{Math.round((onboardStep/totalSteps)*100)}%</span>
+                    </div>
+                    <div style={{ height:"6px", background:"#f4f2ff", borderRadius:"99px", overflow:"hidden" }}>
+                      <div style={{ height:"100%", width:`${(onboardStep/totalSteps)*100}%`, background:"#1A00B9", borderRadius:"99px", transition:"width 0.4s ease" }}/>
+                    </div>
+                  </div>
+
+                  {/* Step 1 — Bio & Contact */}
+                  {onboardStep===1 && (
+                    <div style={{ display:"flex", flexDirection:"column", gap:"16px" }}>
+                      <div>
+                        <h2 style={{ fontFamily:"Georgia,serif", fontSize:"20px", fontWeight:"900", margin:"0 0 4px" }}>Tell clients about yourself ✦</h2>
+                        <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#888", margin:0 }}>This shows on your profile card in the directory.</p>
+                      </div>
+                      <div>
+                        <label style={lbl}>Bio *</label>
+                        <textarea value={onboard.bio} onChange={e=>setOnboard({...onboard,bio:e.target.value})}
+                          placeholder="Describe your specialty, style, and what makes your clients keep coming back..."
+                          style={{...inp, height:"100px", resize:"vertical", fontFamily:"sans-serif"}}/>
+                      </div>
+                      <div>
+                        <label style={lbl}>Phone (optional)</label>
+                        <input value={onboard.phone} onChange={e=>setOnboard({...onboard,phone:e.target.value})} placeholder="+1 (555) 000-0000" style={inp}/>
+                      </div>
+                      <button onClick={async()=>{ if(!onboard.bio){return;} await saveOnboard({bio:onboard.bio,phone:onboard.phone}); setOnboardStep(2); }}
+                        style={{...btnDark, width:"100%", padding:"14px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F", opacity:onboardLoading?0.7:1}}>
+                        {onboardLoading ? "Saving..." : "Next →"}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Step 2 — Social Links */}
+                  {onboardStep===2 && (
+                    <div style={{ display:"flex", flexDirection:"column", gap:"16px" }}>
+                      <div>
+                        <h2 style={{ fontFamily:"Georgia,serif", fontSize:"20px", fontWeight:"900", margin:"0 0 4px" }}>Your social & booking links</h2>
+                        <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#888", margin:0 }}>All optional — add what you have.</p>
+                      </div>
+                      <div>
+                        <label style={lbl}>Instagram handle</label>
+                        <div style={{ position:"relative" }}>
+                          <span style={{ position:"absolute", left:"14px", top:"50%", transform:"translateY(-50%)", fontFamily:"sans-serif", fontSize:"13px", color:"#aaa", fontWeight:"700" }}>@</span>
+                          <input value={onboard.instagram} onChange={e=>setOnboard({...onboard,instagram:e.target.value.replace("@","")})} placeholder="yourhandle" style={{...inp, paddingLeft:"32px"}}/>
+                        </div>
+                      </div>
+                      <div>
+                        <label style={lbl}>TikTok handle</label>
+                        <div style={{ position:"relative" }}>
+                          <span style={{ position:"absolute", left:"14px", top:"50%", transform:"translateY(-50%)", fontFamily:"sans-serif", fontSize:"13px", color:"#aaa", fontWeight:"700" }}>@</span>
+                          <input value={onboard.tiktok} onChange={e=>setOnboard({...onboard,tiktok:e.target.value.replace("@","")})} placeholder="yourhandle" style={{...inp, paddingLeft:"32px"}}/>
+                        </div>
+                      </div>
+                      <div>
+                        <label style={lbl}>Booking URL</label>
+                        <input value={onboard.booking} onChange={e=>setOnboard({...onboard,booking:e.target.value})} placeholder="https://booksy.com/..." style={inp}/>
+                      </div>
+                      <div style={{ display:"flex", gap:"10px" }}>
+                        <button onClick={()=>setOnboardStep(1)} style={{...btnOut, flex:1, padding:"14px", fontSize:"13px"}}>← Back</button>
+                        <button onClick={async()=>{ await saveOnboard({instagram:onboard.instagram, tiktok:onboard.tiktok, booking_url:onboard.booking}); setOnboardStep(3); }}
+                          style={{...btnDark, flex:2, padding:"14px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F", opacity:onboardLoading?0.7:1}}>
+                          {onboardLoading ? "Saving..." : "Next →"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 3 — Profile Photo */}
+                  {onboardStep===3 && (
+                    <div style={{ display:"flex", flexDirection:"column", gap:"16px" }}>
+                      <div>
+                        <h2 style={{ fontFamily:"Georgia,serif", fontSize:"20px", fontWeight:"900", margin:"0 0 4px" }}>Add your profile photo</h2>
+                        <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#888", margin:0 }}>A clear headshot helps clients trust and recognise you.</p>
+                      </div>
+                      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:"16px" }}>
+                        <div style={{ width:"96px", height:"96px", borderRadius:"50%", background:"#f4f2ff", border:"3px solid #1A00B9", display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden" }}>
+                          {onboard.photoUrl
+                            ? <img src={onboard.photoUrl} alt="profile" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
+                            : <span style={{ fontSize:"32px", opacity:0.4 }}>📷</span>}
+                        </div>
+                        <label style={{ cursor:"pointer" }}>
+                          <div style={{...btnOut, padding:"12px 24px", fontSize:"13px", display:"inline-block"}}>
+                            {onboard.photoUrl ? "Change Photo" : "Upload Photo"}
+                          </div>
+                          <input type="file" accept="image/*" style={{ display:"none" }} onChange={async e=>{
+                            const file = e.target.files[0]; if(!file) return;
+                            setOnboardLoading(true);
+                            const ext = file.name.split(".").pop();
+                            const path = `${suUserId}/profile.${ext}`;
+                            const { error:upErr } = await supabase.storage.from("pro-photos").upload(path, file, { upsert:true });
+                            if(!upErr){
+                              const { data:urlData } = supabase.storage.from("pro-photos").getPublicUrl(path);
+                              setOnboard(o=>({...o, photoUrl:urlData.publicUrl}));
+                              await supabase.from("pros").update({ photo_url:urlData.publicUrl }).eq("id", suUserId);
+                            }
+                            setOnboardLoading(false);
+                          }}/>
+                        </label>
+                        {onboardLoading && <p style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#1A00B9", fontWeight:"700", margin:0 }}>Uploading...</p>}
+                      </div>
+                      <div style={{ display:"flex", gap:"10px" }}>
+                        <button onClick={()=>setOnboardStep(2)} style={{...btnOut, flex:1, padding:"14px", fontSize:"13px"}}>← Back</button>
+                        <button onClick={()=>setOnboardStep(4)}
+                          style={{...btnDark, flex:2, padding:"14px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F"}}>
+                          {onboard.photoUrl ? "Next →" : "Skip for now →"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 4 — Done */}
+                  {onboardStep===4 && (
+                    <div style={{ textAlign:"center", padding:"8px 0" }}>
+                      <div style={{ fontSize:"48px", marginBottom:"14px" }}>🎉</div>
+                      <h2 style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", margin:"0 0 10px", letterSpacing:"-0.5px" }}>You're all set, {su.firstName}!</h2>
+                      <p style={{ fontFamily:"sans-serif", fontSize:"14px", color:"#555", lineHeight:"1.7", margin:"0 0 6px" }}>
+                        Your profile is live on reffered. A verification email was sent to <strong>{su.email}</strong>.
+                      </p>
+                      <p style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#aaa", margin:"0 0 28px" }}>
+                        You can update everything from your dashboard at any time.
+                      </p>
+                      <button onClick={async()=>{
+                        const { data:proRow } = await supabase.from("pros").select("*").eq("id", suUserId).single();
+                        onLogin(proRow ? mapSupabasePro(proRow) : { id:suUserId, name:`${su.firstName} ${su.lastName}`, specialty:su.specialty, location:`${su.city}, ${su.state}`, ratings:defaultRatings(), reviews:0, tags:[], bio:onboard.bio, instagram:onboard.instagram, booking:onboard.booking, tiktokReview:"", recommendedBy:[], proPlus:false, verified:false, weeklyRecs:0 });
+                      }} style={{...btnDark, width:"100%", padding:"14px 28px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F"}}>
+                        Go to My Dashboard →
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* ── FORGOT PASSWORD ── */}
+          {tab==="forgot" && (
+            <div style={{ maxWidth:"460px", margin:"0 auto", background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"32px 36px", boxShadow:"4px 4px 0 #e0ddf5" }}>
+              {!forgotSent ? (
+                <div style={{ display:"flex", flexDirection:"column", gap:"18px" }}>
+                  <div style={{ textAlign:"center" }}>
+                    <div style={{ fontSize:"36px", marginBottom:"10px" }}>🔑</div>
+                    <h2 style={{ fontFamily:"Georgia,serif", fontSize:"20px", fontWeight:"900", margin:"0 0 6px" }}>Reset your password</h2>
+                    <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#888", margin:0 }}>Enter your email and we'll send a reset link.</p>
+                  </div>
+                  <div>
+                    <label style={lbl}>Email Address</label>
+                    <input value={forgotEmail} onChange={e=>{setForgotEmail(e.target.value);setForgotError("");}} placeholder="you@email.com" style={inp}/>
+                  </div>
+                  {forgotError && <div style={{ background:"#fff0f4", border:"1.5px solid #9B8AFB", borderRadius:"10px", padding:"12px 16px", fontSize:"13px", color:"#cc2255", fontWeight:"600", fontFamily:"sans-serif" }}>⚠️ {forgotError}</div>}
+                  <button onClick={async()=>{
+                    if(!forgotEmail){ setForgotError("Please enter your email."); return; }
+                    const { error:fe } = await supabase.auth.resetPasswordForEmail(forgotEmail, { redirectTo: window.location.origin });
+                    if(fe){ setForgotError(fe.message); return; }
+                    setForgotSent(true);
+                  }} style={{...btnDark, width:"100%", padding:"14px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F"}}>
+                    Send Reset Link →
                   </button>
-                  <button onClick={()=>{ setTab("signin"); setSuDone(false); setSu({firstName:"",lastName:"",email:"",password:"",confirmPassword:"",specialty:"",location:"",agreeTerms:false}); }}
-                    style={{...btnOut, padding:"14px 24px", fontSize:"13px"}}>
-                    Sign In Instead
+                  <p style={{ fontFamily:"sans-serif", fontSize:"12px", color:"#aaa", textAlign:"center", margin:0 }}>
+                    <span onClick={()=>setTab("signin")} style={{ color:"#1A00B9", fontWeight:"800", cursor:"pointer" }}>← Back to Sign In</span>
+                  </p>
+                </div>
+              ) : (
+                <div style={{ textAlign:"center", padding:"8px 0" }}>
+                  <div style={{ fontSize:"48px", marginBottom:"14px" }}>📬</div>
+                  <h2 style={{ fontFamily:"Georgia,serif", fontSize:"20px", fontWeight:"900", margin:"0 0 10px" }}>Check your email</h2>
+                  <p style={{ fontFamily:"sans-serif", fontSize:"14px", color:"#555", lineHeight:"1.7", margin:"0 0 24px" }}>We sent a reset link to <strong>{forgotEmail}</strong>. Click the link to set a new password.</p>
+                  <button onClick={()=>{ setTab("signin"); setForgotSent(false); setForgotEmail(""); }} style={{...btnOut, padding:"12px 24px", fontSize:"13px"}}>← Back to Sign In</button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── RESET PASSWORD (after clicking email link) ── */}
+          {tab==="resetPassword" && (
+            <div style={{ maxWidth:"460px", margin:"0 auto", background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"32px 36px", boxShadow:"4px 4px 0 #e0ddf5" }}>
+              {!resetDone ? (
+                <div style={{ display:"flex", flexDirection:"column", gap:"18px" }}>
+                  <div style={{ textAlign:"center" }}>
+                    <div style={{ fontSize:"36px", marginBottom:"10px" }}>🔒</div>
+                    <h2 style={{ fontFamily:"Georgia,serif", fontSize:"20px", fontWeight:"900", margin:"0 0 6px" }}>Set a new password</h2>
+                  </div>
+                  <div>
+                    <label style={lbl}>New Password</label>
+                    <input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder="••••••••" style={inp}/>
+                  </div>
+                  <div>
+                    <label style={lbl}>Confirm New Password</label>
+                    <input type="password" value={newPasswordConfirm} onChange={e=>setNewPasswordConfirm(e.target.value)} placeholder="••••••••" style={{...inp, borderColor: newPasswordConfirm && newPassword !== newPasswordConfirm ? "#9B8AFB" : "#1A00B9"}}/>
+                    {newPasswordConfirm && newPassword !== newPasswordConfirm && <p style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#cc2255", margin:"6px 0 0", fontWeight:"700" }}>Passwords don't match</p>}
+                  </div>
+                  <button onClick={async()=>{
+                    if(newPassword.length < 8 || newPassword !== newPasswordConfirm) return;
+                    const { error:rErr } = await supabase.auth.updateUser({ password: newPassword });
+                    if(rErr){ setError(rErr.message); return; }
+                    setResetDone(true);
+                  }} style={{...btnDark, width:"100%", padding:"14px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F"}}>
+                    Update Password →
                   </button>
                 </div>
-              </div>
-            )}
-          </div>
+              ) : (
+                <div style={{ textAlign:"center", padding:"8px 0" }}>
+                  <div style={{ fontSize:"48px", marginBottom:"14px" }}>✅</div>
+                  <h2 style={{ fontFamily:"Georgia,serif", fontSize:"20px", fontWeight:"900", margin:"0 0 10px" }}>Password updated!</h2>
+                  <p style={{ fontFamily:"sans-serif", fontSize:"14px", color:"#555", margin:"0 0 24px" }}>You can now sign in with your new password.</p>
+                  <button onClick={()=>setTab("signin")} style={{...btnDark, padding:"12px 28px", fontSize:"13px", boxShadow:"3px 3px 0 #B7CF4F"}}>Sign In →</button>
+                </div>
+              )}
+            </div>
+          )}
 
           </div>{/* end maxWidth form wrapper */}
         </div>{/* end maxWidth page wrapper */}
@@ -1068,7 +1287,24 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
     { month:"Nov", recs:0 },{ month:"Dec", recs:0 },{ month:"Jan", recs:0 },
   ];
   const maxRecs = Math.max(...monthlyData.map(d=>d.recs), 1);
-  const tabs = ["overview","credentials","your wins","widget"];
+  const tabs = ["overview","my profile","credentials","your wins","widget"];
+  const [profileForm, setProfileForm] = useState({ bio:pro.bio||"", instagram:pro.instagram||"", tiktok:pro.tiktokReview||"", booking:pro.booking||"", phone:"" });
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
+  const handleSaveProfile = async () => {
+    if (!pro.supabaseId) return;
+    setProfileSaving(true);
+    await supabase.from("pros").update({
+      bio: profileForm.bio,
+      instagram: profileForm.instagram,
+      tiktok: profileForm.tiktok,
+      booking_url: profileForm.booking,
+      phone: profileForm.phone,
+    }).eq("id", pro.supabaseId);
+    setProfileSaving(false);
+    setProfileSaved(true);
+    setTimeout(()=>setProfileSaved(false), 2500);
+  };
 
   return (
     <div style={{ minHeight:"100vh", background:"#fff", fontFamily:"sans-serif" }}>
@@ -1254,6 +1490,77 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
                 </a>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ── MY PROFILE TAB ── */}
+        {activeTab==="my profile" && (
+          <div style={{ display:"flex", flexDirection:"column", gap:"24px", maxWidth:"600px" }}>
+            <div>
+              <h2 style={{ fontFamily:"Georgia,serif", fontSize:"24px", fontWeight:"900", margin:"0 0 4px", letterSpacing:"-0.5px" }}>My Profile</h2>
+              <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#888", margin:0 }}>This is how you appear in the reffered directory.</p>
+            </div>
+
+            {/* Profile photo */}
+            <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"14px", padding:"24px", boxShadow:"3px 3px 0 #B7CF4F" }}>
+              <p style={{ margin:"0 0 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", color:"#aaa" }}>Profile Photo</p>
+              <div style={{ display:"flex", alignItems:"center", gap:"20px", flexWrap:"wrap" }}>
+                <div style={{ width:"80px", height:"80px", borderRadius:"50%", background:"#f4f2ff", border:"3px solid #1A00B9", display:"flex", alignItems:"center", justifyContent:"center", overflow:"hidden", flexShrink:0 }}>
+                  {photoUrl ? <img src={photoUrl} alt="profile" style={{ width:"100%", height:"100%", objectFit:"cover" }}/> : <span style={{ fontSize:"28px", opacity:0.4 }}>📷</span>}
+                </div>
+                <div>
+                  <label style={{ cursor:"pointer" }}>
+                    <div style={{...btnOut, padding:"10px 20px", fontSize:"12px", display:"inline-block", marginBottom:"6px" }}>
+                      {photoUploading ? "Uploading..." : "Change Photo"}
+                    </div>
+                    <input ref={photoRef} type="file" accept="image/*" style={{ display:"none" }} onChange={e=>handleProfilePhotoUpload(e.target.files[0])}/>
+                  </label>
+                  <p style={{ margin:0, fontFamily:"sans-serif", fontSize:"11px", color:"#aaa" }}>JPG or PNG · Max 5MB</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bio */}
+            <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"14px", padding:"24px", boxShadow:"3px 3px 0 #B7CF4F", display:"flex", flexDirection:"column", gap:"16px" }}>
+              <p style={{ margin:0, fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", color:"#aaa" }}>About You</p>
+              <div>
+                <label style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"800", color:"#1A00B9", display:"block", marginBottom:"6px", letterSpacing:"0.5px" }}>Bio</label>
+                <textarea value={profileForm.bio} onChange={e=>setProfileForm({...profileForm,bio:e.target.value})}
+                  placeholder="Describe your specialty, style, and what makes clients keep coming back..."
+                  style={{ width:"100%", border:"1.5px solid #1A00B9", borderRadius:"10px", padding:"12px 14px", fontFamily:"sans-serif", fontSize:"13px", height:"100px", resize:"vertical", boxSizing:"border-box", outline:"none" }}/>
+              </div>
+              <div>
+                <label style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"800", color:"#1A00B9", display:"block", marginBottom:"6px", letterSpacing:"0.5px" }}>Phone (optional)</label>
+                <input value={profileForm.phone} onChange={e=>setProfileForm({...profileForm,phone:e.target.value})} placeholder="+1 (555) 000-0000"
+                  style={{ width:"100%", border:"1.5px solid #1A00B9", borderRadius:"10px", padding:"12px 14px", fontFamily:"sans-serif", fontSize:"13px", boxSizing:"border-box", outline:"none" }}/>
+              </div>
+            </div>
+
+            {/* Social & Booking */}
+            <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"14px", padding:"24px", boxShadow:"3px 3px 0 #B7CF4F", display:"flex", flexDirection:"column", gap:"16px" }}>
+              <p style={{ margin:0, fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", color:"#aaa" }}>Social & Booking</p>
+              {[
+                { label:"Instagram handle", key:"instagram", prefix:"@", placeholder:"yourhandle" },
+                { label:"TikTok handle", key:"tiktok", prefix:"@", placeholder:"yourhandle" },
+                { label:"Booking URL", key:"booking", prefix:"", placeholder:"https://booksy.com/..." },
+              ].map(({label,key,prefix,placeholder})=>(
+                <div key={key}>
+                  <label style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"800", color:"#1A00B9", display:"block", marginBottom:"6px", letterSpacing:"0.5px" }}>{label}</label>
+                  <div style={{ position:"relative" }}>
+                    {prefix && <span style={{ position:"absolute", left:"14px", top:"50%", transform:"translateY(-50%)", fontFamily:"sans-serif", fontSize:"13px", color:"#aaa", fontWeight:"700" }}>{prefix}</span>}
+                    <input value={profileForm[key]} onChange={e=>setProfileForm({...profileForm,[key]:e.target.value.replace("@","")})}
+                      placeholder={placeholder}
+                      style={{ width:"100%", border:"1.5px solid #1A00B9", borderRadius:"10px", padding:`12px 14px 12px ${prefix?"32px":"14px"}`, fontFamily:"sans-serif", fontSize:"13px", boxSizing:"border-box", outline:"none" }}/>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Save button */}
+            <button onClick={handleSaveProfile}
+              style={{...btnDark, padding:"14px", fontSize:"14px", width:"100%", boxShadow:"4px 4px 0 #B7CF4F", opacity:profileSaving?0.7:1}}>
+              {profileSaving ? "Saving..." : profileSaved ? "✓ Saved!" : "Save Changes →"}
+            </button>
           </div>
         )}
 
@@ -1885,8 +2192,15 @@ export default function App() {
           .then(({ data: proRow }) => { if (proRow) setLoggedInPro(mapSupabasePro(proRow)); });
       }
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) setLoggedInPro(null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) { setLoggedInPro(null); return; }
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        supabase.from("pros").select("*").eq("profile_id", session.user.id).single()
+          .then(({ data: proRow }) => {
+            if (proRow) { setLoggedInPro(mapSupabasePro(proRow)); setPage("dashboard"); }
+          });
+      }
+      if (event === "PASSWORD_RECOVERY") { setPage("resetPassword"); }
     });
     return () => subscription.unsubscribe();
   }, []);
