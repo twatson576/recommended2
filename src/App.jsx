@@ -1344,7 +1344,7 @@ function ProDashboard({ goTo, onLogout, proData }) {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [notifOpen]);
-  const profileLink = `https://reffered.com/pro/${pro.name.toLowerCase().replace(" ","-")}`;
+  const profileLink = `https://refferedpro.com/?pro=${pro.supabaseId}`;
 
 const NOTIFICATIONS = []; // Will load from Supabase in production
 
@@ -1554,7 +1554,7 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
                 <div style={{ flex:1, background:"#fff", border:"1.5px solid #e5e5e5", borderRadius:"10px", padding:"12px 16px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"700", color:"#555", minWidth:"200px" }}>
                   🔗 {profileLink}
                 </div>
-                <button onClick={()=>{ setCopied(true); setTimeout(()=>setCopied(false),2000); }}
+                <button onClick={()=>{ navigator.clipboard.writeText(profileLink); setCopied(true); setTimeout(()=>setCopied(false),2000); }}
                   style={{...btnPink, padding:"12px 20px", fontSize:"12px", boxShadow:"2px 2px 0 #B7CF4F"}}>
                   {copied?"✓ Copied!":"Copy Link"}
                 </button>
@@ -2115,6 +2115,167 @@ function AboutPage({ setPage }) {
   );
 }
 
+// ─── PUBLIC PROFILE PAGE ─────────────────────────────────────────────────────
+function PublicProfilePage({ proId, goToRecommend, goTo }) {
+  const [loading, setLoading] = useState(true);
+  const [proData, setProData] = useState(null);
+  const [referrals, setReferrals] = useState([]);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    if (!proId) { setNotFound(true); setLoading(false); return; }
+    (async () => {
+      const { data: proRow, error } = await supabase.from("pros").select("*").eq("id", proId).single();
+      if (error || !proRow) { setNotFound(true); setLoading(false); return; }
+      setProData(mapSupabasePro(proRow));
+      const { data: recs } = await supabase
+        .from("recommendations")
+        .select("review_text, submitter_name, rating_overall, created_at")
+        .eq("pro_id", proId)
+        .not("review_text", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(3);
+      setReferrals(recs || []);
+      setLoading(false);
+    })();
+  }, [proId]);
+
+  if (loading) return (
+    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#f4f2ff" }}>
+      <p style={{ fontFamily:"sans-serif", fontSize:"14px", color:"#9B8AFB", fontWeight:"700" }}>Loading profile...</p>
+    </div>
+  );
+
+  if (notFound || !proData) return (
+    <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#f4f2ff", padding:"40px 20px" }}>
+      <div style={{ textAlign:"center", maxWidth:"400px" }}>
+        <div style={{ fontSize:"48px", marginBottom:"16px" }}>🔍</div>
+        <h2 style={{ fontFamily:"Georgia,serif", fontSize:"24px", fontWeight:"900", color:"#1A00B9", margin:"0 0 12px" }}>Profile not found</h2>
+        <p style={{ fontFamily:"sans-serif", fontSize:"14px", color:"#666", margin:"0 0 24px", lineHeight:"1.6" }}>This profile doesn't exist or has been removed.</p>
+        <button onClick={()=>goTo("home")} style={{ background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"12px 28px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"4px 4px 0 #B7CF4F" }}>Browse All Pros →</button>
+      </div>
+    </div>
+  );
+
+  const pro = proData;
+  const overall = avgRating(pro.ratings);
+
+  return (
+    <div style={{ minHeight:"100vh", background:"#f4f2ff", fontFamily:"sans-serif" }}>
+      {/* Mini Nav */}
+      <div style={{ background:"#1A00B9", padding:"16px 28px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <button onClick={()=>goTo("home")} style={{ background:"none", border:"none", cursor:"pointer", padding:0 }}>
+          <span style={{ color:"#B7CF4F", fontFamily:"Georgia,serif", fontSize:"20px", fontWeight:"900", letterSpacing:"-0.5px" }}>reffered ✦</span>
+        </button>
+        <button onClick={()=>goTo("home")} style={{ background:"rgba(255,255,255,0.12)", color:"#fff", border:"1.5px solid rgba(255,255,255,0.3)", borderRadius:"30px", padding:"8px 18px", fontFamily:"sans-serif", fontSize:"12px", fontWeight:"800", cursor:"pointer" }}>Browse All Pros →</button>
+      </div>
+
+      {/* Profile Content */}
+      <div style={{ maxWidth:"640px", margin:"0 auto", padding:"36px 20px 60px" }}>
+
+        {/* Hero Card */}
+        <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", overflow:"hidden", boxShadow:"6px 6px 0 #1A00B9", marginBottom:"20px" }}>
+          {/* Photo */}
+          <div style={{ position:"relative", paddingTop:"45%", background:"#e8e4ff", overflow:"hidden" }}>
+            {pro.photoUrl
+              ? <img src={pro.photoUrl} alt={pro.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }}/>
+              : <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"8px" }}>
+                  <span style={{ fontSize:"36px", opacity:0.3 }}>📷</span>
+                  <span style={{ fontSize:"11px", fontWeight:"700", color:"#9B8AFB", letterSpacing:"1.5px", textTransform:"uppercase" }}>No photo yet</span>
+                </div>
+            }
+          </div>
+
+          <div style={{ padding:"28px" }}>
+            {/* Name + Rating */}
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:"10px", flexWrap:"wrap", gap:"8px" }}>
+              <div>
+                <h1 style={{ fontFamily:"Georgia,serif", fontSize:"28px", fontWeight:"900", margin:"0 0 6px", letterSpacing:"-0.5px" }}>{pro.name}</h1>
+                <div style={{ display:"flex", gap:"6px", flexWrap:"wrap", alignItems:"center" }}>
+                  <span style={{ background:"#B7CF4F", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"4px 12px", fontSize:"11px", fontWeight:"800" }}>{pro.specialty}</span>
+                  {pro.proPlus && <span style={{ background:"#1A00B9", color:"#fff", borderRadius:"20px", padding:"4px 10px", fontSize:"10px", fontWeight:"800", letterSpacing:"1px" }}>✦ PRO+</span>}
+                  {pro.verified && <span style={{ background:"#B7CF4F", color:"#1A00B9", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"4px 10px", fontSize:"10px", fontWeight:"800" }}>✓ VERIFIED</span>}
+                </div>
+              </div>
+              <div style={{ textAlign:"right" }}>
+                <div style={{ fontFamily:"Georgia,serif", fontSize:"26px", fontWeight:"900", color:"#1A00B9" }}>★ {overall}</div>
+                <div style={{ fontSize:"11px", color:"#aaa" }}>{pro.reviews} {pro.reviews===1?"review":"reviews"}</div>
+              </div>
+            </div>
+
+            {/* Location */}
+            {pro.location && <p style={{ fontSize:"13px", color:"#888", margin:"0 0 16px" }}>📍 {pro.location}</p>}
+
+            {/* Bio */}
+            {pro.bio && <p style={{ fontSize:"14px", color:"#444", lineHeight:"1.75", margin:"0 0 20px" }}>{pro.bio}</p>}
+
+            {/* Tags */}
+            {pro.tags.length > 0 && (
+              <div style={{ display:"flex", flexWrap:"wrap", gap:"6px", marginBottom:"20px" }}>
+                {pro.tags.map(tag=><span key={tag} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"4px 12px", fontSize:"11px", fontWeight:"700" }}>{tag}</span>)}
+              </div>
+            )}
+
+            {/* CTA Buttons */}
+            <div style={{ display:"flex", gap:"10px", flexWrap:"wrap" }}>
+              <button onClick={()=>{ goToRecommend(pro); }} style={{ background:"#1A00B9", color:"#fff", border:"1.5px solid #1A00B9", borderRadius:"30px", padding:"12px 24px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"4px 4px 0 #B7CF4F" }}>⭐ Refer {pro.name.split(" ")[0]}</button>
+              {pro.instagram && <a href={`https://instagram.com/${pro.instagram}`} target="_blank" rel="noreferrer" style={{ background:"#fff", color:"#1A00B9", border:"1.5px solid #1A00B9", borderRadius:"30px", padding:"12px 20px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", textDecoration:"none", display:"inline-flex", alignItems:"center", gap:"6px" }}>📷 @{pro.instagram}</a>}
+              {pro.booking && <a href={pro.booking} target="_blank" rel="noreferrer" style={{ background:"#fff", color:"#1A00B9", border:"1.5px solid #1A00B9", borderRadius:"30px", padding:"12px 20px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", textDecoration:"none" }}>Book Now →</a>}
+            </div>
+          </div>
+        </div>
+
+        {/* Verification Badge */}
+        {pro.verified && LICENSED_SPECIALTIES.includes(pro.specialty) && (
+          <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"14px", padding:"16px 20px", marginBottom:"20px", display:"flex", alignItems:"center", gap:"14px", boxShadow:"3px 3px 0 #B7CF4F" }}>
+            <div style={{ width:"40px", height:"40px", borderRadius:"10px", background:"#B7CF4F", border:"1.5px solid #1A00B9", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"20px", flexShrink:0 }}>🛡️</div>
+            <div style={{ flex:1 }}>
+              <p style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"800", margin:"0 0 2px", color:"#1A00B9" }}>reffered Verified Pro</p>
+              <p style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#666", margin:0 }}>License verified by reffered</p>
+            </div>
+            <span style={{ background:"#B7CF4F", color:"#1A00B9", border:"1.5px solid #1A00B9", fontSize:"10px", fontWeight:"800", padding:"4px 12px", borderRadius:"20px", whiteSpace:"nowrap" }}>✓ Verified</span>
+          </div>
+        )}
+
+        {/* Rating Breakdown */}
+        <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"14px", padding:"24px", marginBottom:"20px", boxShadow:"3px 3px 0 #B7CF4F" }}>
+          <p style={{ fontFamily:"sans-serif", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#1A00B9", margin:"0 0 16px" }}>Rating Breakdown</p>
+          <RatingBreakdown ratings={pro.ratings}/>
+          <div style={{ marginTop:"14px", paddingTop:"12px", borderTop:"1.5px solid #e5e5e5", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+            <span style={{ fontFamily:"sans-serif", fontSize:"11px", fontWeight:"800", color:"#888", textTransform:"uppercase", letterSpacing:"1px" }}>Overall Score</span>
+            <span style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", color:"#1A00B9" }}>★ {overall} / 5</span>
+          </div>
+        </div>
+
+        {/* Community Referrals */}
+        {referrals.length > 0 && (
+          <div style={{ marginBottom:"20px" }}>
+            <p style={{ fontFamily:"sans-serif", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#1A00B9", margin:"0 0 12px" }}>Community Referrals</p>
+            <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
+              {referrals.map((rec, i) => (
+                <div key={i} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"14px", padding:"18px 20px", boxShadow:"3px 3px 0 #B7CF4F" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"8px" }}>
+                    <span style={{ fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#1A00B9" }}>{rec.submitter_name || "Anonymous"}</span>
+                    {rec.rating_overall > 0 && <span style={{ fontFamily:"Georgia,serif", fontSize:"14px", fontWeight:"900", color:"#1A00B9" }}>★ {parseFloat(rec.rating_overall).toFixed(1)}</span>}
+                  </div>
+                  <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#444", lineHeight:"1.7", margin:0, fontStyle:"italic" }}>"{rec.review_text}"</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div style={{ textAlign:"center", paddingTop:"20px", borderTop:"1.5px solid #e0ddf5" }}>
+          <button onClick={()=>goTo("home")} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"sans-serif", fontSize:"12px", color:"#9B8AFB", fontWeight:"700" }}>
+            Powered by <span style={{ color:"#1A00B9", fontWeight:"900" }}>reffered ✦</span> · refferedpro.com
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── PRO MODAL ───────────────────────────────────────────────────────────────
 function ProModal({ pro, onClose, goToRecommend, getDistance }) {
   if (!pro) return null;
@@ -2123,7 +2284,12 @@ function ProModal({ pro, onClose, goToRecommend, getDistance }) {
     <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(255,255,255,0.8)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100, padding:"20px" }}>
       <div onClick={e=>e.stopPropagation()} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", maxWidth:"560px", width:"100%", maxHeight:"92vh", overflowY:"auto", boxShadow:"0 20px 60px rgba(0,0,0,0.15), 8px 8px 0 #1A00B9" }}>
         <div style={{ position:"relative" }}>
-          <div style={{ position:"relative", paddingTop:"75%", overflow:"hidden", borderRadius:"18px 18px 0 0" }}><div style={{ position:"absolute", inset:0, background:"#f4f2ff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"10px" }}><span style={{ fontSize:"36px", opacity:0.35 }}>📷</span><span style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"700", color:"#9B8AFB", letterSpacing:"1.5px", textTransform:"uppercase" }}>Photo goes here</span></div></div>
+          <div style={{ position:"relative", paddingTop:"75%", overflow:"hidden", borderRadius:"18px 18px 0 0" }}>
+            {pro.photoUrl
+              ? <img src={pro.photoUrl} alt={pro.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }}/>
+              : <div style={{ position:"absolute", inset:0, background:"#f4f2ff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"10px" }}><span style={{ fontSize:"36px", opacity:0.35 }}>📷</span><span style={{ fontFamily:"sans-serif", fontSize:"12px", fontWeight:"700", color:"#9B8AFB", letterSpacing:"1.5px", textTransform:"uppercase" }}>Photo goes here</span></div>
+            }
+          </div>
           <button onClick={onClose} style={{ position:"absolute", top:"12px", right:"12px", background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"50%", width:"36px", height:"36px", cursor:"pointer", fontSize:"16px", fontWeight:"900", boxShadow:"2px 2px 0 #1A00B9" }}>×</button>
         </div>
         <div className="modal-body" style={{ padding:"28px" }}>
@@ -2220,6 +2386,7 @@ function ProModal({ pro, onClose, goToRecommend, getDistance }) {
 export default function App() {
   const [loggedInPro, setLoggedInPro] = useState(null);
   const [page, setPage] = useState("home");
+  const [publicProId, setPublicProId] = useState(null);
   const signupInProgress = useRef(false); // prevents dashboard redirect during onboarding
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("")
@@ -2282,6 +2449,16 @@ export default function App() {
       if (event === "PASSWORD_RECOVERY") { setPage("resetPassword"); }
     });
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Public profile deep-link: ?pro=<uuid>
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const proParam = params.get("pro");
+    if (proParam) {
+      setPublicProId(proParam);
+      setPage("publicProfile");
+    }
   }, []);
 
   // Haversine distance in miles
@@ -2440,6 +2617,15 @@ export default function App() {
         );
       })()}
 
+      {/* PUBLIC PROFILE PAGE */}
+      {page==="publicProfile" && (
+        <PublicProfilePage
+          proId={publicProId}
+          goToRecommend={goToRecommend}
+          goTo={goTo}
+        />
+      )}
+
       {/* HOME */}
       {page==="home" && (
         <>
@@ -2506,12 +2692,15 @@ export default function App() {
                   <div key={pro.id} onClick={()=>setSelectedPro(pro)} onMouseEnter={()=>setHover(pro.id)} onMouseLeave={()=>setHover(null)}
                     style={{ background:"#fff", border:"1px solid #f0eef8", borderRadius:"18px", overflow:"hidden", cursor:"pointer", transition:"all 0.2s", transform:hover===pro.id?"translateY(-4px)":"none", boxShadow:hover===pro.id?"0 16px 40px rgba(26,0,185,0.10)":"0 2px 12px rgba(0,0,0,0.06)" }}>
 
-                    {/* Card image placeholder */}
+                    {/* Card image */}
                     <div style={{ position:"relative", overflow:"hidden", paddingTop:"125%", height:0 }}>
-                      <div style={{ position:"absolute", inset:0, background:"#f4f2ff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"8px" }}>
-                        <span style={{ fontSize:"28px", opacity:0.4 }}>📷</span>
-                        <span style={{ fontFamily:"sans-serif", fontSize:"11px", fontWeight:"700", color:"#9B8AFB", letterSpacing:"1px", textTransform:"uppercase" }}>Photo goes here</span>
-                      </div>
+                      {pro.photoUrl
+                        ? <img src={pro.photoUrl} alt={pro.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }}/>
+                        : <div style={{ position:"absolute", inset:0, background:"#f4f2ff", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"8px" }}>
+                            <span style={{ fontSize:"28px", opacity:0.4 }}>📷</span>
+                            <span style={{ fontFamily:"sans-serif", fontSize:"11px", fontWeight:"700", color:"#9B8AFB", letterSpacing:"1px", textTransform:"uppercase" }}>Photo goes here</span>
+                          </div>
+                      }
                       {/* Subtle overlay */}
                       <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}/>
                       {/* ❤️ Save button — top left */}
@@ -2835,9 +3024,12 @@ export default function App() {
               <p style={{ color:"#444", lineHeight:"1.6", margin:"0 0 6px" }}>Thanks for referring <strong>{form.name}</strong>.</p>
               <p style={{ color:"#666", fontSize:"14px", margin:"0 0 24px" }}>Overall score submitted: <strong>★ {avgRating(formRatings)} / 5</strong></p>
               <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
-                <button onClick={()=>{ goTo("home"); setUploadedPhotos([]); setForm({name:"",specialty:"",city:"",state:"",customCity:"",location:"",instagram:"",booking:"",why:"",yourName:"",yourEmail:"",tiktok:""}); setFormRatings(defaultRatings()); setIsEditing(false); }} style={{...btnDark}}>Back to Directory</button>
+                <button onClick={()=>{ loadCommunityPros(); goTo("home"); setUploadedPhotos([]); setForm({name:"",specialty:"",city:"",state:"",customCity:"",location:"",instagram:"",booking:"",why:"",yourName:"",yourEmail:"",tiktok:""}); setFormRatings(defaultRatings()); setIsEditing(false); }} style={{...btnDark}}>Back to Directory</button>
+                {submittedProId && (
+                  <button onClick={()=>{ setPublicProId(submittedProId); setPage("publicProfile"); window.scrollTo(0,0); }} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"40px", padding:"12px 24px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", color:"#1A00B9" }}>View {form.name.split(" ")[0]}'s Profile →</button>
+                )}
                 {!hasEdited && submittedRecId && (
-                  <button onClick={()=>{ setSubmitted(false); setIsEditing(true); }} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"40px", padding:"12px 24px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", color:"#1A00B9" }}>Edit my referral</button>
+                  <button onClick={()=>{ setSubmitted(false); setIsEditing(true); }} style={{ background:"none", border:"none", fontSize:"12px", fontWeight:"800", color:"#555", cursor:"pointer", textDecoration:"underline", fontFamily:"sans-serif" }}>Edit my referral</button>
                 )}
               </div>
             </div>
