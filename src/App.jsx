@@ -51,6 +51,65 @@ const mapSupabasePro = (r) => ({
 
 const pros = [];
 
+// ─── PRO PHOTO CAROUSEL ───────────────────────────────────────────────────────
+function ProPhotoCarousel({ photos, name }) {
+  const [idx, setIdx] = useState(0);
+  const touchStartX = useRef(null);
+  const swiped = useRef(false);
+
+  const safePhotos = (photos || []).filter(Boolean);
+  const multi = safePhotos.length > 1;
+
+  const onTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    swiped.current = false;
+  };
+  const onTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 40) {
+      swiped.current = true;
+      e.stopPropagation();
+      setIdx(i => dx < 0 ? (i + 1) % safePhotos.length : (i - 1 + safePhotos.length) % safePhotos.length);
+    }
+    touchStartX.current = null;
+  };
+  // Prevent the card's onClick from firing after a swipe
+  const onClickCapture = (e) => { if (swiped.current) { e.stopPropagation(); swiped.current = false; } };
+
+  return (
+    <>
+      <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #9B8AFB 0%, #E8E4FF 100%)" }}/>
+      {safePhotos.length > 0 && (
+        <img
+          key={idx}
+          src={safePhotos[idx]}
+          alt={name}
+          style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }}
+          onError={e => e.target.style.display="none"}
+        />
+      )}
+      {/* Full-area touch capture layer — only active when multiple photos */}
+      {multi && (
+        <div
+          style={{ position:"absolute", inset:0, zIndex:3 }}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          onClick={onClickCapture}
+        />
+      )}
+      {multi && (
+        <div style={{ position:"absolute", bottom:"10px", left:"50%", transform:"translateX(-50%)", display:"flex", gap:"5px", zIndex:5 }}>
+          {safePhotos.map((_, i) => (
+            <div key={i} onClick={(e) => { e.stopPropagation(); setIdx(i); }}
+              style={{ width: i===idx ? "18px" : "6px", height:"6px", borderRadius:"3px", background: i===idx ? "#fff" : "rgba(255,255,255,0.55)", transition:"all 0.25s", cursor:"pointer", boxShadow:"0 1px 3px rgba(0,0,0,0.3)" }}/>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 // ─── STYLES ──────────────────────────────────────────────────────────────────
 const inp = { width:"100%", padding:"14px 16px", borderRadius:"10px", border:"1.5px solid #1A00B9", fontSize:"14px", fontFamily:"sans-serif", background:"#fff", boxSizing:"border-box", outline:"none" };
 const lbl = { display:"block", fontWeight:"800", fontSize:"12px", marginBottom:"6px", color:"#1A00B9", textTransform:"uppercase", letterSpacing:"0.5px", fontFamily:"sans-serif" };
@@ -2430,14 +2489,36 @@ export default function App() {
   const [communityPros, setCommunityPros] = useState([]);
 
   const loadCommunityPros = async () => {
-    // Load from pros table (real pro accounts)
     const { data: prosData } = await supabase
       .from("pros")
       .select("*")
       .eq("is_active", true)
       .order("created_at", { ascending: false });
 
-    const mappedPros = (prosData || []).map(mapSupabasePro);
+    // Batch-fetch all referral photos in one query, merge into pro objects
+    const { data: recPhotos } = await supabase
+      .from("recommendations")
+      .select("pro_id, photo_urls")
+      .not("photo_urls", "is", null);
+
+    const photoMap = {};
+    (recPhotos || []).forEach(rec => {
+      if (!rec.photo_urls?.length) return;
+      if (!photoMap[rec.pro_id]) photoMap[rec.pro_id] = [];
+      rec.photo_urls.forEach(url => {
+        if (url && !photoMap[rec.pro_id].includes(url)) photoMap[rec.pro_id].push(url);
+      });
+    });
+
+    const mappedPros = (prosData || []).map(pro => {
+      const mapped = mapSupabasePro(pro);
+      const recUrls = photoMap[pro.id] || [];
+      // Start with the pro's own photo_url (if any), then append referral photos
+      const allPhotos = [];
+      if (mapped.photoUrl) allPhotos.push(mapped.photoUrl);
+      recUrls.forEach(u => { if (!allPhotos.includes(u)) allPhotos.push(u); });
+      return { ...mapped, allPhotoUrls: allPhotos };
+    });
     setCommunityPros(mappedPros);
   };
 
@@ -2722,17 +2803,16 @@ export default function App() {
 
                     {/* Card image */}
                     <div style={{ position:"relative", overflow:"hidden", paddingTop:"125%", height:0 }}>
-                      <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #9B8AFB 0%, #E8E4FF 100%)" }}/>
-                      {pro.photoUrl && <img src={pro.photoUrl} alt={pro.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }} onError={e=>e.target.style.display="none"}/>}
+                      <ProPhotoCarousel photos={pro.allPhotoUrls || (pro.photoUrl ? [pro.photoUrl] : [])} name={pro.name} />
                       {/* Subtle overlay */}
                       <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}/>
                       {/* ❤️ Save button — top left */}
                       <button onClick={e=>{ e.stopPropagation(); toggleSave(pro); }}
-                        style={{ position:"absolute", top:"10px", left:"10px", background: savedPros.find(x=>x.id===pro.id) ? "#1A00B9" : "rgba(255,255,255,0.9)", border:"1.5px solid #1A00B9", borderRadius:"50%", width:"32px", height:"32px", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"14px", transition:"all 0.15s", boxShadow:"2px 2px 0 #1A00B9" }}>
+                        style={{ position:"absolute", top:"10px", left:"10px", zIndex:6, background: savedPros.find(x=>x.id===pro.id) ? "#1A00B9" : "rgba(255,255,255,0.9)", border:"1.5px solid #1A00B9", borderRadius:"50%", width:"32px", height:"32px", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"14px", transition:"all 0.15s", boxShadow:"2px 2px 0 #1A00B9" }}>
                         {savedPros.find(x=>x.id===pro.id) ? "❤️" : "🤍"}
                       </button>
                       {/* Rating badge — top right */}
-                      <div style={{ position:"absolute", top:"10px", right:"10px", background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"10px", padding:"4px 9px", fontFamily:"Georgia,serif", fontSize:"13px", fontWeight:"900", boxShadow:"2px 2px 0 #1A00B9", display:"flex", alignItems:"center", gap:"3px" }}>
+                      <div style={{ position:"absolute", top:"10px", right:"10px", zIndex:6, background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"10px", padding:"4px 9px", fontFamily:"Georgia,serif", fontSize:"13px", fontWeight:"900", boxShadow:"2px 2px 0 #1A00B9", display:"flex", alignItems:"center", gap:"3px" }}>
                         <span style={{ color:"#1A00B9" }}>★</span>{overall}
                       </div>
                     </div>
@@ -2792,6 +2872,12 @@ export default function App() {
                           <a href={`https://instagram.com/${pro.instagram}`} target="_blank" rel="noreferrer"
                             style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"6px", width:"100%", padding:"9px", background:"#fafafa", border:"1px solid #f0eef8", borderRadius:"10px", fontSize:"12px", fontWeight:"600", color:"#555", textDecoration:"none", boxSizing:"border-box" }}>
                             📷 @{pro.instagram}
+                          </a>
+                        )}
+                        {pro.booking && (
+                          <a href={pro.booking.startsWith("http") ? pro.booking : `https://${pro.booking}`} target="_blank" rel="noreferrer"
+                            style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"6px", width:"100%", padding:"9px", background:"#edfad4", border:"1px solid #b7e68a", borderRadius:"10px", fontSize:"12px", fontWeight:"700", color:"#3a6e10", textDecoration:"none", boxSizing:"border-box" }}>
+                            📅 Book {pro.name.split(" ")[0]}
                           </a>
                         )}
                         <button onClick={()=>goToRecommend(pro)}
@@ -3280,11 +3366,14 @@ export default function App() {
                         const so=avg("rating_service_outcome"), pk=avg("rating_parking"), cs=avg("rating_customer_service"),
                               wt=avg("rating_wait_time"), cm=avg("rating_communication"), va=avg("rating_value"), cl=avg("rating_cleanliness");
                         const overall = [so,pk,cs,wt,cm,va,cl].filter(x=>x>0);
+                        // Also get current photo_url so we only set it if empty
+                        const { data: curProPhoto } = await supabase.from("pros").select("photo_url").eq("id", proId).single();
                         await supabase.from("pros").update({
                           rating_service_outcome: so, rating_parking: pk, rating_customer_service: cs,
                           rating_wait_time: wt, rating_communication: cm, rating_value: va, rating_cleanliness: cl,
                           rating_overall: overall.length ? overall.reduce((a,b)=>a+b,0)/overall.length : 0,
                           review_count: allRecs.length,
+                          ...((savedPhotos[0] && (!curProPhoto?.photo_url || curProPhoto.photo_url === "")) ? { photo_url: savedPhotos[0] } : {}),
                         }).eq("id", proId);
                       }
                     }
