@@ -21,7 +21,7 @@ const mapSupabasePro = (r) => ({
   id: r.id,
   name: [r.first_name, r.last_name].filter(Boolean).join(" ") || r.business_name || "Pro",
   specialty: r.specialty || "",
-  location: r.location_display || [r.location_city, r.location_state].filter(Boolean).join(", ") || "",
+  location: [r.location_city, r.location_state].filter(Boolean).join(", ") || r.location_display || "",
   lat: null, lng: null,
   ratings: {
     serviceOutcome: parseFloat(r.rating_service_outcome) || 0,
