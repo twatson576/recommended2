@@ -54,50 +54,65 @@ const pros = [];
 // ─── PRO PHOTO CAROUSEL ───────────────────────────────────────────────────────
 function ProPhotoCarousel({ photos, name }) {
   const [idx, setIdx] = useState(0);
-  const touchStartX = useRef(null);
+  const [hovered, setHovered] = useState(false);
+  const dragStartX = useRef(null);
   const swiped = useRef(false);
 
   const safePhotos = (photos || []).filter(Boolean);
   const multi = safePhotos.length > 1;
 
-  const onTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-    swiped.current = false;
-  };
+  const prev = (e) => { e.stopPropagation(); setIdx(i => (i - 1 + safePhotos.length) % safePhotos.length); };
+  const next = (e) => { e.stopPropagation(); setIdx(i => (i + 1) % safePhotos.length); };
+
+  // Touch (mobile)
+  const onTouchStart = (e) => { dragStartX.current = e.touches[0].clientX; swiped.current = false; };
   const onTouchEnd = (e) => {
-    if (touchStartX.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 40) {
-      swiped.current = true;
-      e.stopPropagation();
-      setIdx(i => dx < 0 ? (i + 1) % safePhotos.length : (i - 1 + safePhotos.length) % safePhotos.length);
-    }
-    touchStartX.current = null;
+    if (dragStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - dragStartX.current;
+    if (Math.abs(dx) > 40) { swiped.current = true; e.stopPropagation(); setIdx(i => dx < 0 ? (i + 1) % safePhotos.length : (i - 1 + safePhotos.length) % safePhotos.length); }
+    dragStartX.current = null;
   };
-  // Prevent the card's onClick from firing after a swipe
+
+  // Mouse drag (desktop)
+  const onMouseDown = (e) => { dragStartX.current = e.clientX; swiped.current = false; };
+  const onMouseUp = (e) => {
+    if (dragStartX.current === null) return;
+    const dx = e.clientX - dragStartX.current;
+    if (Math.abs(dx) > 40) { swiped.current = true; e.stopPropagation(); setIdx(i => dx < 0 ? (i + 1) % safePhotos.length : (i - 1 + safePhotos.length) % safePhotos.length); }
+    dragStartX.current = null;
+  };
   const onClickCapture = (e) => { if (swiped.current) { e.stopPropagation(); swiped.current = false; } };
+
+  const arrowStyle = (side) => ({
+    position:"absolute", top:"50%", transform:"translateY(-50%)",
+    [side]: "8px", zIndex:6,
+    background:"rgba(0,0,0,0.35)", border:"none", borderRadius:"50%",
+    width:"28px", height:"28px", display:"flex", alignItems:"center", justifyContent:"center",
+    cursor:"pointer", color:"#fff", fontSize:"14px",
+    opacity: hovered ? 1 : 0, transition:"opacity 0.2s",
+    backdropFilter:"blur(4px)",
+  });
 
   return (
     <>
       <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #9B8AFB 0%, #E8E4FF 100%)" }}/>
       {safePhotos.length > 0 && (
-        <img
-          key={idx}
-          src={safePhotos[idx]}
-          alt={name}
+        <img key={idx} src={safePhotos[idx]} alt={name}
           style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }}
           onError={e => e.target.style.display="none"}
         />
       )}
-      {/* Full-area touch capture layer — only active when multiple photos */}
       {multi && (
         <div
-          style={{ position:"absolute", inset:0, zIndex:3 }}
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
+          style={{ position:"absolute", inset:0, zIndex:3, cursor:"grab" }}
+          onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+          onMouseDown={onMouseDown} onMouseUp={onMouseUp}
+          onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
           onClick={onClickCapture}
         />
       )}
+      {multi && <button style={arrowStyle("left")} onClick={prev}>‹</button>}
+      {multi && <button style={arrowStyle("right")} onClick={next}>›</button>}
       {multi && (
         <div style={{ position:"absolute", bottom:"10px", left:"50%", transform:"translateX(-50%)", display:"flex", gap:"5px", zIndex:5 }}>
           {safePhotos.map((_, i) => (
