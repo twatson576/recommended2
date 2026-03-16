@@ -725,6 +725,7 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
 
   // ── Plan selection ──
   const [selectedPlan, setSelectedPlan] = useState(null); // "pro" | "pro_plus"
+  const [planChosen, setPlanChosen] = useState(false); // true = pricing done, show signup form
   const [billingInterval, setBillingInterval] = useState("month"); // "month" | "year"
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
@@ -831,8 +832,8 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
       <div style={{ flex:1, padding:"48px 24px" }}>
         <div style={{ maxWidth:"900px", margin:"0 auto" }}>
 
-          {/* ── WHY PRO+ — only shown on signup tab ── */}
-          {tab==="signup" && !suDone && (<>
+          {/* ── WHY PRO+ — only shown on signup tab before plan chosen ── */}
+          {tab==="signup" && !suDone && !planChosen && (<>
             <div style={{ textAlign:"center", marginBottom:"40px" }}>
               <div style={{ display:"inline-flex", alignItems:"center", justifyContent:"center", width:"52px", height:"52px", background:"#1A00B9", borderRadius:"50%", border:"1.5px solid #1A00B9", marginBottom:"14px", boxShadow:"3px 3px 0 #1A00B9" }}>
                 <span style={{ fontSize:"22px", color:"#fff" }}>✦</span>
@@ -881,7 +882,7 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
                     </div>
                   ))}
                 </div>
-                <button onClick={()=>{ setSelectedPlan("pro"); setTab("signup"); }} style={{ marginTop:"20px", width:"100%", padding:"12px", background:"#fff", border:"2px solid #1A00B9", borderRadius:"10px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#1A00B9", cursor:"pointer", boxShadow:"3px 3px 0 #1A00B9" }}>Start Free →</button>
+                <button onClick={()=>{ setSelectedPlan("pro"); setPlanChosen(true); setTab("signup"); window.scrollTo({top:0,behavior:"smooth"}); }} style={{ marginTop:"20px", width:"100%", padding:"12px", background:"#fff", border:"2px solid #1A00B9", borderRadius:"10px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#1A00B9", cursor:"pointer", boxShadow:"3px 3px 0 #1A00B9" }}>Start Free →</button>
               </div>
 
               {/* Pro+ */}
@@ -913,7 +914,7 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
                     </div>
                   ))}
                 </div>
-                <button onClick={()=>{ setSelectedPlan("pro_plus"); setTab("signup"); }} style={{ marginTop:"20px", width:"100%", padding:"12px", background:"#1A00B9", border:"2px solid #1A00B9", borderRadius:"10px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#fff", cursor:"pointer", boxShadow:"4px 4px 0 #B7CF4F" }}>Start Pro+ →</button>
+                <button onClick={()=>{ setSelectedPlan("pro_plus"); setPlanChosen(true); setTab("signup"); window.scrollTo({top:0,behavior:"smooth"}); }} style={{ marginTop:"20px", width:"100%", padding:"12px", background:"#1A00B9", border:"2px solid #1A00B9", borderRadius:"10px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#fff", cursor:"pointer", boxShadow:"4px 4px 0 #B7CF4F" }}>Start Pro+ →</button>
               </div>
             </div>
 
@@ -981,6 +982,20 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
             </div>
           </>)}
 
+          {/* ── PLAN CHOSEN BADGE ── */}
+          {tab==="signup" && planChosen && !suDone && (
+            <div style={{ maxWidth:"460px", margin:"0 auto 16px", display:"flex", alignItems:"center", justifyContent:"space-between", background: selectedPlan==="pro_plus" ? "#EAE6FF" : "#f4f2ff", border:"1.5px solid #1A00B9", borderRadius:"12px", padding:"12px 18px" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
+                <span style={{ fontSize:"18px" }}>{selectedPlan==="pro_plus" ? "✦" : "✓"}</span>
+                <div>
+                  <p style={{ margin:0, fontFamily:"sans-serif", fontSize:"11px", fontWeight:"800", letterSpacing:"1px", textTransform:"uppercase", color:"#1A00B9" }}>Selected Plan</p>
+                  <p style={{ margin:0, fontFamily:"Georgia,serif", fontSize:"16px", fontWeight:"900", color:"#111" }}>{selectedPlan==="pro_plus" ? "Pro+ — $9.99/mo" : "Pro — Free"}</p>
+                </div>
+              </div>
+              <button onClick={()=>{ setPlanChosen(false); setSelectedPlan(null); }} style={{ background:"none", border:"none", fontSize:"12px", fontWeight:"700", color:"#1A00B9", cursor:"pointer", textDecoration:"underline" }}>Change →</button>
+            </div>
+          )}
+
           {/* ── SIGN IN header (centered, compact) ── */}
           {tab==="signin" && (
             <div style={{ textAlign:"center", marginBottom:"28px" }}>
@@ -996,7 +1011,7 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
           <div style={{ maxWidth:"460px", margin:"0 auto" }}>
             {/* Tab switcher */}
             <div style={{ background:"#f4f2ff", border:"1.5px solid #1A00B9", borderRadius:"14px 14px 0 0", display:"flex", overflow:"hidden" }}>
-              <button style={{...tabStyle(tab==="signin"), borderRadius:"12px 0 0 0"}} onClick={()=>{ setTab("signin"); setError(""); setSuError(""); }}>Sign In</button>
+              <button style={{...tabStyle(tab==="signin"), borderRadius:"12px 0 0 0"}} onClick={()=>{ setTab("signin"); setError(""); setSuError(""); setPlanChosen(false); setSelectedPlan(null); }}>Sign In</button>
               <div style={{ width:"1px", background:"#e0ddf5" }}/>
               <button style={{...tabStyle(tab==="signup"), borderRadius:"0 12px 0 0"}} onClick={()=>{ setTab("signup"); setError(""); setSuError(""); }}>Create Account</button>
             </div>
