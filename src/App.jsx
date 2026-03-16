@@ -2179,10 +2179,7 @@ function PublicProfilePage({ proId, goToRecommend, goTo }) {
           <div style={{ position:"relative", paddingTop:"45%", background:"#e8e4ff", overflow:"hidden" }}>
             {pro.photoUrl
               ? <img src={pro.photoUrl} alt={pro.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }}/>
-              : <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"8px" }}>
-                  <span style={{ fontSize:"36px", opacity:0.3 }}>📷</span>
-                  <span style={{ fontSize:"11px", fontWeight:"700", color:"#9B8AFB", letterSpacing:"1.5px", textTransform:"uppercase" }}>No photo yet</span>
-                </div>
+              : <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #e8e4ff 0%, #f4f2ff 100%)" }}/>
             }
           </div>
 
