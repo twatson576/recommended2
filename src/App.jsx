@@ -2315,10 +2315,8 @@ function ProModal({ pro, onClose, goToRecommend, getDistance }) {
       <div onClick={e=>e.stopPropagation()} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", maxWidth:"560px", width:"100%", maxHeight:"92vh", overflowY:"auto", boxShadow:"0 20px 60px rgba(0,0,0,0.15), 8px 8px 0 #1A00B9" }}>
         <div style={{ position:"relative" }}>
           <div style={{ position:"relative", paddingTop:"75%", overflow:"hidden", borderRadius:"18px 18px 0 0" }}>
-            {pro.photoUrl
-              ? <img src={pro.photoUrl} alt={pro.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }}/>
-              : <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #e8e4ff 0%, #f4f2ff 100%)" }}/>
-            }
+            <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #9B8AFB 0%, #E8E4FF 100%)" }}/>
+            {pro.photoUrl && <img src={pro.photoUrl} alt={pro.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }} onError={e=>e.target.style.display="none"}/>}
           </div>
           <button onClick={onClose} style={{ position:"absolute", top:"12px", right:"12px", background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"50%", width:"36px", height:"36px", cursor:"pointer", fontSize:"16px", fontWeight:"900", boxShadow:"2px 2px 0 #1A00B9" }}>×</button>
         </div>
@@ -2724,10 +2722,8 @@ export default function App() {
 
                     {/* Card image */}
                     <div style={{ position:"relative", overflow:"hidden", paddingTop:"125%", height:0 }}>
-                      {pro.photoUrl
-                        ? <img src={pro.photoUrl} alt={pro.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }}/>
-                        : <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #e8e4ff 0%, #f4f2ff 100%)" }}/>
-                      }
+                      <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #9B8AFB 0%, #E8E4FF 100%)" }}/>
+                      {pro.photoUrl && <img src={pro.photoUrl} alt={pro.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }} onError={e=>e.target.style.display="none"}/>}
                       {/* Subtle overlay */}
                       <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}/>
                       {/* ❤️ Save button — top left */}
@@ -2977,7 +2973,10 @@ export default function App() {
                       onMouseEnter={e=>{e.currentTarget.style.transform="translate(-3px,-3px)";e.currentTarget.style.boxShadow="8px 8px 0 #1A00B9";}}
                       onMouseLeave={e=>{e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="4px 4px 0 #1A00B9";}}>
                       <div style={{ position:"relative" }}>
-                        <div style={{ position:"relative", paddingTop:"125%", overflow:"hidden" }}><div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #e8e4ff 0%, #f4f2ff 100%)" }}/></div>
+                        <div style={{ position:"relative", paddingTop:"125%", overflow:"hidden" }}>
+                          <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #9B8AFB 0%, #E8E4FF 100%)" }}/>
+                          {pro.photoUrl && <img src={pro.photoUrl} alt={pro.name} style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }} onError={e=>e.target.style.display="none"}/>}
+                        </div>
                         <div style={{ position:"absolute", inset:0, background:"linear-gradient(to bottom,rgba(0,0,0,0.2) 0%,transparent 50%)", pointerEvents:"none" }}/>
                         <div style={{ position:"absolute", top:"10px", right:"10px", background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"10px", padding:"3px 8px", fontFamily:"Georgia,serif", fontSize:"12px", fontWeight:"900", display:"flex", alignItems:"center", gap:"3px" }}>
                           <span style={{ color:"#1A00B9" }}>★</span>{score}
