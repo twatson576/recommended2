@@ -2105,6 +2105,181 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
 }
 
 // ─── ABOUT PAGE ──────────────────────────────────────────────────────────────
+// ─── MATCH ME PAGE ────────────────────────────────────────────────────────────
+function MatchMePage({ communityPros, goTo, goToRecommend }) {
+  const [description, setDescription] = useState("");
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState(null); // [{ id, matchScore, reason }]
+  const [error, setError] = useState("");
+  const fileRef = useRef(null);
+
+  const handlePhoto = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoFile(file);
+    const reader = new FileReader();
+    reader.onload = (ev) => setPhotoPreview(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleMatch = async () => {
+    if (!description.trim() && !photoFile) { setError("Tell us what you're looking for, or upload an inspiration photo."); return; }
+    setError("");
+    setLoading(true);
+    setResults(null);
+
+    try {
+      let photoBase64 = null;
+      let photoMimeType = null;
+      if (photoFile) {
+        photoBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result.split(",")[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(photoFile);
+        });
+        photoMimeType = photoFile.type;
+      }
+
+      const prosSummary = communityPros.map(p => ({
+        id: p.id,
+        name: p.name,
+        specialty: p.specialty,
+        location: p.location,
+        bio: p.bio,
+        tags: p.tags,
+        ratings: p.ratings,
+        reviews: p.reviews,
+      }));
+
+      const res = await fetch("/api/match-pros", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: description.trim(), photoBase64, photoMimeType, pros: prosSummary }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) { setError(data.error || "Something went wrong."); setLoading(false); return; }
+      setResults(data.matches);
+    } catch (err) {
+      setError("Connection error — please try again.");
+    }
+    setLoading(false);
+  };
+
+  const matchedPros = results
+    ? results.map(r => ({ ...communityPros.find(p => p.id === r.id), matchScore: r.matchScore, matchReason: r.reason })).filter(p => p.id)
+    : [];
+
+  return (
+    <div style={{ fontFamily:"sans-serif", minHeight:"100vh", background:"#f4f2ff" }}>
+      {/* Header */}
+      <div style={{ background:"#1A00B9", padding:"60px 24px 48px", textAlign:"center" }}>
+        <div style={{ display:"inline-block", background:"rgba(255,255,255,0.15)", border:"1.5px solid rgba(255,255,255,0.3)", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#fff", marginBottom:"20px" }}>AI Matchmaking ✦</div>
+        <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(28px,5vw,44px)", fontWeight:"900", color:"#fff", margin:"0 0 12px", letterSpacing:"-1px" }}>Find Your Perfect Pro</h1>
+        <p style={{ color:"rgba(255,255,255,0.8)", fontSize:"15px", margin:"0 auto", maxWidth:"480px", lineHeight:1.6 }}>Describe what you're looking for — your vibe, style, budget, location — and we'll match you with the best pro in the community.</p>
+      </div>
+
+      {/* Input card */}
+      <div style={{ maxWidth:"640px", margin:"-24px auto 0", padding:"0 20px 60px" }}>
+        <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", boxShadow:"6px 6px 0 #1A00B9", padding:"32px 28px" }}>
+
+          <label style={{ display:"block", fontWeight:"800", fontSize:"12px", color:"#1A00B9", textTransform:"uppercase", letterSpacing:"0.5px", marginBottom:"10px" }}>What are you looking for?</label>
+          <textarea
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            placeholder="e.g. I want a natural balayage with face-framing highlights. I'm in Atlanta, my budget is medium, and I really care about someone who communicates well and is on time..."
+            rows={5}
+            style={{ width:"100%", padding:"14px 16px", borderRadius:"12px", border:"1.5px solid #ddd", fontSize:"14px", fontFamily:"sans-serif", lineHeight:1.6, resize:"vertical", boxSizing:"border-box", outline:"none", color:"#111" }}
+          />
+
+          {/* Photo upload */}
+          <div style={{ marginTop:"16px" }}>
+            <label style={{ display:"block", fontWeight:"800", fontSize:"12px", color:"#1A00B9", textTransform:"uppercase", letterSpacing:"0.5px", marginBottom:"10px" }}>Inspiration Photo <span style={{ color:"#999", fontWeight:"600", textTransform:"none", letterSpacing:0 }}>(optional)</span></label>
+            <input ref={fileRef} type="file" accept="image/*" onChange={handlePhoto} style={{ display:"none" }}/>
+            {photoPreview ? (
+              <div style={{ position:"relative", display:"inline-block" }}>
+                <img src={photoPreview} alt="inspiration" style={{ width:"100px", height:"100px", objectFit:"cover", borderRadius:"12px", border:"1.5px solid #1A00B9" }}/>
+                <button onClick={() => { setPhotoFile(null); setPhotoPreview(null); fileRef.current.value=""; }}
+                  style={{ position:"absolute", top:"-8px", right:"-8px", background:"#1A00B9", color:"#fff", border:"none", borderRadius:"50%", width:"22px", height:"22px", fontSize:"12px", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", fontWeight:"900" }}>×</button>
+              </div>
+            ) : (
+              <button onClick={() => fileRef.current.click()}
+                style={{ padding:"10px 20px", background:"#f4f2ff", border:"1.5px dashed #9B8AFB", borderRadius:"12px", fontSize:"13px", fontWeight:"700", color:"#1A00B9", cursor:"pointer" }}>
+                📷 Upload inspo photo
+              </button>
+            )}
+          </div>
+
+          {error && <p style={{ color:"#cc0000", fontSize:"13px", fontWeight:"700", margin:"14px 0 0" }}>{error}</p>}
+
+          <button onClick={handleMatch} disabled={loading}
+            style={{ marginTop:"20px", width:"100%", padding:"16px", background: loading ? "#9B8AFB" : "#1A00B9", color:"#fff", border:"none", borderRadius:"12px", fontSize:"15px", fontWeight:"800", cursor: loading ? "not-allowed" : "pointer", boxShadow: loading ? "none" : "4px 4px 0 #B7CF4F", transition:"all 0.2s", fontFamily:"sans-serif" }}>
+            {loading ? "✨ Finding your matches..." : "✨ Find My Match"}
+          </button>
+        </div>
+
+        {/* Results */}
+        {matchedPros.length > 0 && (
+          <div style={{ marginTop:"40px" }}>
+            <h2 style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", color:"#111", margin:"0 0 20px", textAlign:"center" }}>Your Top Matches ✦</h2>
+            <div style={{ display:"flex", flexDirection:"column", gap:"16px" }}>
+              {matchedPros.map((pro, i) => {
+                const overall = pro.ratings ? ((Object.values(pro.ratings).filter(v=>v>0).reduce((a,b)=>a+b,0))/(Object.values(pro.ratings).filter(v=>v>0).length||1)).toFixed(1) : "0";
+                return (
+                  <div key={pro.id} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"16px", boxShadow:"4px 4px 0 #1A00B9", overflow:"hidden" }}>
+                    {/* Match banner */}
+                    <div style={{ background: i===0 ? "#1A00B9" : "#f4f2ff", padding:"10px 16px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                      <span style={{ fontSize:"12px", fontWeight:"800", color: i===0 ? "#B7CF4F" : "#1A00B9" }}>
+                        {i===0 ? "🏆 Best Match" : `#${i+1} Match`}
+                      </span>
+                      <span style={{ fontSize:"12px", fontWeight:"900", color: i===0 ? "#fff" : "#1A00B9" }}>
+                        {pro.matchScore}% match
+                      </span>
+                    </div>
+                    {/* Pro info */}
+                    <div style={{ padding:"16px" }}>
+                      <div style={{ display:"flex", gap:"14px", alignItems:"flex-start" }}>
+                        {/* Photo */}
+                        <div style={{ width:"64px", height:"64px", borderRadius:"12px", overflow:"hidden", flexShrink:0, background:"linear-gradient(135deg, #9B8AFB 0%, #E8E4FF 100%)" }}>
+                          {(pro.allPhotoUrls?.[0] || pro.photoUrl) && (
+                            <img src={pro.allPhotoUrls?.[0] || pro.photoUrl} alt={pro.name} style={{ width:"100%", height:"100%", objectFit:"cover" }} onError={e=>e.target.style.display="none"}/>
+                          )}
+                        </div>
+                        {/* Details */}
+                        <div style={{ flex:1 }}>
+                          <div style={{ display:"flex", alignItems:"center", gap:"6px", marginBottom:"2px" }}>
+                            <h3 style={{ margin:0, fontFamily:"Georgia,serif", fontSize:"16px", fontWeight:"900", color:"#111" }}>{pro.name}</h3>
+                            {pro.proPlus && <span style={{ background:"#edfad4", color:"#4a7c20", borderRadius:"6px", padding:"2px 7px", fontSize:"9px", fontWeight:"700" }}>PRO+</span>}
+                          </div>
+                          <p style={{ margin:"0 0 4px", fontSize:"12px", color:"#666" }}>{pro.specialty} · 📍 {pro.location}</p>
+                          <p style={{ margin:0, fontSize:"12px", color:"#1A00B9", fontWeight:"700" }}>★ {overall} · {pro.reviews} review{pro.reviews!==1?"s":""}</p>
+                        </div>
+                      </div>
+                      {/* AI reason */}
+                      <div style={{ marginTop:"12px", background:"#f4f2ff", borderRadius:"10px", padding:"10px 14px" }}>
+                        <p style={{ margin:0, fontSize:"13px", color:"#333", lineHeight:1.6 }}>💜 {pro.matchReason}</p>
+                      </div>
+                      {/* Actions */}
+                      <div style={{ display:"flex", gap:"8px", marginTop:"12px" }}>
+                        <button onClick={()=>goToRecommend(pro)} style={{ flex:1, padding:"9px", background:"#f4f2ff", border:"none", borderRadius:"10px", fontSize:"12px", fontWeight:"700", color:"#1A00B9", cursor:"pointer" }}>⭐ Refer {pro.name.split(" ")[0]}</button>
+                        {pro.booking && <a href={pro.booking.startsWith("http")?pro.booking:`https://${pro.booking}`} target="_blank" rel="noreferrer" style={{ flex:1, padding:"9px", background:"#edfad4", border:"none", borderRadius:"10px", fontSize:"12px", fontWeight:"700", color:"#3a6e10", cursor:"pointer", textDecoration:"none", textAlign:"center" }}>📅 Book</a>}
+                        {pro.instagram && <a href={`https://instagram.com/${pro.instagram}`} target="_blank" rel="noreferrer" style={{ flex:1, padding:"9px", background:"#fafafa", border:"1px solid #f0eef8", borderRadius:"10px", fontSize:"12px", fontWeight:"600", color:"#555", textDecoration:"none", textAlign:"center" }}>📷 IG</a>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <p style={{ textAlign:"center", marginTop:"24px", fontSize:"13px", color:"#888" }}>Want to browse everyone? <span onClick={()=>goTo("home")} style={{ color:"#1A00B9", fontWeight:"700", cursor:"pointer" }}>View full directory →</span></p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function AboutPage({ setPage }) {
   return (
     <div style={{ fontFamily:"sans-serif" }}>
@@ -2689,6 +2864,7 @@ export default function App() {
         <div style={{ display:"flex", gap:"24px", alignItems:"center" }}>
           {[
             { label:"Browse", action:()=>{ goTo("home"); setTimeout(()=>document.getElementById("browse")?.scrollIntoView({behavior:"smooth"}),100); }, color:"#555" },
+            { label:"Find My Pro ✨", action:()=>goTo("matchMe"), color:"#7c6fc2" },
             { label:"About", action:()=>goTo("about"), color:"#555" },
             { label: loggedInPro ? "My Dashboard ✦" : "For Pros ✦", action:()=>goTo("dashboard"), color:"#1A00B9" },
           ].map(item=>(
@@ -3094,6 +3270,7 @@ export default function App() {
       )}
 
       {page==="about"     && <AboutPage setPage={goTo}/>}
+      {page==="matchMe"   && <MatchMePage communityPros={communityPros} goTo={goTo} goToRecommend={goToRecommend}/>}
       {page==="provider"  && <ProviderSignup goTo={goTo}/>}
       {page==="dashboard" && (loggedInPro && !signupInProgress.current
         ? <ProDashboard goTo={goTo} onLogout={handleProLogout} proData={loggedInPro}/>
