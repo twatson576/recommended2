@@ -2828,7 +2828,7 @@ export default function App() {
                       </div>
 
                       {/* Specialty + location */}
-                      <p style={{ margin:"0 0 6px", fontSize:"12px", color:"#999", fontWeight:"500" }}>
+                      <p style={{ margin:"0 0 6px", fontSize:"12px", color:"#555", fontWeight:"600" }}>
                         {pro.specialty} &nbsp;·&nbsp; 📍 {pro.location}
                       </p>
                       {getDistance(pro) && (
@@ -2849,14 +2849,15 @@ export default function App() {
                       <div style={{ display:"flex", flexDirection:"column", gap:"5px", marginBottom:"12px" }}>
                         {RATING_CATEGORIES.slice(0,3).map(cat=>(
                           <div key={cat.key} style={{ display:"flex", alignItems:"center", gap:"6px" }}>
-                            <span style={{ fontSize:"10px", width:"13px", textAlign:"center", opacity:0.7 }}>{cat.emoji}</span>
-                            <div style={{ flex:1, height:"4px", background:"#f0f0f0", borderRadius:"3px", overflow:"hidden" }}>
-                              <div style={{ height:"100%", width:`${(pro.ratings[cat.key]/5)*100}%`, background:"#c4b8ff", borderRadius:"3px" }}/>
+                            <span style={{ fontSize:"10px", width:"13px", textAlign:"center" }}>{cat.emoji}</span>
+                            <span style={{ fontSize:"10px", fontWeight:"600", color:"#555", flex:"0 0 auto", maxWidth:"90px", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{cat.label}</span>
+                            <div style={{ flex:1, height:"4px", background:"#e0ddf5", borderRadius:"3px", overflow:"hidden" }}>
+                              <div style={{ height:"100%", width:`${(pro.ratings[cat.key]/5)*100}%`, background:"#7c6fc2", borderRadius:"3px" }}/>
                             </div>
-                            <span style={{ fontSize:"10px", fontWeight:"800", color:"#bbb", width:"16px", textAlign:"right" }}>{pro.ratings[cat.key]}</span>
+                            <span style={{ fontSize:"10px", fontWeight:"800", color:"#444", width:"16px", textAlign:"right" }}>{pro.ratings[cat.key]}</span>
                           </div>
                         ))}
-                        <p style={{ margin:"2px 0 0", fontSize:"10px", color:"#ccc" }}>+{RATING_CATEGORIES.length-3} more categories · tap to see all</p>
+                        <p style={{ margin:"2px 0 0", fontSize:"10px", color:"#888" }}>+{RATING_CATEGORIES.length-3} more categories · tap to see all</p>
                       </div>
 
                       {/* Tags */}
