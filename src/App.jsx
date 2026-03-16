@@ -2130,7 +2130,7 @@ function PublicProfilePage({ proId, goToRecommend, goTo }) {
       setProData(mapSupabasePro(proRow));
       const { data: recs } = await supabase
         .from("recommendations")
-        .select("review_text, submitter_name, rating_overall, created_at")
+        .select("review_text, submitter_name, rating_overall, photo_urls, created_at")
         .eq("pro_id", proId)
         .not("review_text", "is", null)
         .order("created_at", { ascending: false })
@@ -2216,11 +2216,34 @@ function PublicProfilePage({ proId, goToRecommend, goTo }) {
               </div>
             )}
 
+            {/* Connect section */}
+            {(pro.instagram || pro.booking) && (
+              <div style={{ borderTop:"1.5px solid #f0eef8", paddingTop:"16px", marginBottom:"4px", display:"flex", flexDirection:"column", gap:"10px" }}>
+                <p style={{ fontFamily:"sans-serif", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#aaa", margin:0 }}>Connect</p>
+                {pro.instagram && (
+                  <a href={`https://instagram.com/${pro.instagram}`} target="_blank" rel="noreferrer" style={{ display:"flex", alignItems:"center", gap:"10px", textDecoration:"none" }}>
+                    <span style={{ fontSize:"20px" }}>📷</span>
+                    <div>
+                      <p style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#aaa", margin:0, fontWeight:"700" }}>Instagram</p>
+                      <p style={{ fontFamily:"sans-serif", fontSize:"14px", color:"#1A00B9", margin:0, fontWeight:"800" }}>@{pro.instagram}</p>
+                    </div>
+                  </a>
+                )}
+                {pro.booking && (
+                  <a href={pro.booking} target="_blank" rel="noreferrer" style={{ display:"flex", alignItems:"center", gap:"10px", textDecoration:"none" }}>
+                    <span style={{ fontSize:"20px" }}>📅</span>
+                    <div>
+                      <p style={{ fontFamily:"sans-serif", fontSize:"11px", color:"#aaa", margin:0, fontWeight:"700" }}>Book an Appointment</p>
+                      <p style={{ fontFamily:"sans-serif", fontSize:"14px", color:"#1A00B9", margin:0, fontWeight:"800" }}>Book Now →</p>
+                    </div>
+                  </a>
+                )}
+              </div>
+            )}
+
             {/* CTA Buttons */}
-            <div style={{ display:"flex", gap:"10px", flexWrap:"wrap" }}>
+            <div style={{ display:"flex", gap:"10px", flexWrap:"wrap", paddingTop:"16px", borderTop:"1.5px solid #f0eef8" }}>
               <button onClick={()=>{ goToRecommend(pro); }} style={{ background:"#1A00B9", color:"#fff", border:"1.5px solid #1A00B9", borderRadius:"30px", padding:"12px 24px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"4px 4px 0 #B7CF4F" }}>⭐ Refer {pro.name.split(" ")[0]}</button>
-              {pro.instagram && <a href={`https://instagram.com/${pro.instagram}`} target="_blank" rel="noreferrer" style={{ background:"#fff", color:"#1A00B9", border:"1.5px solid #1A00B9", borderRadius:"30px", padding:"12px 20px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", textDecoration:"none", display:"inline-flex", alignItems:"center", gap:"6px" }}>📷 @{pro.instagram}</a>}
-              {pro.booking && <a href={pro.booking} target="_blank" rel="noreferrer" style={{ background:"#fff", color:"#1A00B9", border:"1.5px solid #1A00B9", borderRadius:"30px", padding:"12px 20px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", textDecoration:"none" }}>Book Now →</a>}
             </div>
           </div>
         </div>
@@ -2253,12 +2276,22 @@ function PublicProfilePage({ proId, goToRecommend, goTo }) {
             <p style={{ fontFamily:"sans-serif", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#1A00B9", margin:"0 0 12px" }}>Community Referrals</p>
             <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
               {referrals.map((rec, i) => (
-                <div key={i} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"14px", padding:"18px 20px", boxShadow:"3px 3px 0 #B7CF4F" }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"8px" }}>
-                    <span style={{ fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#1A00B9" }}>{rec.submitter_name || "Anonymous"}</span>
-                    {rec.rating_overall > 0 && <span style={{ fontFamily:"Georgia,serif", fontSize:"14px", fontWeight:"900", color:"#1A00B9" }}>★ {parseFloat(rec.rating_overall).toFixed(1)}</span>}
+                <div key={i} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"14px", overflow:"hidden", boxShadow:"3px 3px 0 #B7CF4F" }}>
+                  {/* Referral photos */}
+                  {rec.photo_urls && rec.photo_urls.length > 0 && (
+                    <div style={{ display:"grid", gridTemplateColumns:`repeat(${Math.min(rec.photo_urls.length, 3)}, 1fr)`, gap:"2px", maxHeight:"200px", overflow:"hidden" }}>
+                      {rec.photo_urls.slice(0, 3).map((url, j) => (
+                        <img key={j} src={url} alt="" style={{ width:"100%", height:"200px", objectFit:"cover" }}/>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ padding:"18px 20px" }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"8px" }}>
+                      <span style={{ fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", color:"#1A00B9" }}>{rec.submitter_name || "Anonymous"}</span>
+                      {rec.rating_overall > 0 && <span style={{ fontFamily:"Georgia,serif", fontSize:"14px", fontWeight:"900", color:"#1A00B9" }}>★ {parseFloat(rec.rating_overall).toFixed(1)}</span>}
+                    </div>
+                    <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#444", lineHeight:"1.7", margin:0, fontStyle:"italic" }}>"{rec.review_text}"</p>
                   </div>
-                  <p style={{ fontFamily:"sans-serif", fontSize:"13px", color:"#444", lineHeight:"1.7", margin:0, fontStyle:"italic" }}>"{rec.review_text}"</p>
                 </div>
               ))}
             </div>
