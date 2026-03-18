@@ -58,7 +58,8 @@ function ProPhotoCarousel({ photos, name }) {
   const dragStartX = useRef(null);
   const swiped = useRef(false);
 
-  const safePhotos = (photos || []).filter(Boolean);
+  // Deduplicate photos
+  const safePhotos = (photos || []).filter(Boolean).filter((u, i, arr) => arr.indexOf(u) === i);
   const multi = safePhotos.length > 1;
 
   const prev = (e) => { e.stopPropagation(); setIdx(i => (i - 1 + safePhotos.length) % safePhotos.length); };
@@ -96,12 +97,13 @@ function ProPhotoCarousel({ photos, name }) {
   return (
     <>
       <div style={{ position:"absolute", inset:0, background:"linear-gradient(135deg, #9B8AFB 0%, #E8E4FF 100%)" }}/>
-      {safePhotos.length > 0 && (
-        <img key={idx} src={safePhotos[idx]} alt={name}
-          style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover" }}
+      {/* Preload all images, only show current — no remount on swipe */}
+      {safePhotos.map((src, i) => (
+        <img key={src} src={src} alt={name}
+          style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", opacity: i===idx ? 1 : 0, transition:"opacity 0.2s" }}
           onError={e => e.target.style.display="none"}
         />
-      )}
+      ))}
       {multi && (
         <div
           style={{ position:"absolute", inset:0, zIndex:3, cursor:"grab" }}
