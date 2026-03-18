@@ -1468,7 +1468,33 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
     { month:"Nov", recs:0 },{ month:"Dec", recs:0 },{ month:"Jan", recs:0 },
   ];
   const maxRecs = Math.max(...monthlyData.map(d=>d.recs), 1);
-  const tabs = ["overview","my profile","credentials","your wins","widget"];
+  const tabs = ["overview","my profile","credentials","your wins","widget","ai advisor"];
+  const [advisorMessages, setAdvisorMessages] = useState([]);
+  const [advisorInput, setAdvisorInput] = useState("");
+  const [advisorLoading, setAdvisorLoading] = useState(false);
+  const advisorEndRef = useRef(null);
+
+  const sendAdvisorMessage = async (text) => {
+    const userMsg = text || advisorInput.trim();
+    if (!userMsg || advisorLoading) return;
+    setAdvisorInput("");
+    const newHistory = [...advisorMessages, { role:"user", content:userMsg }];
+    setAdvisorMessages(newHistory);
+    setAdvisorLoading(true);
+    try {
+      const res = await fetch("/api/pro-advisor", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ pro, message: userMsg, history: advisorMessages }),
+      });
+      const data = await res.json();
+      setAdvisorMessages([...newHistory, { role:"assistant", content: data.reply || "Sorry, I couldn't generate a response." }]);
+    } catch {
+      setAdvisorMessages([...newHistory, { role:"assistant", content:"Something went wrong. Please try again." }]);
+    }
+    setAdvisorLoading(false);
+    setTimeout(() => advisorEndRef.current?.scrollIntoView({ behavior:"smooth" }), 100);
+  };
   const [profileForm, setProfileForm] = useState({ bio:pro.bio||"", instagram:pro.instagram||"", tiktok:pro.tiktokReview||"", booking:pro.booking||"", phone:"" });
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
@@ -1581,7 +1607,7 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
         {tabs.map(tab=>(
           <button key={tab} onClick={()=>setActiveTab(tab)}
             style={{ padding:"16px 20px", border:"none", borderBottom:activeTab===tab?"3px solid #1A00B9":"3px solid transparent", background:"none", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", color:activeTab===tab?"#1A00B9":"#888", textTransform:"capitalize", marginBottom:"-2px", letterSpacing:"0.5px", whiteSpace:"nowrap" }}>
-            {tab==="credentials"?"🛡️ Credentials":tab==="your wins"?"✨ Your Wins":tab==="widget"?"🔗 Widget":"🏠 Overview"}
+            {tab==="credentials"?"🛡️ Credentials":tab==="your wins"?"✨ Your Wins":tab==="widget"?"🔗 Widget":tab==="ai advisor"?(pro.proPlus?"✦ AI Advisor":"🔒 AI Advisor"):tab==="my profile"?"My Profile":"🏠 Overview"}
           </button>
         ))}
       </div>
@@ -2073,6 +2099,87 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
                 💡 <strong>Works everywhere:</strong> Paste the embed code into Squarespace, Wix, WordPress, Linktree, or any website builder. Your rating updates live as new recommendations come in.
               </p>
             </div>
+          </div>
+        )}
+
+        {activeTab==="ai advisor" && (
+          <div style={{ display:"flex", flexDirection:"column", gap:"24px" }}>
+            <div>
+              <h2 style={{ fontFamily:"Georgia,serif", fontSize:"28px", fontWeight:"900", margin:"0 0 8px", letterSpacing:"-1px" }}>AI Business Advisor</h2>
+              <p style={{ color:"#666", fontSize:"14px", lineHeight:"1.6", margin:0 }}>Get personalized advice to grow your business, improve your ratings, and attract more clients.</p>
+            </div>
+
+            {!pro.proPlus ? (
+              <div style={{ background:"#f4f2ff", border:"1.5px solid #1A00B9", borderRadius:"16px", padding:"40px 32px", textAlign:"center" }}>
+                <div style={{ fontSize:"36px", marginBottom:"12px" }}>✦</div>
+                <p style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", color:"#1A00B9", margin:"0 0 8px" }}>Pro+ Exclusive</p>
+                <p style={{ fontSize:"14px", color:"#666", margin:"0 0 24px", lineHeight:"1.6", maxWidth:"360px", marginLeft:"auto", marginRight:"auto" }}>Your personal AI business coach — trained on beauty industry data and powered by your actual profile and ratings.</p>
+                <button onClick={() => handleUpgrade("month")} style={{...btnDark, boxShadow:"4px 4px 0 #B7CF4F"}}>Upgrade to Pro+ →</button>
+              </div>
+            ) : (
+              <>
+                {/* Quick prompts */}
+                {advisorMessages.length === 0 && (
+                  <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
+                    <p style={{ margin:0, fontSize:"12px", fontWeight:"800", color:"#aaa", letterSpacing:"1.5px", textTransform:"uppercase" }}>Suggested questions</p>
+                    <div style={{ display:"flex", flexWrap:"wrap", gap:"8px" }}>
+                      {[
+                        "How can I get more referrals?",
+                        "How do I improve my wait time rating?",
+                        "What should I post on Instagram?",
+                        "How do I price my services competitively?",
+                        "How do I turn one-time clients into regulars?",
+                      ].map(q => (
+                        <button key={q} onClick={() => sendAdvisorMessage(q)}
+                          style={{ background:"#f4f2ff", border:"1.5px solid #e0ddf5", borderRadius:"20px", padding:"8px 16px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"700", color:"#1A00B9", cursor:"pointer" }}>
+                          {q}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Chat messages */}
+                <div style={{ display:"flex", flexDirection:"column", gap:"16px", maxHeight:"420px", overflowY:"auto", padding:"4px 0" }}>
+                  {advisorMessages.map((msg, i) => (
+                    <div key={i} style={{ display:"flex", justifyContent: msg.role==="user" ? "flex-end" : "flex-start" }}>
+                      <div style={{
+                        maxWidth:"80%", padding:"14px 18px", borderRadius: msg.role==="user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                        background: msg.role==="user" ? "#1A00B9" : "#f4f2ff",
+                        color: msg.role==="user" ? "#fff" : "#222",
+                        fontSize:"14px", lineHeight:"1.65", fontFamily:"sans-serif",
+                        border: msg.role==="assistant" ? "1.5px solid #e0ddf5" : "none",
+                      }}>
+                        {msg.role==="assistant" && <p style={{ margin:"0 0 6px", fontSize:"10px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", color:"#9B8AFB" }}>AI Advisor</p>}
+                        {msg.content}
+                      </div>
+                    </div>
+                  ))}
+                  {advisorLoading && (
+                    <div style={{ display:"flex", justifyContent:"flex-start" }}>
+                      <div style={{ background:"#f4f2ff", border:"1.5px solid #e0ddf5", borderRadius:"18px 18px 18px 4px", padding:"14px 18px", fontSize:"14px", color:"#aaa" }}>Thinking...</div>
+                    </div>
+                  )}
+                  <div ref={advisorEndRef}/>
+                </div>
+
+                {/* Input */}
+                <div style={{ display:"flex", gap:"10px", alignItems:"flex-end" }}>
+                  <textarea
+                    value={advisorInput}
+                    onChange={e => setAdvisorInput(e.target.value)}
+                    onKeyDown={e => { if (e.key==="Enter" && !e.shiftKey) { e.preventDefault(); sendAdvisorMessage(); } }}
+                    placeholder="Ask anything about your business..."
+                    rows={2}
+                    style={{ flex:1, padding:"12px 16px", borderRadius:"12px", border:"1.5px solid #1A00B9", fontSize:"14px", fontFamily:"sans-serif", resize:"none", outline:"none" }}
+                  />
+                  <button onClick={() => sendAdvisorMessage()} disabled={advisorLoading || !advisorInput.trim()}
+                    style={{...btnDark, padding:"12px 20px", boxShadow:"3px 3px 0 #B7CF4F", opacity: advisorLoading || !advisorInput.trim() ? 0.5 : 1}}>
+                    Send →
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
 
