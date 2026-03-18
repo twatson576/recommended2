@@ -1409,6 +1409,22 @@ function ProDashboard({ goTo, onLogout, proData }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [readIds, setReadIds] = useState([]);
   const [managePlanOpen, setManagePlanOpen] = useState(false);
+  const [upgradeLoading, setUpgradeLoading] = useState(null);
+
+  const handleUpgrade = async (interval) => {
+    if (!pro.supabaseId) return;
+    setUpgradeLoading(interval);
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: pro.supabaseId, email: pro.email || "", interval }),
+      });
+      const json = await res.json();
+      if (json.url) { window.location.href = json.url; return; }
+    } catch (e) {}
+    setUpgradeLoading(null);
+  };
   const notifRef = useRef(null);
   const photoRef = useRef(null);
   const [photoUrl, setPhotoUrl] = useState(pro.photoUrl || "");
@@ -2081,8 +2097,8 @@ const NOTIFICATIONS = []; // Will load from Supabase in production
               </div>
               <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:"8px" }}>
                 <div style={{ display:"flex", gap:"10px", flexWrap:"wrap" }}>
-                  <button style={{ background:"#fff", color:"#1A00B9", border:"none", borderRadius:"30px", padding:"11px 22px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"3px 3px 0 #B7CF4F" }}>$9.99/month →</button>
-                  <button style={{ background:"transparent", color:"#B7CF4F", border:"1.5px solid #B7CF4F", borderRadius:"30px", padding:"11px 22px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer" }}>$75/year · Save 37%</button>
+                  <button onClick={() => handleUpgrade("month")} disabled={!!upgradeLoading} style={{ background:"#fff", color:"#1A00B9", border:"none", borderRadius:"30px", padding:"11px 22px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"3px 3px 0 #B7CF4F", opacity: upgradeLoading ? 0.7 : 1 }}>{upgradeLoading==="month" ? "Redirecting..." : "$9.99/month →"}</button>
+                  <button onClick={() => handleUpgrade("year")} disabled={!!upgradeLoading} style={{ background:"transparent", color:"#B7CF4F", border:"1.5px solid #B7CF4F", borderRadius:"30px", padding:"11px 22px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", opacity: upgradeLoading ? 0.7 : 1 }}>{upgradeLoading==="year" ? "Redirecting..." : "$75/year · Save 37%"}</button>
                 </div>
                 <p style={{ margin:0, fontSize:"11px", color:"rgba(255,255,255,0.6)" }}>Cancel anytime · No contracts</p>
               </div>
@@ -2717,15 +2733,23 @@ export default function App() {
       });
     });
 
-    const mappedPros = (prosData || []).map(pro => {
-      const mapped = mapSupabasePro(pro);
-      const recUrls = photoMap[pro.id] || [];
-      // Start with the pro's own photo_url (if any), then append referral photos
-      const allPhotos = [];
-      if (mapped.photoUrl) allPhotos.push(mapped.photoUrl);
-      recUrls.forEach(u => { if (!allPhotos.includes(u)) allPhotos.push(u); });
-      return { ...mapped, allPhotoUrls: allPhotos };
-    });
+    // Fetch pro_ids that have at least one referral
+    const { data: recCounts } = await supabase
+      .from("recommendations")
+      .select("pro_id");
+    const prosWithReferrals = new Set((recCounts || []).map(r => r.pro_id));
+
+    const mappedPros = (prosData || [])
+      .filter(pro => prosWithReferrals.has(pro.id))
+      .map(pro => {
+        const mapped = mapSupabasePro(pro);
+        const recUrls = photoMap[pro.id] || [];
+        // Start with the pro's own photo_url (if any), then append referral photos
+        const allPhotos = [];
+        if (mapped.photoUrl) allPhotos.push(mapped.photoUrl);
+        recUrls.forEach(u => { if (!allPhotos.includes(u)) allPhotos.push(u); });
+        return { ...mapped, allPhotoUrls: allPhotos };
+      });
     setCommunityPros(mappedPros);
   };
 
