@@ -3045,7 +3045,6 @@ export default function App() {
         <div onClick={()=>goTo("home")} style={{ cursor:"pointer", fontFamily:"Georgia,serif", fontWeight:"900", fontSize:"20px", letterSpacing:"-0.5px", flexShrink:0, color:"#1A00B9" }}>reffered</div>
         <div style={{ display:"flex", gap:"24px", alignItems:"center" }}>
           {[
-            { label:"Browse", action:()=>{ goTo("home"); setTimeout(()=>document.getElementById("browse")?.scrollIntoView({behavior:"smooth"}),100); }, color:"#555" },
             { label:"Find My Pro ✨", action:()=>goTo("matchMe"), color:"#7c6fc2" },
             { label:"About", action:()=>goTo("about"), color:"#555" },
             { label: loggedInPro ? "My Dashboard ✦" : "For Pros ✦", action:()=>goTo("dashboard"), color:"#1A00B9" },
@@ -3180,9 +3179,9 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Browse link */}
+              {/* Refer link */}
               <div style={{ textAlign:"center", marginTop:"28px" }}>
-                <button onClick={()=>document.getElementById("browse")?.scrollIntoView({behavior:"smooth"})} style={{ background:"none", border:"none", fontSize:"13px", fontWeight:"700", color:"#aaa", cursor:"pointer", textDecoration:"underline" }}>or browse the directory ↓</button>
+                <button onClick={()=>goTo("recommend")} style={{ background:"none", border:"none", fontSize:"13px", fontWeight:"700", color:"#aaa", cursor:"pointer", textDecoration:"underline" }}>or refer a pro you love ↓</button>
               </div>
             </div>
           </div>
@@ -3210,8 +3209,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* ── FULL BROWSE DIRECTORY ── */}
-          <div id="browse" className="browse-pad" style={{ maxWidth:"1100px", margin:"0 auto", padding:"60px 24px" }}>
+          {/* ── FULL BROWSE DIRECTORY — hidden during waitlist phase ── */}
+          {false && <div id="browse" className="browse-pad" style={{ maxWidth:"1100px", margin:"0 auto", padding:"60px 24px" }}>
             <div className="search-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"28px", flexWrap:"wrap", gap:"16px" }}>
               <div>
                 <p style={{ fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#1A00B9", margin:"0 0 6px" }}>Browse the Directory</p>
@@ -3353,7 +3352,7 @@ export default function App() {
                 <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Refer a Pro</button>
               </div>
             </div>
-          </div>
+          </div>}
           {/* ── SOCIAL PROOF STATS ── */}
           <div className="stats-pad" style={{ background:"#fafafa", borderBottom:"1px solid #f0eef8", padding:"48px 40px" }}>
             <div className="stats-grid" style={{ maxWidth:"900px", margin:"0 auto", display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"0" }}>
