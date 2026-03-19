@@ -3472,8 +3472,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* ── PRO PREVIEW STRIP ── */}
-          <div style={{ background:"#fff", borderBottom:"1px solid #e0ddf5" }}>
+          {/* ── PRO PREVIEW STRIP — hidden during waitlist phase ── */}
+          {false && <div style={{ background:"#fff", borderBottom:"1px solid #e0ddf5" }}>
             <div className="preview-pad" style={{ maxWidth:"1100px", margin:"0 auto", padding:"72px 40px 48px" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"36px", flexWrap:"wrap", gap:"16px" }}>
                 <div>
@@ -3519,7 +3519,7 @@ export default function App() {
                 })}
               </div>
             </div>
-          </div>
+          </div>}
 
         </>
       )}
