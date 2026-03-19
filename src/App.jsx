@@ -2878,7 +2878,12 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         supabase.from("pros").select("*").eq("profile_id", session.user.id).single()
-          .then(({ data: proRow }) => { if (proRow) setLoggedInPro(mapSupabasePro(proRow)); });
+          .then(({ data: proRow }) => {
+            if (proRow) {
+              setLoggedInPro(mapSupabasePro(proRow));
+              if (!signupInProgress.current) setPage("dashboard");
+            }
+          });
       }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
