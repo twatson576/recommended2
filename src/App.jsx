@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "./supabase";
 
-const categories = ["All", "Hair Stylists", "Makeup Artists", "Nail Techs", "Estheticians", "Lash & Brow"];
+const categories = ["All", "Hair Stylists", "Makeup Artists", "Nail Techs", "Estheticians", "Lash & Brow", "Waxing"];
+const SPECIALTIES = ["Hair Stylist","Makeup Artist","Nail Tech","Esthetician","Lash & Brow Artist","Waxing Specialist"];
 
 const RATING_CATEGORIES = [
   { key: "serviceOutcome",  label: "Service Outcome",           emoji: "⭐" },
@@ -346,10 +347,11 @@ function DisputePage({ goTo }) {
 // ─── PROVIDER SIGN UP ─────────────────────────────────────────────────────────
 function ProviderSignup({ goTo }) {
   const [step, setStep] = useState(1);
-  const [f, setF] = useState({ firstName:"", lastName:"", businessName:"", specialty:"", location:"", instagram:"", booking:"", email:"", phone:"", bio:"", agreeTerms:false });
+  const [f, setF] = useState({ firstName:"", lastName:"", businessName:"", specialties:[], location:"", instagram:"", booking:"", email:"", phone:"", bio:"", agreeTerms:false });
   const [claimed, setClaimed] = useState("");
 
-  const canSubmit = f.firstName && f.lastName && f.email && f.specialty && f.location && f.agreeTerms;
+  const canSubmit = f.firstName && f.lastName && f.email && f.specialties.length > 0 && f.location && f.agreeTerms;
+  const toggleSpecialty = (s) => setF(prev => ({ ...prev, specialties: prev.specialties.includes(s) ? prev.specialties.filter(x=>x!==s) : [...prev.specialties, s] }));
 
   return (
     <div>
@@ -381,11 +383,15 @@ function ProviderSignup({ goTo }) {
               <div><label style={lbl}>Last Name *</label><input value={f.lastName} onChange={e=>setF({...f,lastName:e.target.value})} placeholder="Last" style={inp}/></div>
             </div>
             <div><label style={lbl}>Business / Studio Name</label><input value={f.businessName} onChange={e=>setF({...f,businessName:e.target.value})} placeholder="e.g. Monroe Hair Studio" style={inp}/></div>
-            <div><label style={lbl}>Your Specialty *</label>
-              <select value={f.specialty} onChange={e=>setF({...f,specialty:e.target.value})} style={inp}>
-                <option value="">Select...</option>
-                {["Hair Stylist","Makeup Artist","Nail Tech","Esthetician","Lash & Brow Artist"].map(s=><option key={s}>{s}</option>)}
-              </select>
+            <div><label style={lbl}>Your Specialty * <span style={{ fontWeight:"400", textTransform:"none", fontSize:"11px", color:"#888" }}>(select all that apply)</span></label>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:"8px" }}>
+                {SPECIALTIES.map(s=>(
+                  <button key={s} type="button" onClick={()=>toggleSpecialty(s)}
+                    style={{ padding:"8px 16px", borderRadius:"20px", border:"1.5px solid", borderColor: f.specialties.includes(s)?"#1A00B9":"#e0ddf5", background: f.specialties.includes(s)?"#1A00B9":"#fff", color: f.specialties.includes(s)?"#fff":"#555", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"700", cursor:"pointer", transition:"all 0.15s" }}>
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
             <div><label style={lbl}>City & State *</label><input value={f.location} onChange={e=>setF({...f,location:e.target.value})} placeholder="e.g. Atlanta, GA" style={inp}/></div>
             <div><label style={lbl}>Email Address *</label><input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="you@email.com" style={inp}/></div>
@@ -747,7 +753,8 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   // ── Sign Up state ──
-  const [su, setSu] = useState({ firstName:"", lastName:"", email:"", password:"", confirmPassword:"", specialty:"", city:"", state:"", agreeTerms:false });
+  const [su, setSu] = useState({ firstName:"", lastName:"", email:"", password:"", confirmPassword:"", specialties:[], city:"", state:"", agreeTerms:false });
+  const toggleSuSpecialty = (s) => setSu(prev => ({ ...prev, specialties: prev.specialties.includes(s) ? prev.specialties.filter(x=>x!==s) : [...prev.specialties, s] }));
   const [suError, setSuError] = useState("");
   const [suLoading, setSuLoading] = useState(false);
   const [suDone, setSuDone] = useState(false);
@@ -772,7 +779,7 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
 
   const handleSignUp = async () => {
     setSuError("");
-    if (!su.firstName || !su.lastName || !su.email || !su.password || !su.specialty || !su.city || !su.state) {
+    if (!su.firstName || !su.lastName || !su.email || !su.password || !su.specialties.length || !su.city || !su.state) {
       setSuError("Please fill in all required fields."); return;
     }
     if (su.password !== su.confirmPassword) { setSuError("Passwords don't match."); return; }
@@ -791,7 +798,7 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
       profile_id: data.user.id,
       first_name: su.firstName,
       last_name: su.lastName,
-      specialty: su.specialty,
+      specialty: su.specialties.join(", "),
       email: su.email,
       location_city: su.city,
       location_state: su.state,
@@ -1099,11 +1106,15 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
                   <input value={su.email} onChange={e=>setSu({...su,email:e.target.value})} placeholder="you@email.com" style={inp}/>
                 </div>
                 <div>
-                  <label style={lbl}>Specialty *</label>
-                  <select value={su.specialty} onChange={e=>setSu({...su,specialty:e.target.value})} style={inp}>
-                    <option value="">Select your specialty...</option>
-                    {["Hair Stylist","Makeup Artist","Nail Tech","Esthetician","Lash & Brow Artist"].map(s=><option key={s}>{s}</option>)}
-                  </select>
+                  <label style={lbl}>Specialty * <span style={{ fontWeight:"400", textTransform:"none", fontSize:"11px", color:"#888" }}>(select all that apply)</span></label>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:"8px" }}>
+                    {SPECIALTIES.map(s=>(
+                      <button key={s} type="button" onClick={()=>toggleSuSpecialty(s)}
+                        style={{ padding:"8px 16px", borderRadius:"20px", border:"1.5px solid", borderColor: su.specialties.includes(s)?"#1A00B9":"#e0ddf5", background: su.specialties.includes(s)?"#1A00B9":"#fff", color: su.specialties.includes(s)?"#fff":"#555", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"700", cursor:"pointer", transition:"all 0.15s" }}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px" }}>
                   <div>
@@ -1306,7 +1317,7 @@ function ProSignIn({ onLogin, goTo, onSignupStart }) {
                       </p>
                       <button onClick={async()=>{
                         const { data:proRow } = await supabase.from("pros").select("*").eq("id", suUserId).single();
-                        onLogin(proRow ? mapSupabasePro(proRow) : { id:suUserId, name:`${su.firstName} ${su.lastName}`, specialty:su.specialty, location:`${su.city}, ${su.state}`, ratings:defaultRatings(), reviews:0, tags:[], bio:onboard.bio, instagram:onboard.instagram, booking:onboard.booking, tiktokReview:"", recommendedBy:[], proPlus:false, verified:false, weeklyRecs:0 });
+                        onLogin(proRow ? mapSupabasePro(proRow) : { id:suUserId, name:`${su.firstName} ${su.lastName}`, specialty:su.specialties.join(", "), location:`${su.city}, ${su.state}`, ratings:defaultRatings(), reviews:0, tags:[], bio:onboard.bio, instagram:onboard.instagram, booking:onboard.booking, tiktokReview:"", recommendedBy:[], proPlus:false, verified:false, weeklyRecs:0 });
                       }} style={{...btnDark, width:"100%", padding:"14px 28px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F"}}>
                         Go to My Dashboard →
                       </button>
