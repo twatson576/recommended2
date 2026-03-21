@@ -3095,21 +3095,21 @@ export default function App() {
       {page==="home" && (
         <>
           {/* ── HERO ── */}
-          <div className="hero-pad" style={{ background:"#1A00B9", padding:"80px 40px 72px", borderBottom:"1px solid #1A00B9" }}>
+          <div className="hero-pad" style={{ background:"#fff", padding:"80px 40px 72px", borderBottom:"1px solid #f0eef8" }}>
             <div style={{ maxWidth:"780px", margin:"0 auto", textAlign:"center" }}>
-              <div style={{ display:"inline-block", background:"#B7CF4F", border:"1.5px solid rgba(255,255,255,0.3)", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"24px", color:"#1A00B9" }}>Community Powered ✦ Now Accepting Pros</div>
-              <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(42px,7vw,88px)", fontWeight:"900", lineHeight:0.95, margin:"0 0 8px", letterSpacing:"-3px", color:"#fff" }}>the directory</h1>
-              <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(42px,7vw,88px)", fontWeight:"900", lineHeight:1, margin:"0 0 24px", letterSpacing:"-3px", color:"#fff" }}>for the beauty <span style={{ background:"#B7CF4F", padding:"0 12px", display:"inline-block", color:"#1A00B9", fontStyle:"italic" }}>PROs.</span></h1>
-              <p style={{ fontSize:"clamp(15px,2vw,18px)", color:"rgba(255,255,255,0.8)", margin:"0 auto 36px", maxWidth:"520px", lineHeight:"1.7" }}>Your clients are already talking about you. Claim your profile, collect referrals, and get discovered by clients who trust community over ads.</p>
+              <div style={{ display:"inline-block", background:"#B7CF4F", border:"1.5px solid #1A00B9", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"24px", color:"#1A00B9" }}>Community Powered ✦ Now Accepting Pros</div>
+              <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(42px,7vw,88px)", fontWeight:"900", lineHeight:0.95, margin:"0 0 8px", letterSpacing:"-3px", color:"#0a0a0a" }}>the directory</h1>
+              <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(42px,7vw,88px)", fontWeight:"900", lineHeight:1, margin:"0 0 24px", letterSpacing:"-3px", color:"#0a0a0a" }}>for the beauty <span style={{ background:"#9B8AFB", padding:"0 12px", display:"inline-block", color:"#fff", fontStyle:"italic" }}>PROs.</span></h1>
+              <p style={{ fontSize:"clamp(15px,2vw,18px)", color:"#555", margin:"0 auto 36px", maxWidth:"520px", lineHeight:"1.7" }}>Your clients are already talking about you. Claim your profile, collect referrals, and get discovered by clients who trust community over ads.</p>
               <div style={{ display:"flex", gap:"14px", justifyContent:"center", flexWrap:"wrap" }}>
-                <button onClick={()=>goTo("provider")} style={{ background:"#B7CF4F", color:"#1A00B9", border:"none", borderRadius:"30px", padding:"16px 36px", fontFamily:"sans-serif", fontSize:"15px", fontWeight:"900", cursor:"pointer", boxShadow:"4px 4px 0 rgba(0,0,0,0.25)", letterSpacing:"-0.2px" }}>Join as a Pro — It's Free →</button>
-                <button onClick={()=>goTo("recommend")} style={{ background:"transparent", color:"#fff", border:"2px solid rgba(255,255,255,0.5)", borderRadius:"30px", padding:"16px 32px", fontFamily:"sans-serif", fontSize:"15px", fontWeight:"700", cursor:"pointer" }}>Refer a Pro ↓</button>
+                <button onClick={()=>goTo("provider")} style={{...btnDark, padding:"16px 36px", fontSize:"15px", fontWeight:"900"}}>Join as a Pro — It's Free →</button>
+                <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"16px 32px", fontSize:"15px"}}>Refer a Pro ↓</button>
               </div>
               <div style={{ display:"flex", gap:"24px", justifyContent:"center", marginTop:"32px", flexWrap:"wrap" }}>
                 {[["✓ Free to join","No credit card needed"],["✓ Founding Pro status","For early signups"],["✓ Get discovered","By referred clients"]].map(([title,sub])=>(
                   <div key={title} style={{ textAlign:"center" }}>
-                    <p style={{ margin:"0 0 2px", fontSize:"12px", fontWeight:"800", color:"#B7CF4F" }}>{title}</p>
-                    <p style={{ margin:0, fontSize:"11px", color:"rgba(255,255,255,0.6)" }}>{sub}</p>
+                    <p style={{ margin:"0 0 2px", fontSize:"12px", fontWeight:"800", color:"#1A00B9" }}>{title}</p>
+                    <p style={{ margin:0, fontSize:"11px", color:"#999" }}>{sub}</p>
                   </div>
                 ))}
               </div>
