@@ -2816,19 +2816,6 @@ export default function App() {
   const [page, setPage] = useState("home");
   const [publicProId, setPublicProId] = useState(null);
   const signupInProgress = useRef(false); // prevents dashboard redirect during onboarding
-  const [waitlistOpen, setWaitlistOpen] = useState(false);
-  const [waitlistEmail, setWaitlistEmail] = useState("");
-  const [waitlistCity, setWaitlistCity] = useState("");
-  const [waitlistDone, setWaitlistDone] = useState(false);
-  const [waitlistLoading, setWaitlistLoading] = useState(false);
-
-  const handleWaitlistSubmit = async () => {
-    if (!waitlistEmail || waitlistLoading) return;
-    setWaitlistLoading(true);
-    await supabase.from("waitlist").insert([{ email: waitlistEmail, city: waitlistCity, type: "client" }]);
-    setWaitlistDone(true);
-    setWaitlistLoading(false);
-  };
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("")
   const [selectedPro, setSelectedPro] = useState(null);
@@ -3103,96 +3090,28 @@ export default function App() {
         />
       )}
 
-      {/* WAITLIST MODAL */}
-      {waitlistOpen && (
-        <div onClick={()=>{ setWaitlistOpen(false); setWaitlistDone(false); }} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:200, padding:"20px" }}>
-          <div onClick={e=>e.stopPropagation()} style={{ background:"#fff", border:"2px solid #1A00B9", borderRadius:"24px", maxWidth:"440px", width:"100%", boxShadow:"8px 8px 0 #1A00B9", overflow:"hidden" }}>
-            <div style={{ background:"#1A00B9", padding:"28px 32px" }}>
-              <p style={{ margin:"0 0 4px", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#B7CF4F" }}>Early Access</p>
-              <h2 style={{ fontFamily:"Georgia,serif", fontSize:"26px", fontWeight:"900", color:"#fff", margin:0, letterSpacing:"-1px" }}>Get first access to reffered.</h2>
-            </div>
-            <div style={{ padding:"28px 32px" }}>
-              {waitlistDone ? (
-                <div style={{ textAlign:"center", padding:"20px 0" }}>
-                  <div style={{ fontSize:"40px", marginBottom:"12px" }}>✦</div>
-                  <p style={{ fontFamily:"Georgia,serif", fontSize:"20px", fontWeight:"900", color:"#1A00B9", margin:"0 0 8px" }}>You're on the list!</p>
-                  <p style={{ fontSize:"14px", color:"#666", margin:"0 0 24px", lineHeight:"1.6" }}>We'll notify you the moment we go live in your city.</p>
-                  <button onClick={()=>{ setWaitlistOpen(false); setWaitlistDone(false); }} style={{...btnDark, padding:"12px 28px", boxShadow:"3px 3px 0 #B7CF4F"}}>Done</button>
-                </div>
-              ) : (
-                <>
-                  <p style={{ fontSize:"14px", color:"#555", margin:"0 0 20px", lineHeight:"1.6" }}>We're launching city by city. Join the waitlist and be the first to find vetted, community-referred beauty pros near you.</p>
-                  <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
-                    <input value={waitlistEmail} onChange={e=>setWaitlistEmail(e.target.value)} placeholder="Your email address" type="email"
-                      style={{...inp, border:"1.5px solid #e0ddf5"}} onKeyDown={e=>e.key==="Enter"&&handleWaitlistSubmit()}/>
-                    <input value={waitlistCity} onChange={e=>setWaitlistCity(e.target.value)} placeholder="Your city (e.g. Atlanta, GA)"
-                      style={{...inp, border:"1.5px solid #e0ddf5"}} onKeyDown={e=>e.key==="Enter"&&handleWaitlistSubmit()}/>
-                    <button onClick={handleWaitlistSubmit} disabled={!waitlistEmail || waitlistLoading}
-                      style={{...btnDark, padding:"14px", fontSize:"14px", boxShadow:"4px 4px 0 #B7CF4F", opacity:!waitlistEmail||waitlistLoading?0.6:1}}>
-                      {waitlistLoading ? "Joining..." : "Get Early Access →"}
-                    </button>
-                  </div>
-                  <p style={{ fontSize:"11px", color:"#aaa", margin:"12px 0 0", textAlign:"center" }}>No spam. We'll only email you when we launch in your city.</p>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* HOME */}
+            {/* HOME */}
       {page==="home" && (
         <>
           {/* ── HERO ── */}
-          <div className="hero-pad" style={{ background:"#fff", padding:"72px 40px 64px", borderBottom:"1px solid #f0eef8" }}>
-            <div style={{ maxWidth:"1100px", margin:"0 auto" }}>
-              {/* Top label */}
-              <div style={{ textAlign:"center", marginBottom:"40px" }}>
-                <div style={{ display:"inline-block", background:"#B7CF4F", border:"1.5px solid #1A00B9", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"20px" }}>Community Powered ✦</div>
-                <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(40px,6vw,80px)", fontWeight:"900", lineHeight:0.95, margin:"0 0 6px", letterSpacing:"-3px", color:"#0a0a0a" }}>the directory</h1>
-                <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(40px,6vw,80px)", fontWeight:"900", lineHeight:1, margin:"0 0 4px", letterSpacing:"-3px" }}>for the beauty <span style={{ background:"#9B8AFB", padding:"0 12px", display:"inline-block", color:"#fff", fontStyle:"italic" }}>PROs.</span></h1>
+          <div className="hero-pad" style={{ background:"#1A00B9", padding:"80px 40px 72px", borderBottom:"1px solid #1A00B9" }}>
+            <div style={{ maxWidth:"780px", margin:"0 auto", textAlign:"center" }}>
+              <div style={{ display:"inline-block", background:"#B7CF4F", border:"1.5px solid rgba(255,255,255,0.3)", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"24px", color:"#1A00B9" }}>Community Powered ✦ Now Accepting Pros</div>
+              <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(42px,7vw,88px)", fontWeight:"900", lineHeight:0.95, margin:"0 0 8px", letterSpacing:"-3px", color:"#fff" }}>the directory</h1>
+              <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(42px,7vw,88px)", fontWeight:"900", lineHeight:1, margin:"0 0 24px", letterSpacing:"-3px", color:"#fff" }}>for the beauty <span style={{ background:"#B7CF4F", padding:"0 12px", display:"inline-block", color:"#1A00B9", fontStyle:"italic" }}>PROs.</span></h1>
+              <p style={{ fontSize:"clamp(15px,2vw,18px)", color:"rgba(255,255,255,0.8)", margin:"0 auto 36px", maxWidth:"520px", lineHeight:"1.7" }}>Your clients are already talking about you. Claim your profile, collect referrals, and get discovered by clients who trust community over ads.</p>
+              <div style={{ display:"flex", gap:"14px", justifyContent:"center", flexWrap:"wrap" }}>
+                <button onClick={()=>goTo("provider")} style={{ background:"#B7CF4F", color:"#1A00B9", border:"none", borderRadius:"30px", padding:"16px 36px", fontFamily:"sans-serif", fontSize:"15px", fontWeight:"900", cursor:"pointer", boxShadow:"4px 4px 0 rgba(0,0,0,0.25)", letterSpacing:"-0.2px" }}>Join as a Pro — It's Free →</button>
+                <button onClick={()=>goTo("recommend")} style={{ background:"transparent", color:"#fff", border:"2px solid rgba(255,255,255,0.5)", borderRadius:"30px", padding:"16px 32px", fontFamily:"sans-serif", fontSize:"15px", fontWeight:"700", cursor:"pointer" }}>Refer a Pro ↓</button>
               </div>
-
-              {/* Split cards */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"20px" }} className="hero-split">
-                {/* Pro card */}
-                <div style={{ background:"#1A00B9", borderRadius:"20px", padding:"36px 32px", border:"2px solid #1A00B9", boxShadow:"6px 6px 0 #B7CF4F", display:"flex", flexDirection:"column" }}>
-                  <div style={{ width:"48px", height:"48px", background:"rgba(255,255,255,0.15)", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"22px", marginBottom:"20px" }}>✂️</div>
-                  <p style={{ margin:"0 0 6px", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#B7CF4F" }}>For Beauty Pros</p>
-                  <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(22px,3vw,32px)", fontWeight:"900", color:"#fff", margin:"0 0 12px", letterSpacing:"-1px", lineHeight:1.1 }}>I'm a beauty professional.</h2>
-                  <p style={{ fontSize:"14px", color:"rgba(255,255,255,0.75)", margin:"0 0 24px", lineHeight:"1.65" }}>Get listed early, earn founding pro status, and let your referrals do the work.</p>
-                  <div style={{ display:"flex", flexDirection:"column", gap:"10px", marginBottom:"28px" }}>
-                    {["Founding Pro badge at launch","Priority placement in search","Free featured listing","Early access to Pro+ tools"].map(b=>(
-                      <div key={b} style={{ display:"flex", alignItems:"center", gap:"10px" }}>
-                        <span style={{ background:"#B7CF4F", borderRadius:"50%", width:"18px", height:"18px", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"10px", fontWeight:"900", color:"#1A00B9", flexShrink:0 }}>✓</span>
-                        <span style={{ fontSize:"14px", color:"rgba(255,255,255,0.9)", fontWeight:"600" }}>{b}</span>
-                      </div>
-                    ))}
+              <div style={{ display:"flex", gap:"24px", justifyContent:"center", marginTop:"32px", flexWrap:"wrap" }}>
+                {[["✓ Free to join","No credit card needed"],["✓ Founding Pro status","For early signups"],["✓ Get discovered","By referred clients"]].map(([title,sub])=>(
+                  <div key={title} style={{ textAlign:"center" }}>
+                    <p style={{ margin:"0 0 2px", fontSize:"12px", fontWeight:"800", color:"#B7CF4F" }}>{title}</p>
+                    <p style={{ margin:0, fontSize:"11px", color:"rgba(255,255,255,0.6)" }}>{sub}</p>
                   </div>
-                  <button onClick={()=>goTo("dashboard")} style={{ marginTop:"auto", background:"#fff", color:"#1A00B9", border:"none", borderRadius:"30px", padding:"14px 28px", fontFamily:"sans-serif", fontSize:"14px", fontWeight:"800", cursor:"pointer", boxShadow:"3px 3px 0 #B7CF4F" }}>Join as a Pro →</button>
-                </div>
-
-                {/* Client card */}
-                <div style={{ background:"#f4f2ff", borderRadius:"20px", padding:"36px 32px", border:"2px solid #1A00B9", boxShadow:"6px 6px 0 #1A00B9", display:"flex", flexDirection:"column" }}>
-                  <div style={{ width:"48px", height:"48px", background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"22px", marginBottom:"20px" }}>★</div>
-                  <p style={{ margin:"0 0 6px", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#9B8AFB" }}>For Clients</p>
-                  <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(22px,3vw,32px)", fontWeight:"900", color:"#1A00B9", margin:"0 0 12px", letterSpacing:"-1px", lineHeight:1.1 }}>I'm looking for a pro.</h2>
-                  <p style={{ fontSize:"14px", color:"#666", margin:"0 0 24px", lineHeight:"1.65" }}>Get early access to browse vetted, referred beauty professionals in your city.</p>
-                  <div style={{ display:"flex", flexDirection:"column", gap:"10px", marginBottom:"28px" }}>
-                    {["First access when we launch","Browse referred pros only","Save and compare favorites","Free forever for clients"].map(b=>(
-                      <div key={b} style={{ display:"flex", alignItems:"center", gap:"10px" }}>
-                        <span style={{ background:"#1A00B9", borderRadius:"50%", width:"18px", height:"18px", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"10px", fontWeight:"900", color:"#fff", flexShrink:0 }}>✓</span>
-                        <span style={{ fontSize:"14px", color:"#444", fontWeight:"600" }}>{b}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <button onClick={()=>{ setWaitlistOpen(true); setWaitlistDone(false); }} style={{...btnDark, marginTop:"auto", padding:"14px 28px", fontSize:"14px", boxShadow:"3px 3px 0 #B7CF4F"}}>Get Early Access →</button>
-                </div>
-              </div>
-
-              {/* Refer link */}
-              <div style={{ textAlign:"center", marginTop:"28px" }}>
-                <button onClick={()=>goTo("recommend")} style={{ background:"none", border:"none", fontSize:"13px", fontWeight:"700", color:"#aaa", cursor:"pointer", textDecoration:"underline" }}>or refer a pro you love ↓</button>
+                ))}
               </div>
             </div>
           </div>
@@ -3220,8 +3139,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* ── FULL BROWSE DIRECTORY — hidden during waitlist phase ── */}
-          {false && <div id="browse" className="browse-pad" style={{ maxWidth:"1100px", margin:"0 auto", padding:"60px 24px" }}>
+          {/* ── BROWSE DIRECTORY ── */}
+          <div id="browse" className="browse-pad" style={{ maxWidth:"1100px", margin:"0 auto", padding:"60px 24px" }}>
             <div className="search-row" style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"28px", flexWrap:"wrap", gap:"16px" }}>
               <div>
                 <p style={{ fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#1A00B9", margin:"0 0 6px" }}>Browse the Directory</p>
@@ -3363,7 +3282,7 @@ export default function App() {
                 <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Refer a Pro</button>
               </div>
             </div>
-          </div>}
+          </div>
           {/* ── SOCIAL PROOF STATS ── */}
           <div className="stats-pad" style={{ background:"#fafafa", borderBottom:"1px solid #f0eef8", padding:"48px 40px" }}>
             <div className="stats-grid" style={{ maxWidth:"900px", margin:"0 auto", display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"0" }}>
@@ -3483,8 +3402,8 @@ export default function App() {
             </div>
           </div>
 
-          {/* ── PRO PREVIEW STRIP — hidden during waitlist phase ── */}
-          {false && <div style={{ background:"#fff", borderBottom:"1px solid #e0ddf5" }}>
+          {/* ── WHO'S ON REFFERED ── */}
+          <div style={{ background:"#fff", borderBottom:"1px solid #e0ddf5" }}>
             <div className="preview-pad" style={{ maxWidth:"1100px", margin:"0 auto", padding:"72px 40px 48px" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-end", marginBottom:"36px", flexWrap:"wrap", gap:"16px" }}>
                 <div>
@@ -3530,7 +3449,7 @@ export default function App() {
                 })}
               </div>
             </div>
-          </div>}
+          </div>
 
         </>
       )}
