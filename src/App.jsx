@@ -2452,7 +2452,7 @@ function AboutPage({ setPage }) {
       <div className="about-hero" style={{...gridBg, padding:"80px 40px", textAlign:"center", borderBottom:"1px solid #e0ddf5"}}>
         <div style={{ display:"inline-block", background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", marginBottom:"24px" }}>Our Story ✦</div>
         <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(40px,7vw,80px)", fontWeight:"900", letterSpacing:"-3px", lineHeight:1, margin:"0 0 24px" }}>
-          Beauty is better<br/><span style={{ background:"#9B8AFB", padding:"0 12px", color:"#fff" }}>when we share it.</span>
+          Beauty is better<br/><span style={{ background:"#9B8AFB", padding:"4px 12px 0", color:"#fff", display:"inline-block", marginTop:"6px" }}>when we share it.</span>
         </h1>
         <p style={{ fontSize:"17px", color:"#555", maxWidth:"560px", margin:"0 auto", lineHeight:"1.7" }}>
           reffered was built on one simple belief: the best beauty professionals don't always have the biggest marketing budgets — they have the most loyal clients.
