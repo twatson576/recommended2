@@ -5,13 +5,13 @@ const categories = ["All", "Hair Stylists", "Makeup Artists", "Nail Techs", "Est
 const SPECIALTIES = ["Hair Stylist","Makeup Artist","Nail Tech","Esthetician","Lash & Brow Artist","Waxing Specialist"];
 
 const RATING_CATEGORIES = [
-  { key: "serviceOutcome",  label: "Service Outcome",           emoji: "⭐" },
-  { key: "parking",         label: "Parking",                   emoji: "🅿️" },
-  { key: "customerService", label: "Customer Service",          emoji: "🤝" },
-  { key: "waitTime",        label: "Wait Time / Punctuality",   emoji: "⏱️" },
-  { key: "communication",   label: "Communication & Follow-up", emoji: "💬" },
-  { key: "value",           label: "Value for Money",           emoji: "💰" },
-  { key: "cleanliness",     label: "Cleanliness & Vibe",        emoji: "✨" },
+  { key: "serviceOutcome",  label: "Service Outcome",           emoji: "⭐", description: "Did they actually deliver? The result is everything — did you leave looking and feeling exactly how you wanted?" },
+  { key: "parking",         label: "Parking",                   emoji: "🅿️", description: "How easy is it to get there? Street, lot, garage — knowing ahead of time saves the stress." },
+  { key: "customerService", label: "Customer Service",          emoji: "🤝", description: "How were you treated from first contact to checkout? Did they make you feel seen, heard, and valued?" },
+  { key: "waitTime",        label: "Wait Time / Punctuality",   emoji: "⏱️", description: "Did they respect your time? Was your appointment on schedule, or were you left waiting?" },
+  { key: "communication",   label: "Communication & Follow-up", emoji: "💬", description: "Clear before, during, and after — did they explain the process, check in, and follow up when needed?" },
+  { key: "value",           label: "Value for Money",           emoji: "💰", description: "Was it worth the price? Quality, experience, and outcome — did the investment match the result?" },
+  { key: "cleanliness",     label: "Cleanliness & Vibe",        emoji: "✨", description: "Was the space clean, organized, and welcoming? The environment matters as much as the service." },
 ];
 
 const defaultRatings = () => Object.fromEntries(RATING_CATEGORIES.map(c => [c.key, 0]));
@@ -2821,6 +2821,28 @@ function HelpPage({ goTo }) {
         <p style={{ fontSize:"16px", color:"rgba(255,255,255,0.75)", margin:"0 auto", maxWidth:"480px", lineHeight:"1.7" }}>Everything you need to know — whether you're a beauty professional or looking for one.</p>
       </div>
 
+      {/* THE 7 CATEGORIES THEORY — top of page */}
+      <div style={{ background:"#1A00B9", padding:"56px 40px", borderBottom:"4px solid #B7CF4F" }}>
+        <div style={{ maxWidth:"860px", margin:"0 auto" }}>
+          <div style={{ textAlign:"center", marginBottom:"16px" }}>
+            <div style={{ display:"inline-block", background:"#B7CF4F", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", color:"#1A00B9", marginBottom:"16px" }}>The reffered Theory</div>
+            <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(26px,4vw,42px)", fontWeight:"900", color:"#fff", margin:"0 0 16px", letterSpacing:"-1.5px", lineHeight:1.1 }}>The more dimensions you rate,<br/>the better match you find.</h2>
+            <p style={{ fontSize:"15px", color:"rgba(255,255,255,0.75)", maxWidth:"580px", margin:"0 auto 36px", lineHeight:"1.75" }}>A single star rating tells you almost nothing. It collapses a whole experience into one number — and hides everything that actually matters to you. reffered rates every pro across <strong style={{ color:"#B7CF4F" }}>7 specific categories</strong>, so you can match based on what you actually care about. Need someone who's always on time? Check wait time scores. Care more about the result than the vibe? Lead with Service Outcome. The right pro for you is in the details.</p>
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))", gap:"12px" }}>
+            {RATING_CATEGORIES.map(cat=>(
+              <div key={cat.key} style={{ background:"rgba(255,255,255,0.08)", border:"1.5px solid rgba(255,255,255,0.15)", borderRadius:"14px", padding:"20px", display:"flex", gap:"14px", alignItems:"flex-start" }}>
+                <div style={{ width:"40px", height:"40px", background:"#B7CF4F", borderRadius:"10px", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"18px", flexShrink:0 }}>{cat.emoji}</div>
+                <div>
+                  <p style={{ margin:"0 0 4px", fontFamily:"Georgia,serif", fontSize:"14px", fontWeight:"900", color:"#fff" }}>{cat.label}</p>
+                  <p style={{ margin:0, fontSize:"11px", color:"rgba(255,255,255,0.6)", lineHeight:"1.55" }}>{cat.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Tab sections */}
       <div style={{ maxWidth:"860px", margin:"0 auto", padding:"60px 24px" }}>
 
@@ -2881,28 +2903,6 @@ function HelpPage({ goTo }) {
             ))}
             <div style={{ marginTop:"28px", paddingTop:"24px", borderTop:"1.5px solid #f0eef8" }}>
               <button onClick={()=>goTo("recommend")} style={{ background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"13px 28px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"3px 3px 0 #B7CF4F" }}>Refer a Pro Now →</button>
-            </div>
-          </div>
-        </div>
-
-        {/* THE 7 RATING CATEGORIES */}
-        <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", boxShadow:"6px 6px 0 #9B8AFB", marginBottom:"32px", overflow:"hidden" }}>
-          <div style={{ background:"#f4f2ff", padding:"24px 32px", borderBottom:"1.5px solid #1A00B9" }}>
-            <p style={{ margin:"0 0 4px", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#9B8AFB" }}>The Rating System</p>
-            <h2 style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", color:"#1A00B9", margin:0, letterSpacing:"-0.5px" }}>The 7 categories we rate</h2>
-          </div>
-          <div style={{ padding:"32px" }}>
-            <p style={{ margin:"0 0 24px", fontSize:"14px", color:"#555", lineHeight:"1.7" }}>Unlike platforms with a single star rating, reffered breaks down the experience into 7 specific categories. This gives you a much clearer picture of what a pro is actually great at.</p>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))", gap:"12px" }}>
-              {RATING_CATEGORIES.map(cat=>(
-                <div key={cat.key} style={{ background:"#f4f2ff", border:"1.5px solid #e0ddf5", borderRadius:"12px", padding:"14px 16px", display:"flex", gap:"12px", alignItems:"flex-start" }}>
-                  <span style={{ fontSize:"20px", flexShrink:0 }}>{cat.emoji}</span>
-                  <div>
-                    <p style={{ margin:"0 0 3px", fontWeight:"800", fontSize:"13px", color:"#1A00B9" }}>{cat.label}</p>
-                    <p style={{ margin:0, fontSize:"11px", color:"#888", lineHeight:"1.5" }}>{cat.description || "Rated 1–5 by community referrals"}</p>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -3251,16 +3251,30 @@ export default function App() {
             </div>
           </div>
 
-          {/* ── RATING CATEGORIES EXPLAINER ── */}
-          <div style={{ background:"#f4f2ff", borderBottom:"1px solid #e0ddf5", padding:"60px 40px" }}>
-            <div style={{ maxWidth:"900px", margin:"0 auto", textAlign:"center" }}>
-              <p style={{ fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#9B8AFB", margin:"0 0 8px" }}>The 7-Category Rating System</p>
-              <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(28px,4vw,46px)", fontWeight:"900", color:"#1A00B9", margin:"0 0 12px", letterSpacing:"-1.5px" }}>We rate what actually matters.</h2>
-              <p style={{ color:"#555", fontSize:"15px", margin:"0 0 36px", lineHeight:"1.7" }}>Not just "was the vibe good." Every pro is rated across 7 real categories so you know exactly what to expect before you book.</p>
-              <div style={{ display:"flex", gap:"10px", flexWrap:"wrap", justifyContent:"center" }}>
-                {RATING_CATEGORIES.map(cat=>(
-                  <span key={cat.key} style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", padding:"8px 16px", fontSize:"13px", fontWeight:"700", color:"#1A00B9" }}>{cat.emoji} {cat.label}</span>
+          {/* ── 7 CATEGORIES FLAGSHIP SECTION ── */}
+          <div style={{ background:"#1A00B9", padding:"80px 40px", borderBottom:"4px solid #B7CF4F" }}>
+            <div style={{ maxWidth:"1100px", margin:"0 auto" }}>
+              <div style={{ textAlign:"center", marginBottom:"56px" }}>
+                <div style={{ display:"inline-block", background:"#B7CF4F", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", color:"#1A00B9", marginBottom:"20px" }}>What makes us different</div>
+                <h2 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(32px,5vw,60px)", fontWeight:"900", color:"#fff", margin:"0 0 16px", letterSpacing:"-2px", lineHeight:1.05 }}>Not just a star rating.<br/>The full picture.</h2>
+                <p style={{ fontSize:"clamp(14px,2vw,17px)", color:"rgba(255,255,255,0.7)", maxWidth:"540px", margin:"0 auto", lineHeight:"1.7" }}>Yelp gives you one star. Google gives you an average. reffered breaks every experience into <strong style={{ color:"#B7CF4F" }}>7 specific categories</strong> — so you know exactly what a pro is exceptional at before you ever book.</p>
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:"16px" }}>
+                {RATING_CATEGORIES.map((cat,i)=>(
+                  <div key={cat.key} style={{ background:"rgba(255,255,255,0.07)", border:"1.5px solid rgba(255,255,255,0.15)", borderRadius:"16px", padding:"24px 22px", display:"flex", gap:"16px", alignItems:"flex-start", transition:"background 0.2s" }}
+                    onMouseEnter={e=>e.currentTarget.style.background="rgba(183,207,79,0.12)"}
+                    onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.07)"}>
+                    <div style={{ width:"44px", height:"44px", background:"#B7CF4F", borderRadius:"12px", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"20px", flexShrink:0 }}>{cat.emoji}</div>
+                    <div>
+                      <p style={{ margin:"0 0 6px", fontFamily:"Georgia,serif", fontSize:"15px", fontWeight:"900", color:"#fff", letterSpacing:"-0.3px" }}>{cat.label}</p>
+                      <p style={{ margin:0, fontSize:"12px", color:"rgba(255,255,255,0.6)", lineHeight:"1.6" }}>{cat.description}</p>
+                    </div>
+                  </div>
                 ))}
+              </div>
+              <div style={{ textAlign:"center", marginTop:"48px" }}>
+                <p style={{ fontSize:"13px", color:"rgba(255,255,255,0.5)", margin:"0 0 16px" }}>Every pro on reffered is rated across all 7 — by real clients, not algorithms.</p>
+                <button onClick={()=>goTo("recommend")} style={{ background:"#B7CF4F", color:"#1A00B9", border:"none", borderRadius:"30px", padding:"13px 28px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"900", cursor:"pointer", boxShadow:"3px 3px 0 rgba(0,0,0,0.3)" }}>Refer a Pro + Rate Them →</button>
               </div>
             </div>
           </div>
