@@ -59,8 +59,15 @@ function ProPhotoCarousel({ photos, name }) {
   const dragStartX = useRef(null);
   const swiped = useRef(false);
 
-  // Deduplicate photos
-  const safePhotos = (photos || []).filter(Boolean).filter((u, i, arr) => arr.indexOf(u) === i);
+  // Deduplicate photos — normalize URLs (strip query params) before comparing
+  const normUrl = u => u?.split('?')[0].replace(/\/+$/, '');
+  const seen = new Set();
+  const safePhotos = (photos || []).filter(Boolean).filter(u => {
+    const key = normUrl(u);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
   const multi = safePhotos.length > 1;
 
   const prev = (e) => { e.stopPropagation(); setIdx(i => (i - 1 + safePhotos.length) % safePhotos.length); };
@@ -2968,12 +2975,19 @@ export default function App() {
       .select("pro_id, photo_urls")
       .not("photo_urls", "is", null);
 
+    const normUrl = u => u?.split('?')[0].replace(/\/+$/, '');
     const photoMap = {};
+    const photoMapKeys = {};
     (recPhotos || []).forEach(rec => {
       if (!rec.photo_urls?.length) return;
-      if (!photoMap[rec.pro_id]) photoMap[rec.pro_id] = [];
+      if (!photoMap[rec.pro_id]) { photoMap[rec.pro_id] = []; photoMapKeys[rec.pro_id] = new Set(); }
       rec.photo_urls.forEach(url => {
-        if (url && !photoMap[rec.pro_id].includes(url)) photoMap[rec.pro_id].push(url);
+        if (!url) return;
+        const key = normUrl(url);
+        if (!photoMapKeys[rec.pro_id].has(key)) {
+          photoMapKeys[rec.pro_id].add(key);
+          photoMap[rec.pro_id].push(url);
+        }
       });
     });
 
@@ -2988,10 +3002,16 @@ export default function App() {
       .map(pro => {
         const mapped = mapSupabasePro(pro);
         const recUrls = photoMap[pro.id] || [];
-        // Start with the pro's own photo_url (if any), then append referral photos
+        // Start with the pro's own photo_url (if any), then append referral photos — deduplicated by normalized URL
+        const seenKeys = new Set();
         const allPhotos = [];
-        if (mapped.photoUrl) allPhotos.push(mapped.photoUrl);
-        recUrls.forEach(u => { if (!allPhotos.includes(u)) allPhotos.push(u); });
+        const addPhoto = url => {
+          if (!url) return;
+          const key = normUrl(url);
+          if (!seenKeys.has(key)) { seenKeys.add(key); allPhotos.push(url); }
+        };
+        addPhoto(mapped.photoUrl);
+        recUrls.forEach(addPhoto);
         return { ...mapped, allPhotoUrls: allPhotos };
       });
     setCommunityPros(mappedPros);
