@@ -3249,35 +3249,63 @@ export default function App() {
           <span style={{ display:"block", width:"22px", height:"2px", background:"#1A00B9", transition:"all 0.25s", transform: mobileMenuOpen ? "rotate(-45deg) translate(0px, -7px)" : "none" }}/>
         </button>
 
-        {/* Mobile menu drawer — absolute from nav bottom so it always sits right under the nav */}
-        {mobileMenuOpen && (
-          <div style={{ position:"absolute", top:"60px", left:0, right:0, zIndex:48, background:"#fff", borderBottom:"2px solid #1A00B9", padding:"8px 0 24px", boxShadow:"0 8px 32px rgba(0,0,0,0.12)" }}>
-            {[
-              { label:"Find My Pro ✨", action:()=>{ goTo("matchMe"); setMobileMenuOpen(false); } },
-              { label:"About", action:()=>{ goTo("about"); setMobileMenuOpen(false); } },
-              { label:"+ Refer a Pro", action:()=>{ goTo("recommend"); setMobileMenuOpen(false); } },
-              ...(savedPros.length>0 ? [{ label:`❤️ Saved (${savedPros.length})`, action:()=>{ setShowShortlist(true); setMobileMenuOpen(false); } }] : []),
-            ].map((item,i)=>(
-              <button key={i} onClick={item.action}
-                style={{ display:"block", width:"100%", background:"none", border:"none", borderBottom:"1px solid #f0eef8", padding:"15px 24px", fontSize:"15px", fontWeight:"700", color:"#333", cursor:"pointer", textAlign:"left", fontFamily:"sans-serif" }}>
-                {item.label}
-              </button>
-            ))}
-            <div style={{ display:"flex", gap:"10px", padding:"16px 24px 0" }}>
-              {loggedInPro
-                ? <button onClick={()=>{ goTo("dashboard"); setMobileMenuOpen(false); }}
-                    style={{ flex:1, background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"13px", fontSize:"13px", fontWeight:"800", cursor:"pointer", fontFamily:"sans-serif", boxShadow:"3px 3px 0 #B7CF4F" }}>My Dashboard ✦</button>
-                : <>
-                    <button onClick={()=>{ goTo("dashboard"); setMobileMenuOpen(false); }}
-                      style={{ flex:1, background:"#fff", color:"#1A00B9", border:"1.5px solid #1A00B9", borderRadius:"30px", padding:"13px", fontSize:"13px", fontWeight:"800", cursor:"pointer", fontFamily:"sans-serif" }}>Sign In</button>
-                    <button onClick={()=>{ goTo("join"); setMobileMenuOpen(false); }}
-                      style={{ flex:1, background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"13px", fontSize:"13px", fontWeight:"800", cursor:"pointer", fontFamily:"sans-serif", boxShadow:"3px 3px 0 #B7CF4F" }}>Join Free ✦</button>
-                  </>
-              }
-            </div>
-          </div>
-        )}
       </nav>
+
+      {/* Mobile side drawer + dark overlay — rendered outside nav so it covers full screen */}
+      {/* Full-screen hamburger menu overlay */}
+      <div style={{
+        position:"fixed", inset:0, zIndex:99,
+        background:"#fff",
+        transform: mobileMenuOpen ? "translateX(0)" : "translateX(100%)",
+        transition:"transform 0.35s cubic-bezier(0.4,0,0.2,1)",
+        display:"flex", flexDirection:"column",
+        fontFamily:"sans-serif",
+      }}>
+        {/* Header row */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 28px", borderBottom:"1px solid #f0eef8" }}>
+          <span style={{ fontFamily:"Georgia,serif", fontWeight:"900", fontSize:"20px", color:"#1A00B9", letterSpacing:"-0.5px" }}>reffered ✦</span>
+          <button onClick={()=>setMobileMenuOpen(false)}
+            style={{ background:"none", border:"none", cursor:"pointer", fontSize:"26px", color:"#999", lineHeight:1, padding:"4px" }}>✕</button>
+        </div>
+
+        {/* Nav links */}
+        <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"flex-start", padding:"16px 28px 0", overflowY:"auto" }}>
+          {[
+            { label:"Browse Directory", action:()=>{ goTo("home");      setMobileMenuOpen(false); } },
+            { label:"Find My Pro ✨",   action:()=>{ goTo("matchMe");   setMobileMenuOpen(false); } },
+            { label:"About",            action:()=>{ goTo("about");     setMobileMenuOpen(false); } },
+            { label:"Refer a Pro",      action:()=>{ goTo("recommend"); setMobileMenuOpen(false); } },
+            ...(savedPros.length>0 ? [{ label:`Saved (${savedPros.length}) ❤️`, action:()=>{ setShowShortlist(true); setMobileMenuOpen(false); } }] : []),
+          ].map((item,i)=>(
+            <button key={i} onClick={item.action}
+              style={{ display:"block", background:"none", border:"none", borderBottom:"1px solid #f0eef8", padding:"16px 0", fontSize:"20px", fontWeight:"700", color:"#1A00B9", cursor:"pointer", textAlign:"left", letterSpacing:"-0.3px" }}>
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Bottom section: Help (right-aligned) + CTA buttons */}
+        <div style={{ padding:"12px 28px 40px" }}>
+          <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:"12px" }}>
+            <button onClick={()=>{ goTo("help"); setMobileMenuOpen(false); }}
+              style={{ background:"none", border:"none", cursor:"pointer", fontSize:"12px", fontWeight:"700", color:"#bbb", letterSpacing:"1px", textTransform:"uppercase", padding:"4px 0" }}>
+              Help →
+            </button>
+          </div>
+          <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
+            {loggedInPro
+              ? <button onClick={()=>{ goTo("dashboard"); setMobileMenuOpen(false); }}
+                  style={{ width:"100%", background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"15px", fontSize:"14px", fontWeight:"900", cursor:"pointer", boxShadow:"3px 3px 0 #B7CF4F" }}>My Dashboard ✦</button>
+              : <>
+                  <button onClick={()=>{ goTo("join"); setMobileMenuOpen(false); }}
+                    style={{ width:"100%", background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"15px", fontSize:"14px", fontWeight:"900", cursor:"pointer", boxShadow:"3px 3px 0 #B7CF4F" }}>Join Free ✦</button>
+                  <button onClick={()=>{ goTo("dashboard"); setMobileMenuOpen(false); }}
+                    style={{ width:"100%", background:"#fff", color:"#1A00B9", border:"1.5px solid #1A00B9", borderRadius:"30px", padding:"14px", fontSize:"14px", fontWeight:"700", cursor:"pointer" }}>Sign In</button>
+                </>
+            }
+          </div>
+        </div>
+      </div>
 
       {/* PRO+ SUCCESS (redirect back from Stripe) */}
       {(()=>{
