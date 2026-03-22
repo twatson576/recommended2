@@ -2810,6 +2810,132 @@ function ProModal({ pro, onClose, goToRecommend, getDistance }) {
   );
 }
 
+// ─── HELP PAGE ───────────────────────────────────────────────────────────────
+function HelpPage({ goTo }) {
+  return (
+    <div style={{ fontFamily:"sans-serif", background:"#f4f2ff", minHeight:"100vh" }}>
+      {/* Hero */}
+      <div style={{ background:"#1A00B9", padding:"72px 40px 60px", textAlign:"center" }}>
+        <div style={{ display:"inline-block", background:"#B7CF4F", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", color:"#1A00B9", marginBottom:"20px" }}>Help Center</div>
+        <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(36px,6vw,64px)", fontWeight:"900", color:"#fff", margin:"0 0 16px", letterSpacing:"-2px", lineHeight:1 }}>How reffered works.</h1>
+        <p style={{ fontSize:"16px", color:"rgba(255,255,255,0.75)", margin:"0 auto", maxWidth:"480px", lineHeight:"1.7" }}>Everything you need to know — whether you're a beauty professional or looking for one.</p>
+      </div>
+
+      {/* Tab sections */}
+      <div style={{ maxWidth:"860px", margin:"0 auto", padding:"60px 24px" }}>
+
+        {/* FOR PROS */}
+        <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", boxShadow:"6px 6px 0 #1A00B9", marginBottom:"32px", overflow:"hidden" }}>
+          <div style={{ background:"#1A00B9", padding:"24px 32px", display:"flex", alignItems:"center", gap:"14px" }}>
+            <span style={{ fontSize:"28px" }}>✂️</span>
+            <div>
+              <p style={{ margin:"0 0 2px", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#B7CF4F" }}>For Beauty Professionals</p>
+              <h2 style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", color:"#fff", margin:0, letterSpacing:"-0.5px" }}>Getting listed on reffered</h2>
+            </div>
+          </div>
+          <div style={{ padding:"32px" }}>
+            {[
+              { num:"01", title:"You get referred by a client", body:"You don't sign yourself up — a happy client fills out a referral form about you. They rate you across 7 categories and share what makes you exceptional. This keeps the directory 100% community-driven." },
+              { num:"02", title:"Your profile goes live", body:"Once a referral is submitted and reviewed, your profile appears in the directory. It includes your specialty, location, ratings, and any photos your client uploaded." },
+              { num:"03", title:"Claim your profile", body:"Search for your name in the directory and click \"Claim Your Profile\" — or sign up directly from the home page. Once claimed, you can add your bio, Instagram, booking link, and more." },
+              { num:"04", title:"More referrals = better ranking", body:"As more clients refer you, your profile grows stronger. Each referral adds to your ratings across all 7 categories, building your reputation automatically." },
+              { num:"05", title:"Upgrade to Pro+ for more tools", body:"Pro+ members get access to Keeli (your AI business advisor), advanced analytics, priority placement, and more. You can upgrade anytime from your dashboard." },
+            ].map((item,i)=>(
+              <div key={i} style={{ display:"flex", gap:"20px", marginBottom: i<4 ? "28px" : 0, paddingBottom: i<4 ? "28px" : 0, borderBottom: i<4 ? "1px solid #f0eef8" : "none" }}>
+                <div style={{ fontFamily:"Georgia,serif", fontSize:"28px", fontWeight:"900", color:"#e0ddf5", lineHeight:1, flexShrink:0, width:"36px" }}>{item.num}</div>
+                <div>
+                  <h4 style={{ fontFamily:"Georgia,serif", fontSize:"16px", fontWeight:"900", margin:"0 0 6px", color:"#1A00B9" }}>{item.title}</h4>
+                  <p style={{ margin:0, fontSize:"14px", color:"#555", lineHeight:"1.7" }}>{item.body}</p>
+                </div>
+              </div>
+            ))}
+            <div style={{ marginTop:"28px", paddingTop:"24px", borderTop:"1.5px solid #f0eef8" }}>
+              <button onClick={()=>goTo("provider")} style={{ background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"13px 28px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"3px 3px 0 #B7CF4F" }}>Create Your Pro Account →</button>
+            </div>
+          </div>
+        </div>
+
+        {/* FOR CLIENTS */}
+        <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", boxShadow:"6px 6px 0 #B7CF4F", marginBottom:"32px", overflow:"hidden" }}>
+          <div style={{ background:"#B7CF4F", padding:"24px 32px", display:"flex", alignItems:"center", gap:"14px" }}>
+            <span style={{ fontSize:"28px" }}>★</span>
+            <div>
+              <p style={{ margin:"0 0 2px", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#1A00B9" }}>For Clients</p>
+              <h2 style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", color:"#1A00B9", margin:0, letterSpacing:"-0.5px" }}>Finding & referring pros</h2>
+            </div>
+          </div>
+          <div style={{ padding:"32px" }}>
+            {[
+              { num:"01", title:"Browse the directory", body:"Use the search bar or filter by specialty to find beauty pros near you. Every profile shows ratings across 7 real categories — not just a generic star — so you know exactly what to expect." },
+              { num:"02", title:"Read real referrals", body:"Every pro on the platform has been referred by at least one real client. Click any profile to read their referrals, see detailed ratings, and check their Instagram or booking link." },
+              { num:"03", title:"Refer a pro you love", body:"Know someone who deserves to be discovered? Fill out a quick referral form. You'll rate them across 7 categories and share what makes them stand out. It takes about 2 minutes." },
+              { num:"04", title:"Save your favorites", body:"Tap the heart icon on any card to save a pro to your shortlist. Click the heart in the nav bar to view all your saved pros in one place." },
+            ].map((item,i)=>(
+              <div key={i} style={{ display:"flex", gap:"20px", marginBottom: i<3 ? "28px" : 0, paddingBottom: i<3 ? "28px" : 0, borderBottom: i<3 ? "1px solid #f0eef8" : "none" }}>
+                <div style={{ fontFamily:"Georgia,serif", fontSize:"28px", fontWeight:"900", color:"#e0ddf5", lineHeight:1, flexShrink:0, width:"36px" }}>{item.num}</div>
+                <div>
+                  <h4 style={{ fontFamily:"Georgia,serif", fontSize:"16px", fontWeight:"900", margin:"0 0 6px", color:"#1A00B9" }}>{item.title}</h4>
+                  <p style={{ margin:0, fontSize:"14px", color:"#555", lineHeight:"1.7" }}>{item.body}</p>
+                </div>
+              </div>
+            ))}
+            <div style={{ marginTop:"28px", paddingTop:"24px", borderTop:"1.5px solid #f0eef8" }}>
+              <button onClick={()=>goTo("recommend")} style={{ background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"13px 28px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"3px 3px 0 #B7CF4F" }}>Refer a Pro Now →</button>
+            </div>
+          </div>
+        </div>
+
+        {/* THE 7 RATING CATEGORIES */}
+        <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", boxShadow:"6px 6px 0 #9B8AFB", marginBottom:"32px", overflow:"hidden" }}>
+          <div style={{ background:"#f4f2ff", padding:"24px 32px", borderBottom:"1.5px solid #1A00B9" }}>
+            <p style={{ margin:"0 0 4px", fontSize:"11px", fontWeight:"800", letterSpacing:"2px", textTransform:"uppercase", color:"#9B8AFB" }}>The Rating System</p>
+            <h2 style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", color:"#1A00B9", margin:0, letterSpacing:"-0.5px" }}>The 7 categories we rate</h2>
+          </div>
+          <div style={{ padding:"32px" }}>
+            <p style={{ margin:"0 0 24px", fontSize:"14px", color:"#555", lineHeight:"1.7" }}>Unlike platforms with a single star rating, reffered breaks down the experience into 7 specific categories. This gives you a much clearer picture of what a pro is actually great at.</p>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))", gap:"12px" }}>
+              {RATING_CATEGORIES.map(cat=>(
+                <div key={cat.key} style={{ background:"#f4f2ff", border:"1.5px solid #e0ddf5", borderRadius:"12px", padding:"14px 16px", display:"flex", gap:"12px", alignItems:"flex-start" }}>
+                  <span style={{ fontSize:"20px", flexShrink:0 }}>{cat.emoji}</span>
+                  <div>
+                    <p style={{ margin:"0 0 3px", fontWeight:"800", fontSize:"13px", color:"#1A00B9" }}>{cat.label}</p>
+                    <p style={{ margin:0, fontSize:"11px", color:"#888", lineHeight:"1.5" }}>{cat.description || "Rated 1–5 by community referrals"}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ */}
+        <div style={{ background:"#fff", border:"1.5px solid #1A00B9", borderRadius:"20px", overflow:"hidden" }}>
+          <div style={{ background:"#f4f2ff", padding:"24px 32px", borderBottom:"1.5px solid #1A00B9" }}>
+            <h2 style={{ fontFamily:"Georgia,serif", fontSize:"22px", fontWeight:"900", color:"#1A00B9", margin:0, letterSpacing:"-0.5px" }}>Common questions</h2>
+          </div>
+          <div style={{ padding:"32px" }}>
+            {[
+              { q:"Is reffered free?", a:"Yes — browsing the directory and referring a pro are always free. Pros can claim their profile for free. Pro+ is a paid upgrade with additional tools." },
+              { q:"Can I refer myself?", a:"No. Profiles are created when someone else refers you. This keeps the directory trustworthy — every pro listed has been vouched for by a real client." },
+              { q:"How do I edit my profile after claiming it?", a:"Log in to your Pro dashboard. You can update your bio, add your Instagram and booking link, upload photos, and manage your specialty from there." },
+              { q:"What if I see wrong information about me?", a:"Go to the Dispute a Listing page (linked in the footer) and submit a correction request. Our team reviews all disputes within 48 hours." },
+              { q:"How does Pro+ help my business?", a:"Pro+ gives you access to Keeli, an AI business advisor that gives you personalized tips based on your specialty. You also get priority placement and advanced profile analytics." },
+            ].map((item,i,arr)=>(
+              <div key={i} style={{ paddingBottom: i<arr.length-1 ? "20px" : 0, marginBottom: i<arr.length-1 ? "20px" : 0, borderBottom: i<arr.length-1 ? "1px solid #f0eef8" : "none" }}>
+                <h4 style={{ fontFamily:"Georgia,serif", fontSize:"15px", fontWeight:"900", margin:"0 0 6px", color:"#0a0a0a" }}>{item.q}</h4>
+                <p style={{ margin:0, fontSize:"14px", color:"#555", lineHeight:"1.7" }}>{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ textAlign:"center", marginTop:"40px" }}>
+          <button onClick={()=>goTo("home")} style={{ background:"none", border:"none", fontSize:"13px", fontWeight:"800", color:"#aaa", cursor:"pointer", textDecoration:"underline" }}>← Back to directory</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN APP ────────────────────────────────────────────────────────────────
 export default function App() {
   const [loggedInPro, setLoggedInPro] = useState(null);
@@ -3468,6 +3594,7 @@ export default function App() {
       {page==="terms"     && <TermsPage goTo={goTo}/>}
       {page==="privacy"   && <PrivacyPage goTo={goTo}/>}
       {page==="dispute"   && <DisputePage goTo={goTo}/>}
+      {page==="help"      && <HelpPage goTo={goTo}/>}
 
       {/* RECOMMEND FORM */}
       {page==="recommend" && (
@@ -3885,6 +4012,11 @@ export default function App() {
 
       <ProModal pro={selectedPro} onClose={()=>setSelectedPro(null)} goToRecommend={goToRecommend} getDistance={getDistance}/>
 
+      {/* FLOATING HELP BUTTON */}
+      <button onClick={()=>goTo("help")} style={{ position:"fixed", bottom:"24px", right:"24px", zIndex:300, background:"#1A00B9", color:"#fff", border:"2px solid #1A00B9", borderRadius:"50px", padding:"11px 20px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"4px 4px 0 #B7CF4F", display:"flex", alignItems:"center", gap:"7px", letterSpacing:"-0.2px" }}>
+        <span style={{ fontSize:"16px", lineHeight:1 }}>?</span> Help
+      </button>
+
       {/* FOOTER */}
       <footer style={{ borderTop:"1px solid #f0eef8", padding:"40px 48px", background:"#fff" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:"24px", marginBottom:"24px" }}>
@@ -3896,7 +4028,7 @@ export default function App() {
           </div>
           <div style={{ display:"flex", gap:"40px", flexWrap:"wrap" }}>
             {[
-              { heading:"Platform", links:[["Browse","home"],["About","about"],["Refer a Pro","recommend"]] },
+              { heading:"Platform", links:[["Browse","home"],["About","about"],["Refer a Pro","recommend"],["Help","help"]] },
               { heading:"Professionals", links:[["Claim Your Profile","provider"],["Dispute a Listing","dispute"],["Pro+ Dashboard","dashboard"]] },
               { heading:"Legal", links:[["Terms of Service","terms"],["Privacy Policy","privacy"]] },
             ].map(col=>(
