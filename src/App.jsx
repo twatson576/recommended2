@@ -737,8 +737,8 @@ function CredentialsTab({ pro }) {
 }
 
 // ─── PRO SIGN-IN GATE ─────────────────────────────────────────────────────────
-function ProSignIn({ onLogin, goTo, onSignupStart }) {
-  const [tab, setTab] = useState("signin"); // "signin" | "signup" | "forgot" | "resetPassword"
+function ProSignIn({ onLogin, goTo, onSignupStart, initialTab = "signin" }) {
+  const [tab, setTab] = useState(initialTab); // "signin" | "signup" | "forgot" | "resetPassword"
 
   // ── Sign In state ──
   const [email, setEmail] = useState("");
@@ -2879,7 +2879,7 @@ function HelpPage({ goTo }) {
               </div>
             ))}
             <div style={{ marginTop:"28px", paddingTop:"24px", borderTop:"1.5px solid #f0eef8" }}>
-              <button onClick={()=>goTo("provider")} style={{ background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"13px 28px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"3px 3px 0 #B7CF4F" }}>Create Your Pro Account →</button>
+              <button onClick={()=>goTo("join")} style={{ background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"13px 28px", fontFamily:"sans-serif", fontSize:"13px", fontWeight:"800", cursor:"pointer", boxShadow:"3px 3px 0 #B7CF4F" }}>Create Your Pro Account →</button>
             </div>
           </div>
         </div>
@@ -3187,11 +3187,10 @@ export default function App() {
       {/* NAV — always visible, shown on all pages */}
       <nav className="nav-inner" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 32px", height:"60px", background:"#fff", borderBottom:"1px solid #e0ddf5", position:"sticky", top:0, zIndex:50 }}>
         <div onClick={()=>goTo("home")} style={{ cursor:"pointer", fontFamily:"Georgia,serif", fontWeight:"900", fontSize:"20px", letterSpacing:"-0.5px", flexShrink:0, color:"#1A00B9" }}>reffered</div>
-        <div style={{ display:"flex", gap:"24px", alignItems:"center" }}>
+        <div style={{ display:"flex", gap:"16px", alignItems:"center" }}>
           {[
             { label:"Find My Pro ✨", action:()=>goTo("matchMe"), color:"#7c6fc2" },
             { label:"About", action:()=>goTo("about"), color:"#555" },
-            { label: loggedInPro ? "My Dashboard ✦" : "For Pros ✦", action:()=>goTo("dashboard"), color:"#1A00B9" },
           ].map(item=>(
             <span key={item.label} className="nav-links nav-link" onClick={item.action}
               style={{ fontSize:"12px", fontWeight:"800", letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", color:item.color, transition:"color 0.15s", whiteSpace:"nowrap" }}>
@@ -3206,6 +3205,13 @@ export default function App() {
             </button>
           )}
           <button onClick={()=>goTo("recommend")} style={{...btnDark, padding:"9px 18px", fontSize:"12px", boxShadow:"3px 3px 0 #B7CF4F", whiteSpace:"nowrap"}}>+ Refer</button>
+          {loggedInPro
+            ? <button onClick={()=>goTo("dashboard")} style={{ background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"9px 18px", fontSize:"12px", fontWeight:"800", cursor:"pointer", whiteSpace:"nowrap", boxShadow:"3px 3px 0 #B7CF4F", fontFamily:"sans-serif" }}>My Dashboard ✦</button>
+            : <div style={{ display:"flex", gap:"8px", alignItems:"center" }}>
+                <button onClick={()=>goTo("dashboard")} style={{ background:"#fff", color:"#1A00B9", border:"1.5px solid #1A00B9", borderRadius:"30px", padding:"8px 16px", fontSize:"12px", fontWeight:"800", cursor:"pointer", whiteSpace:"nowrap", fontFamily:"sans-serif" }}>Sign In</button>
+                <button onClick={()=>goTo("join")} style={{ background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"9px 18px", fontSize:"12px", fontWeight:"800", cursor:"pointer", whiteSpace:"nowrap", boxShadow:"3px 3px 0 #B7CF4F", fontFamily:"sans-serif" }}>Join Free ✦</button>
+              </div>
+          }
         </div>
       </nav>
 
@@ -3248,7 +3254,7 @@ export default function App() {
               <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(42px,7vw,88px)", fontWeight:"900", lineHeight:1, margin:"0 0 24px", letterSpacing:"-3px", color:"#0a0a0a" }}>for the beauty <span style={{ background:"#9B8AFB", padding:"0 12px", display:"inline-block", color:"#fff", fontStyle:"italic" }}>PROs.</span></h1>
               <p style={{ fontSize:"clamp(15px,2vw,18px)", color:"#555", margin:"0 auto 36px", maxWidth:"520px", lineHeight:"1.7" }}>Your clients are already talking about you. Claim your profile, collect referrals, and get discovered by clients who trust community over ads.</p>
               <div style={{ display:"flex", gap:"14px", justifyContent:"center", flexWrap:"wrap" }}>
-                <button onClick={()=>goTo("provider")} style={{...btnDark, padding:"16px 36px", fontSize:"15px", fontWeight:"900"}}>Join as a Pro — It's Free →</button>
+                <button onClick={()=>goTo("join")} style={{...btnDark, padding:"16px 36px", fontSize:"15px", fontWeight:"900"}}>Join as a Pro — It's Free →</button>
                 <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"16px 32px", fontSize:"15px"}}>Refer a Pro ↓</button>
               </div>
               <div style={{ display:"flex", gap:"24px", justifyContent:"center", marginTop:"32px", flexWrap:"wrap" }}>
@@ -3438,7 +3444,7 @@ export default function App() {
               <h3 style={{ fontFamily:"Georgia,serif", fontSize:"32px", fontWeight:"900", margin:"0 0 12px", letterSpacing:"-1px" }}>Claim your profile. Own your story.</h3>
               <p style={{ color:"#666", margin:"0 0 24px", lineHeight:"1.6" }}>Your clients are already referring you. Sign up to receive notifications and manage your presence.</p>
               <div style={{ display:"flex", gap:"12px", justifyContent:"center", flexWrap:"wrap" }}>
-                <button onClick={()=>goTo("provider")} style={{...btnDark, padding:"14px 32px", fontSize:"14px"}}>Claim Your Profile</button>
+                <button onClick={()=>goTo("join")} style={{...btnDark, padding:"14px 32px", fontSize:"14px"}}>Claim Your Profile</button>
                 <button onClick={()=>goTo("recommend")} style={{...btnOut, padding:"14px 32px", fontSize:"14px"}}>+ Refer a Pro</button>
               </div>
             </div>
@@ -3508,7 +3514,7 @@ export default function App() {
                     title:"Your talent deserves to be found.",
                     body:"The best stylists, techs, and artists shouldn't have to fight an algorithm to get discovered. When your clients recommend you here, your reputation builds itself — permanently, publicly, and on your terms.",
                     cta:"Claim your profile",
-                    ctaFn: "provider",
+                    ctaFn: "join",
                     bg:"#fff",
                   },
                   {
@@ -3623,6 +3629,16 @@ export default function App() {
             onLogin={(proData)=>{ signupInProgress.current = false; setLoggedInPro(proData); goTo("dashboard"); }}
             goTo={goTo}
             onSignupStart={()=>{ signupInProgress.current = true; }}
+            initialTab="signin"
+          />
+      )}
+      {page==="join" && (loggedInPro && !signupInProgress.current
+        ? <ProDashboard goTo={goTo} onLogout={handleProLogout} proData={loggedInPro}/>
+        : <ProSignIn
+            onLogin={(proData)=>{ signupInProgress.current = false; setLoggedInPro(proData); goTo("dashboard"); }}
+            goTo={goTo}
+            onSignupStart={()=>{ signupInProgress.current = true; }}
+            initialTab="signup"
           />
       )}
       {page==="terms"     && <TermsPage goTo={goTo}/>}
@@ -4063,7 +4079,7 @@ export default function App() {
           <div style={{ display:"flex", gap:"40px", flexWrap:"wrap" }}>
             {[
               { heading:"Platform", links:[["Browse","home"],["About","about"],["Refer a Pro","recommend"],["Help","help"]] },
-              { heading:"Professionals", links:[["Claim Your Profile","provider"],["Dispute a Listing","dispute"],["Pro+ Dashboard","dashboard"]] },
+              { heading:"Professionals", links:[["Join Free / Sign In","join"],["Dispute a Listing","dispute"],["Pro+ Dashboard","dashboard"]] },
               { heading:"Legal", links:[["Terms of Service","terms"],["Privacy Policy","privacy"]] },
             ].map(col=>(
               <div key={col.heading}>
