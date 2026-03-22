@@ -2955,9 +2955,17 @@ export default function App() {
   const [hover, setHover] = useState(null);
   const [savedPros, setSavedPros] = useState([]);
   const [showShortlist, setShowShortlist] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const toggleSave = (pro) => setSavedPros(p => p.find(x=>x.id===pro.id) ? p.filter(x=>x.id!==pro.id) : [...p, pro]);
   const [userCoords, setUserCoords] = useState(null);
   const [locationStatus, setLocationStatus] = useState("idle"); // idle | loading | granted | denied
+
+  // Close mobile menu if window resizes above breakpoint
+  useEffect(() => {
+    const handler = () => { if (window.innerWidth > 640) setMobileMenuOpen(false); };
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
 
   // ── Supabase: community-submitted pros ──────────────────────────
   const [communityPros, setCommunityPros] = useState([]);
@@ -3148,9 +3156,13 @@ export default function App() {
           .how-steps>div{border-right:none!important;border-bottom:2px solid #1A00B9!important;}
           .how-steps>div:last-child{border-bottom:none!important;}
         }
-        @media(max-width:540px){
-          .nav-links{display:none!important;}
-          .nav-inner{padding:0 16px!important;}
+        @media(max-width:640px){
+          /* Nav — show hamburger, hide desktop links */
+          .nav-desktop{display:none!important;}
+          .nav-hamburger{display:flex!important;}
+          .nav-inner{padding:0 20px!important;}
+
+          /* Sections */
           .browse-pad{padding:32px 12px!important;}
           .about-blocks{grid-template-columns:1fr!important;}
           .about-blocks>div{border-left:2px solid #111!important;}
@@ -3159,7 +3171,7 @@ export default function App() {
           .modal-body{padding:16px!important;}
           .about-hero,.about-how,.about-cta{padding:40px 16px!important;}
           .name-grid{grid-template-columns:1fr!important;}
-          .hero-pad{padding:56px 20px 40px!important;}
+          .hero-pad{padding:48px 20px 36px!important;}
           .stats-pad{padding:32px 16px!important;}
           .stats-grid{grid-template-columns:repeat(2,1fr)!important;}
           .stats-grid>div{border-right:none!important;border-bottom:1px solid #e0ddf5!important;}
@@ -3179,20 +3191,34 @@ export default function App() {
           .dashboard-grid{grid-template-columns:1fr!important;}
           .ticker-text{font-size:10px!important;}
           .pro-card-grid{grid-template-columns:1fr!important;}
+          /* Category cards single col */
+          .cat-grid{grid-template-columns:1fr!important;}
+          /* Help page */
+          .help-grid{grid-template-columns:1fr!important;}
+          /* Trust badges row → wrap */
+          .trust-row{flex-wrap:wrap!important;gap:12px!important;}
+          /* Hero CTA buttons stack */
+          .hero-ctas{flex-direction:column!important;align-items:stretch!important;}
+          .hero-ctas button,.hero-ctas a{width:100%!important;text-align:center!important;}
+          /* Pro+ page plan grid */
+          .join-plan-grid{grid-template-columns:1fr!important;}
         }
       `}</style>
 
       <DisclaimerBanner/>
 
       {/* NAV — always visible, shown on all pages */}
-      <nav className="nav-inner" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 32px", height:"60px", background:"#fff", borderBottom:"1px solid #e0ddf5", position:"sticky", top:0, zIndex:50 }}>
-        <div onClick={()=>goTo("home")} style={{ cursor:"pointer", fontFamily:"Georgia,serif", fontWeight:"900", fontSize:"20px", letterSpacing:"-0.5px", flexShrink:0, color:"#1A00B9" }}>reffered</div>
-        <div style={{ display:"flex", gap:"16px", alignItems:"center" }}>
+      <nav className="nav-inner" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 28px", height:"60px", background:"#fff", borderBottom:"1px solid #e0ddf5", position:"sticky", top:0, zIndex:50, overflow:"visible" }}>
+        {/* Logo */}
+        <div onClick={()=>{ goTo("home"); setMobileMenuOpen(false); }} style={{ cursor:"pointer", fontFamily:"Georgia,serif", fontWeight:"900", fontSize:"20px", letterSpacing:"-0.5px", flexShrink:0, color:"#1A00B9" }}>reffered</div>
+
+        {/* Desktop nav */}
+        <div className="nav-desktop" style={{ display:"flex", gap:"16px", alignItems:"center" }}>
           {[
             { label:"Find My Pro ✨", action:()=>goTo("matchMe"), color:"#7c6fc2" },
             { label:"About", action:()=>goTo("about"), color:"#555" },
           ].map(item=>(
-            <span key={item.label} className="nav-links nav-link" onClick={item.action}
+            <span key={item.label} className="nav-link" onClick={item.action}
               style={{ fontSize:"12px", fontWeight:"800", letterSpacing:"1px", textTransform:"uppercase", cursor:"pointer", color:item.color, transition:"color 0.15s", whiteSpace:"nowrap" }}>
               {item.label}
             </span>
@@ -3213,6 +3239,44 @@ export default function App() {
               </div>
           }
         </div>
+
+        {/* Mobile: hamburger button */}
+        <button className="nav-hamburger" onClick={()=>setMobileMenuOpen(o=>!o)}
+          style={{ display:"none", background:"none", border:"none", cursor:"pointer", padding:"8px", flexDirection:"column", gap:"5px", alignItems:"center", justifyContent:"center" }}
+          aria-label="Menu">
+          <span style={{ display:"block", width:"22px", height:"2px", background:"#1A00B9", transition:"all 0.25s", transform: mobileMenuOpen ? "rotate(45deg) translate(0px, 7px)" : "none" }}/>
+          <span style={{ display:"block", width:"22px", height:"2px", background:"#1A00B9", transition:"all 0.25s", opacity: mobileMenuOpen ? 0 : 1 }}/>
+          <span style={{ display:"block", width:"22px", height:"2px", background:"#1A00B9", transition:"all 0.25s", transform: mobileMenuOpen ? "rotate(-45deg) translate(0px, -7px)" : "none" }}/>
+        </button>
+
+        {/* Mobile menu drawer — absolute from nav bottom so it always sits right under the nav */}
+        {mobileMenuOpen && (
+          <div style={{ position:"absolute", top:"60px", left:0, right:0, zIndex:48, background:"#fff", borderBottom:"2px solid #1A00B9", padding:"8px 0 24px", boxShadow:"0 8px 32px rgba(0,0,0,0.12)" }}>
+            {[
+              { label:"Find My Pro ✨", action:()=>{ goTo("matchMe"); setMobileMenuOpen(false); } },
+              { label:"About", action:()=>{ goTo("about"); setMobileMenuOpen(false); } },
+              { label:"+ Refer a Pro", action:()=>{ goTo("recommend"); setMobileMenuOpen(false); } },
+              ...(savedPros.length>0 ? [{ label:`❤️ Saved (${savedPros.length})`, action:()=>{ setShowShortlist(true); setMobileMenuOpen(false); } }] : []),
+            ].map((item,i)=>(
+              <button key={i} onClick={item.action}
+                style={{ display:"block", width:"100%", background:"none", border:"none", borderBottom:"1px solid #f0eef8", padding:"15px 24px", fontSize:"15px", fontWeight:"700", color:"#333", cursor:"pointer", textAlign:"left", fontFamily:"sans-serif" }}>
+                {item.label}
+              </button>
+            ))}
+            <div style={{ display:"flex", gap:"10px", padding:"16px 24px 0" }}>
+              {loggedInPro
+                ? <button onClick={()=>{ goTo("dashboard"); setMobileMenuOpen(false); }}
+                    style={{ flex:1, background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"13px", fontSize:"13px", fontWeight:"800", cursor:"pointer", fontFamily:"sans-serif", boxShadow:"3px 3px 0 #B7CF4F" }}>My Dashboard ✦</button>
+                : <>
+                    <button onClick={()=>{ goTo("dashboard"); setMobileMenuOpen(false); }}
+                      style={{ flex:1, background:"#fff", color:"#1A00B9", border:"1.5px solid #1A00B9", borderRadius:"30px", padding:"13px", fontSize:"13px", fontWeight:"800", cursor:"pointer", fontFamily:"sans-serif" }}>Sign In</button>
+                    <button onClick={()=>{ goTo("join"); setMobileMenuOpen(false); }}
+                      style={{ flex:1, background:"#1A00B9", color:"#fff", border:"none", borderRadius:"30px", padding:"13px", fontSize:"13px", fontWeight:"800", cursor:"pointer", fontFamily:"sans-serif", boxShadow:"3px 3px 0 #B7CF4F" }}>Join Free ✦</button>
+                  </>
+              }
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* PRO+ SUCCESS (redirect back from Stripe) */}
