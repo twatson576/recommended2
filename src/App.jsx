@@ -3341,7 +3341,6 @@ export default function App() {
           {/* ── HERO ── */}
           <div className="hero-pad" style={{ background:"#fff", padding:"80px 40px 72px", borderBottom:"1px solid #f0eef8" }}>
             <div style={{ maxWidth:"780px", margin:"0 auto", textAlign:"center" }}>
-              <div style={{ display:"inline-block", background:"#B7CF4F", border:"1.5px solid #1A00B9", borderRadius:"6px", padding:"4px 14px", fontSize:"11px", fontWeight:"800", letterSpacing:"1.5px", textTransform:"uppercase", marginBottom:"24px", color:"#1A00B9" }}>Community Powered ✦ Now Accepting Pros</div>
               <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(42px,7vw,88px)", fontWeight:"900", lineHeight:0.95, margin:"0 0 8px", letterSpacing:"-3px", color:"#0a0a0a" }}>the directory</h1>
               <h1 style={{ fontFamily:"Georgia,serif", fontSize:"clamp(42px,7vw,88px)", fontWeight:"900", lineHeight:1, margin:"0 0 24px", letterSpacing:"-3px", color:"#0a0a0a" }}>for the beauty <span style={{ background:"#9B8AFB", padding:"0 12px", display:"inline-block", color:"#fff", fontStyle:"italic" }}>PROs.</span></h1>
               <p style={{ fontSize:"clamp(15px,2vw,18px)", color:"#555", margin:"0 auto 36px", maxWidth:"520px", lineHeight:"1.7" }}>Your clients are already talking about you. Claim your profile, collect referrals, and get discovered by clients who trust community over ads.</p>
