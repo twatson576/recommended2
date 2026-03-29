@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(node -e \":*)",
+      "Bash(git push:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where npm:*)",
+      "Bash(ls \"C:/Users/terri/OneDrive/Desktop/recommended-deploy/node_modules/.bin/vite\"*)",
+      "Bash(grep -n \"publicProfile\\\\|</div>\\\\s*$\\\\|^  \\);\\\\s*$\\\\|^}\" /c/Users/terri/OneDrive/Desktop/recommended-deploy/src/App.jsx)"
     ]
   }
 }
